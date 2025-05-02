@@ -8,6 +8,9 @@
         <option value="$PROJECT_DIR$/music/pom.xml" />
         <option value="$PROJECT_DIR$/common/pom.xml" />
         <option value="$PROJECT_DIR$/user/pom.xml" />
+        <option value="$PROJECT_DIR$/movie/pom.xml" />
+        <option value="$PROJECT_DIR$/circle/pom.xml" />
+        <option value="$PROJECT_DIR$/social/pom.xml" />
       </list>
     </option>
   </component>

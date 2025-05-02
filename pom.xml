@@ -13,7 +13,10 @@
     <modules>
         <module>common</module>
         <module>music</module>
+        <module>movie</module>
         <module>user</module>
+        <module>circle</module>
+        <module>social</module>
     </modules>
 
     <!-- 统一属性配置 -->
@@ -144,6 +147,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback-classic.version}</version> <!-- 与 Spring Boot 3.4.5 兼容 -->
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-websocket</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

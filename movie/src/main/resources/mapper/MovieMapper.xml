@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.player.movie.mapper.MovieMapper">
+
+    <sql id="recordSql">
+        (
+            movie_id,
+            director,
+            star,
+            `type`,
+            country_language,
+            viewing_state,
+            release_time,
+            plot,
+            update_time,
+            movie_name,
+            is_recommend,
+            img,classify,
+            source_name,
+            source_url,
+            create_time,
+            local_img,
+            label,
+            original_href,
+            description,
+            target_href,
+            use_status,
+            score,
+            category,
+            ranks,
+            user_id,
+            douban_url
+            )VALUES(
+            #{movieId},
+             #{director},
+            #{star},
+            #{type},
+            #{countryLanguage},
+            #{viewingState},
+            #{releaseTime},
+            #{plot},
+            #{updateTime},
+            #{movieName},
+            #{isRecommend},
+            #{img},
+            #{classify},
+            #{sourceName},
+            #{sourceUrl},
+            #{createTime},
+            #{localImg},
+            #{label},
+            #{originalHref},
+            #{description},
+            #{targetHref},
+            #{useStatus},
+            #{score},
+            #{category},
+            #{ranks},
+            #{userId},
+            #{doubanUrl})
+    </sql>
+
+    <select id="findClassify"  resultType="Map">
+        SELECT classify FROM movie GROUP BY classify
+    </select>
+
+    <select id="getKeyWord"  resultType="MovieEntity">
+        SELECT * FROM movie_network WHERE is_recommend = '1' AND classify = #{classify} LIMIT 1
+    </select>
+
+    <select id="getMyUserData"  resultType="com.player.common.entity.UserEntity">
+        SELECT user_id,create_date,update_date,username,telephone,email,avater,birthday,sex,role,sign,region from  user WHERE user_id = #{userId}
+    </select>
+
+    <select id="getUserMsg"  resultType="Map">
+        SELECT CAST(u.userAge as char) AS userAge,CAST(r.viewRecordCount AS char) AS viewRecordCount,CAST(p.playRecordCount AS char) AS playRecordCount,CAST(f.favoriteCount AS char) AS favoriteCount FROM (
+            (SELECT TIMESTAMPDIFF(DAY,a.create_date,now()) as userAge from user a where user_id= #{userId}) u,
+            (SELECT count(*) as viewRecordCount FROM movie_view_record WHERE user_id = #{userId} )r,
+            (SELECT count(*) as playRecordCount FROM movie_play_record WHERE user_id = #{userId}) p,
+            (SELECT count(*) as favoriteCount FROM movie_favorite WHERE user_id = #{userId} ) f)
+    </select>
+
+    <select id="getAllCategoryByClassify" resultType="Map">
+        SELECT category,classify FROM movie_category WHERE category != '轮播' AND classify = #{classify} ORDER BY update_time ASC
+    </select>
+
+    <select id="getAllCategoryListByPageName" resultType="Map">
+        SELECT category,classify FROM movie_category WHERE page_name = #{pageName} AND category != '轮播' AND status = '1' order by update_time asc
+    </select>
+
+    <select id="getCategoryList" resultType="MovieEntity">
+        SELECT * FROM movie_network WHERE category = #{category} AND classify = #{classify}
+    </select>
+
+    <select id="getTopMovieList" resultType="MovieEntity">
+        SELECT * FROM movie_network WHERE classify = #{classify}
+        <if test="category != '' and category != null">
+            and classify = #{classify}
+        </if>
+        order by create_time desc
+        limit 0,20
+    </select>
+
+    <sql id="search_where">
+         WHERE 1 = 1
+        <if test="classify != '' and classify != null">
+            and classify = #{classify}
+        </if>
+        <if test="category != '' and category != null">
+            and category = #{category}
+        </if>
+        <if test="label != '' and label != null">
+            and label like CONCAT('%',#{label},'%')
+        </if>
+        <if test="star != '' and star != null">
+            and star like CONCAT('%',#{star},'%')
+        </if>
+        <if test="director != '' and director != null">
+            and director like CONCAT('%',#{director},'%')
+        </if>
+        <if test="keyword != '' and keyword != null">
+            and movie_name like CONCAT('%',#{keyword},'%') OR star like CONCAT('%',#{keyword},'%') OR director like CONCAT('%',#{keyword},'%') OR director like CONCAT('%',#{keyword},'%')  OR type like CONCAT('%',#{keyword},'%')
+        </if>
+    </sql>
+
+    <select id="search" resultType="MovieEntity">
+        SELECT * FROM movie
+        <include refid="search_where"></include>
+        ORDER BY update_time DESC limit #{start}, #{pageSize}
+    </select>
+
+    <select id="searchTotal" resultType="Long">
+        SELECT count(*) as total FROM movie
+        <include refid="search_where"></include>
+    </select>
+
+
+    <insert id="log" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.player.common.entity.LogEntity">
+       INSERT INTO log(method,url,headers,ip,params,query_string,result,start_time,run_time,description,end_time,type,oparation,user_id)VALUES(#{method},#{url},#{headers},#{ip},#{params},#{queryString},#{result},#{startTime},#{runTime},#{description},#{endTime},#{type},#{oparation},#{userId})
+    </insert>
+
+    <select id="getStar" resultType="MovieStarEntity">
+       SELECT * FROM movie_stars WHERE movie_id = #{movieId}
+    </select>
+
+    <select id="getMovieUrl" resultType="MovieUrlEntity">
+       SELECT * FROM movie_url WHERE movie_id = #{movieId}
+    </select>
+
+    <insert id="saveViewRecord" parameterType="MovieEntity" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        INSERT INTO movie_view_record(movie_id,user_id,create_time,update_time)VALUES (#{id},#{userId},now(),now()) ON DUPLICATE KEY UPDATE movie_id= #{movieId}
+    </insert>
+
+    <select id="getPlayRecord" resultType="MovieEntity">
+        SELECT m.* FROM movie m,movie_play_record r WHERE m.id = r.movie_id AND r.user_id = #{userId} ORDER BY r.create_time DESC LIMIT ${start},${pageSize}
+    </select>
+
+    <insert id="savePlayRecord" parameterType="MovieEntity" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        INSERT INTO movie_play_record(movie_id,user_id,create_time,update_time)VALUES (#{id},#{userId},now(),now()) ON DUPLICATE KEY UPDATE movie_id= #{id}
+    </insert>
+
+    <select id="getFavoriteList" resultType="MovieEntity">
+        SELECT m.* FROM movie m,movie_favorite f WHERE m.id = f.movie_id AND f.user_id = #{userId} ORDER BY f.create_time DESC LIMIT #{start},#{pageSize}
+    </select>
+
+    <insert id="saveFavorite" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        INSERT INTO movie_favorite(movie_id,user_id,create_time,update_time) SELECT #{movieId},#{userId},NOW(),NOW() FROM DUAL WHERE NOT EXISTS (SELECT * FROM movie_favorite WHERE movie_id = #{movieId} and user_id = #{userId})
+    </insert>
+
+    <delete id="deleteFavorite">
+        DELETE FROM movie_favorite WHERE user_id =#{userId} AND movie_id=#{movieId}
+    </delete>
+
+    <select id="isFavorite" resultType="Long">
+        SELECT COUNT(*) as total FROM movie_favorite WHERE user_id=#{userId} AND movie_id = #{movieId}
+    </select>
+
+    <select id="getYourLikes" resultType="MovieEntity">
+        SELECT * FROM movie WHERE
+        <foreach collection="labels" item="item" index="index" open="(" separator="or" close=")">
+            label LIKE CONCAT('%',TRIM(#{item}),'%')
+        </foreach>
+        AND classify = #{classify}
+        ORDER BY create_time DESC LIMIT 0,10
+    </select>
+
+    <select id="getRecommend" resultType="MovieEntity">
+        SELECT * FROM movie WHERE classify = #{classify} ORDER BY create_time DESC LIMIT 0,20
+    </select>
+
+    <select id="getViewRecord" resultType="MovieEntity">
+        SELECT m.* FROM movie m,movie_view_record f WHERE m.id = f.movie_id AND f.user_id = #{userId} ORDER BY f.create_time DESC LIMIT #{start},#{pageSize}
+    </select>
+
+    <select id="getMovieDetail" resultType="MovieEntity">
+        SELECT * FROM movie WHERE movie_id = #{movieId}
+    </select>
+
+    <select id="getMovieListByType" resultType="MovieEntity">
+        SELECT * FROM movie WHERE
+        <foreach collection="types" item="item" index="index" open="(" separator="or" close=")">
+            type LIKE CONCAT('%',TRIM(#{item}),'%')
+        </foreach>
+        AND classify = #{classify}
+        ORDER BY create_time DESC LIMIT 0,10
+    </select>
+
+    <select id="getSearchHistory" resultType="com.player.common.entity.SearchHistory">
+        SELECT * FROM search_history WHERE user_id = #{userId} and `type` = #{type} order by create_time desc limit LIMIT #{start},#{pageSize}
+    </select>
+
+    <select id="getSearchHistoryTotal" resultType="com.player.common.entity.SearchHistory">
+        SELECT count(id) as total FROM search_history WHERE user_id = #{userId} and `type` = #{type}
+    </select>
+</mapper>
+

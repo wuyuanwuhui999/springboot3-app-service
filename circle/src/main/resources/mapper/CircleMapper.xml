@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.player.circle.mapper.CircleMapper">
+
+    <select id="getCircleCount" resultType="Long">
+        SELECT COUNT(id) FROM circle WHERE `type` = #{type}
+    </select>
+
+    <resultMap id="getCircleListAssociation" type="CircleEntity">
+        <id property="id" column="id" javaType="Long" />
+        <result property="relationId" column="relation_id" javaType="Long"/>
+        <result property="content" column="content" javaType="String"/>
+        <result property="imgs" column="imgs" javaType="String"/>
+        <result property="type" column="type" javaType="String"/>
+        <result property="userId" column="user_id" javaType="String"/>
+        <result property="username" column="username" javaType="String"/>
+        <result property="useravater" column="useravater" javaType="String"/>
+        <result property="createTime" column="create_time" javaType="Date"/>
+        <result property="updateTime" column="update_time" javaType="Date"/>
+        <result property="musicSongName" column="music_song_name" javaType="String"/>
+        <result property="musicAudioId" column="music_audio_id" javaType="String"/>
+        <result property="musicAuthorName" column="music_author_name" javaType="String"/>
+        <result property="musicAlbumName" column="music_album_name" javaType="String"/>
+        <result property="musicCover" column="music_cover" javaType="String"/>
+        <result property="musicPlayUrl" column="music_play_url" javaType="String"/>
+        <result property="musicLocalPlayUrl" column="music_local_play_url" javaType="String"/>
+        <result property="musicLyrics" column="music_lyrics" javaType="String"/>
+        <result property="movieId" column="movie_id" javaType="int"/>
+        <result property="movieName" column="movie_mame" javaType="String"/>
+        <result property="movieDirector" column="movie_director" javaType="String"/>
+        <result property="movieStar" column="movie_star" javaType="String"/>
+        <result property="movieType" column="movie_type" javaType="String"/>
+        <result property="movieCountryLanguage" column="movie_country_language" javaType="String"/>
+        <result property="movieViewingState" column="movie_viewing_state" javaType="String"/>
+        <result property="movieReleaseTime" column="movie_release_time" javaType="String"/>
+        <result property="movieDirector" column="movie_director" javaType="String"/>
+        <result property="movieImg" column="movie_img" javaType="String"/>
+        <result property="movieClassify" column="movie_classify" javaType="String"/>
+        <result property="movieLocalImg" column="movie_local_img" javaType="String"/>
+        <result property="movieScore" column="movie_score" javaType="String"/>
+        <association property="circleLikes"  column="id" select="getCircleLikeByCircleId"/>
+        <association property="circleComments"  column="id" select="getSocialCommentByCircleId"/>
+    </resultMap>
+
+    <select id="getCircleListByType"  resultMap="getCircleListAssociation">
+        SELECT
+        c.id,
+        c.relation_id,
+        c.content,
+        c.imgs,
+        c.type,
+        c.user_id,
+        c.create_time,
+        c.update_time,
+        <if test="type == 'MUSIC'">
+            m.song_name as music_song_name,
+            m.audio_id as music_audio_id,
+            m.author_name as music_author_name,
+            m.album_name as music_album_name,
+            m.cover as music_cover,
+            case when 0 >= m.permission then m.play_url else null end as music_play_url,
+            case when 0 >= m.permission then m.local_play_url else null end as music_local_play_url,
+            case when 0 >= m.permission then m.lyrics else null end as music_lyrics,
+        </if>
+
+        <if test="type == 'MOVIE'">
+            o.movie_id,
+            o.movie_name,
+            o.director as movie_director,
+            o.star as movie_star,
+            o.type as movie_type,
+            o.country_language as movie_country_language,
+            o.viewing_state as movie_country_viewing_state,
+            o.release_time as movie_country_release_time,
+            o.img as movie_img,
+            o.classify as movie_classify,
+            o.local_img as movie_local_img,
+            o.score as movie_score,
+        </if>
+        u.username,
+        u.avater as useravater
+        FROM circle c
+        LEFT JOIN user u on c.user_id = u.id
+        <if test="type=='MUSIC'">
+            LEFT JOIN music m on c.relation_id = m.id
+        </if>
+        <if test="type=='MOVIE'">
+            LEFT JOIN movie o on c.relation_id = o.id
+        </if>
+        where c.type = #{type} and c.permission = 1 ORDER BY c.create_time DESC limit #{start}, #{pageSize}
+    </select>
+
+    <select id="getCircleArticleCount" resultType="Map">
+        SELECT CAST(c.commentCount as char) AS commentCount,CAST(f.favoriteCount AS char) AS favoriteCount,CAST(v.viewCount AS char) AS viewCount
+        FROM(
+            (SELECT count(*) as commentCount FROM comment WHERE type = "circle" and relation_id = #{id}) c,
+            (SELECT count(*) as favoriteCount FROM circle_favorite WHERE circle_id = #{id}) f,
+            (SELECT count(distinct user_id) as viewCount FROM circle_record WHERE circle_id = #{id}) v
+        )
+    </select>
+
+    <insert id="insertLog"  useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        INSERT INTO circle_record(circle_id,user_id,create_time,update_time) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.circleId},#{item.userId},now(),now())
+        </foreach>
+    </insert>
+
+    <insert id="insertCircle" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        INSERT INTO circle(content,imgs,relation_id,`type`,user_id,permission,create_time,update_time) VALUE (#{content},#{imgs},#{relationId},#{type},#{userId},#{permission},now(),now())
+    </insert>
+
+    <select id="getCircleLikeByCircleId" resultMap="getCircleLikeMap">
+        SELECT c.*,u.username FROM social_like c LEFT JOIN user u on c.user_id = u.id where c.relation_id = #{id} and c.type = 'MUSIC_CIRCLE'
+    </select>
+
+    <resultMap id="getCircleLikeMap" type="com.player.common.entity.LikeEntity">
+        <id property="id" column="id" javaType="Long" />
+        <result property="type" column="type" javaType="String"/>
+        <result property="userId" column="user_id" javaType="String"/>
+        <result property="username" column="username" javaType="String"/>
+        <result property="relationId" column="relation_id" javaType="Long"/>
+        <result property="createTime" column="create_time" javaType="Date"/>
+        <result property="updateTime" column="update_time" javaType="Date"/>
+    </resultMap>
+
+    <select id="getSocialCommentByCircleId" resultMap="getCommentListAssociation">
+        SELECT
+            t6.*,
+            t7.cnt AS reply_count
+        FROM
+            (
+            SELECT
+                t4.*,
+                t5.username AS reply_user_name
+            FROM
+                (
+                SELECT
+                    t1.*,
+                    t2.username,
+                    t2.avater,
+                    t3.user_id AS reply_user_id
+                FROM
+                    social_comment t1
+                    LEFT JOIN user t2 ON t1.user_id = t2.id
+                    LEFT JOIN social_comment t3 ON t1.parent_id = t3.id
+                WHERE
+                    t1.relation_id = #{id}
+                    AND t1.top_id IS NULL
+                    AND t1.type = 'MUSIC_CIRCLE'
+                ) t4
+                LEFT JOIN user t5 ON t4.reply_user_id = t5.id
+            ) t6,
+            ( SELECT parent_id, count( parent_id ) AS cnt FROM social_comment  WHERE parent_id IS NOT NULL GROUP BY parent_id ) t7
+        WHERE
+            t6.id = t7.parent_id
+    </select>
+
+    <resultMap id="getCommentListAssociation" type="com.player.common.entity.CommentEntity">
+        <id property="id" column="id" javaType="Long" />
+        <result property="content" column="content" javaType="String"/>
+        <result property="parentId" column="parent_id" javaType="Long"/>
+        <result property="topId" column="top_id" javaType="Long"/>
+        <result property="relationId" column="relation_id" javaType="Long"/>
+        <result property="type" column="type" javaType="String"/>
+        <result property="createTime" column="create_time" javaType="Date"/>
+        <result property="updateTime" column="update_time" javaType="Date"/>
+        <result property="replyCount" column="reply_count" javaType="int"/>
+        <result property="userId" column="user_id" javaType="String"/>
+        <result property="username" column="username" javaType="String"/>
+        <result property="avater" column="avater" javaType="String"/>
+        <result property="replyUserId" column="reply_user_id" javaType="String"/>
+        <result property="replyUserName" column="reply_username" javaType="String"/>
+        <association property="replyList"  column="id" select="getSocialReplyParentId"/>
+    </resultMap>
+
+    <select id="getSocialReplyParentId" resultType="com.player.common.entity.CommentEntity">
+        SELECT t6.* from
+            (SELECT
+                t4.*,
+                t5.username AS reply_user_name
+            FROM
+                (
+                SELECT
+                    t1.*,
+                    t2.username,
+                    t2.avater,
+                    t3.user_id AS reply_user_id
+                FROM
+                    social_comment t1
+                    LEFT JOIN user t2 ON t1.user_id = t2.id
+                    LEFT JOIN social_comment t3 ON t1.parent_id = t3.id
+                WHERE
+                    t1.parent_id = #{id}
+                ) t4
+                LEFT JOIN user t5 ON t4.reply_user_id = t5.id)t6
+            ORDER BY t6.create_time DESC limit 0 ,5
+    </select>
+
+    <select id="getCircleByLastUpdateTime"  resultType="Long">
+        SELECT COUNT(id) FROM circle WHERE `type` = #{type} and create_time > #{lastUpdateTime}
+    </select>
+</mapper>
+

@@ -7,16 +7,22 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="common" />
-        <module name="user" />
         <module name="music" />
+        <module name="common" />
+        <module name="movie" />
+        <module name="circle" />
+        <module name="user" />
+        <module name="social" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="circle" options="-parameters" />
       <module name="common" options="" />
+      <module name="movie" options="-parameters" />
       <module name="music" options="-parameters" />
+      <module name="social" options="-parameters" />
       <module name="user" options="-parameters" />
     </option>
   </component>

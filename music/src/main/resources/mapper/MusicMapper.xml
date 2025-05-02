@@ -132,7 +132,7 @@
         GROUP BY t5.author_id,t4.id
     </select>
 
-    <insert id="insertFavoriteAuthor">
+    <insert id="insertFavoriteAuthor" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         INSERT INTO music_author_like (author_id,create_time,update_time,user_id) VALUES (#{authorId},now(),now(),#{userId})
     </insert>
 
@@ -185,11 +185,11 @@
             ) t4
     </select>
 
-    <insert id="insertMusicRecord" parameterType="MusicRecordEntity">
+    <insert id="insertMusicRecord" parameterType="MusicRecordEntity" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         insert into music_record (music_id,user_id,platform,version,device,create_time,update_time) VALUES (#{musicId},#{userId},#{platform},#{version},#{device},now(),now())
     </insert>
 
-    <insert id="insertMusicLike">
+    <insert id="insertMusicLike" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         insert into music_like (music_id,user_id,create_time,update_time) VALUES (#{musicId},#{userId},now(),now())
     </insert>
 
@@ -317,14 +317,14 @@
         DELETE FROM music_favorite_list WHERE favorite_id IN (SELECT id FROM music_favorite_directory WHERE user_id = #{userId}) and favorite_id = #{favoriteId}
     </delete>
 
-    <insert id="insertMusicFavorite">
+    <insert id="insertMusicFavorite" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         INSERT INTO music_favorite_list(music_id,favorite_id,create_time,update_time)
         <foreach collection="list" separator="union all" item="item">
             select #{item.musicId},#{item.favoriteId},now(),now() FROM dual WHERE EXISTS (SELECT * FROM music_favorite_directory WHERE user_id = #{item.userId} and id = #{item.favoriteId})
         </foreach>
     </insert>
 
-    <insert id="saveLog">
+    <insert id="saveLog" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         INSERT INTO log(`method`,`url`,`headers`,`ip`,`params`,`query_string`,`result`,`start_time`,`run_time`,`description`,`end_time`,`oparation`,`type`,`user_id`,`app_id`,`app_name`) values (#{method},#{url},#{headers},#{ip},#{params},#{queryString},#{result},#{startTime},#{runTime},#{description},#{endTime},#{oparation},#{type},#{userId},#{appId},#{appName})
     </insert>
 </mapper>
