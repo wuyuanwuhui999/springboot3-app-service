@@ -8,7 +8,6 @@ import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
 import com.player.music.service.IMusicService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,22 +18,22 @@ import java.util.List;
 @RequestMapping("/service")
 public class MusicController {
     @Autowired
-    private IMusicService myMusicService;
+    private IMusicService musicService;
 
     //    @ApiOperation("获取搜索框默认推荐音乐")
-    @GetMapping("/myMusic/getKeywordMusic")
+    @GetMapping("/music/getKeywordMusic")
     public ResultEntity getKeywordMusic(HttpServletRequest request,@RequestHeader("Authorization") String token) {
-        return myMusicService.getKeywordMusic(HttpUtils.getFullRequestPath(request));
+        return musicService.getKeywordMusic(HttpUtils.getFullRequestPath(request));
     }
 
     //    @ApiOperation("获取音乐分类")
-    @GetMapping("/myMusic/getMusicClassify")
+    @GetMapping("/music/getMusicClassify")
     public ResultEntity getClassifyMusic(HttpServletRequest request) {
-        return myMusicService.getMusicClassify(HttpUtils.getFullRequestPath(request));
+        return musicService.getMusicClassify(HttpUtils.getFullRequestPath(request));
     }
 
     //    @ApiOperation("获取推荐音乐列表,isRedis表示是否从redis中获取数据")
-    @GetMapping("/myMusic/getMusicListByClassifyId")
+    @GetMapping("/music/getMusicListByClassifyId")
     public ResultEntity getMusicListByClassifyId(
             HttpServletRequest request,
             @RequestParam(name = "classifyId",required = true) int classifyId,
@@ -43,11 +42,11 @@ public class MusicController {
             @RequestParam(name = "isRedis",defaultValue = "0",required = false) int isRedis,
             @RequestHeader(required = false, value = "Authorization") String token
     ) {
-        return myMusicService.getMusicListByClassifyId(HttpUtils.getFullRequestPath(request), classifyId, pageNum, pageSize, isRedis != 0, token);
+        return musicService.getMusicListByClassifyId(HttpUtils.getFullRequestPath(request), classifyId, pageNum, pageSize, isRedis != 0, token);
     }
 
     //    @ApiOperation("获取歌手")
-    @GetMapping("/myMusic/getMusicAuthorListByCategoryId")
+    @GetMapping("/music/getMusicAuthorListByCategoryId")
     public ResultEntity getMusicAuthorListByCategoryId(
             HttpServletRequest request,
             @RequestHeader(value = "Authorization",required = false) String token,
@@ -55,11 +54,11 @@ public class MusicController {
             @RequestParam(name = "pageSize",required = true) int pageSize,
             @RequestParam(name = "categoryId",required = true) int categoryId
     ) {
-        return myMusicService.getMusicAuthorListByCategoryId(HttpUtils.getFullRequestPath(request),token, categoryId, pageNum, pageSize);
+        return musicService.getMusicAuthorListByCategoryId(HttpUtils.getFullRequestPath(request),token, categoryId, pageNum, pageSize);
     }
 
     //    @ApiOperation("获取歌手专辑")
-    @GetMapping("/myMusic/getMusicListByAuthorId")
+    @GetMapping("/music/getMusicListByAuthorId")
     public ResultEntity getMusicListByAuthorId(
             HttpServletRequest request,
             @RequestHeader(value = "Authorization",required = false) String token,
@@ -67,175 +66,175 @@ public class MusicController {
             @RequestParam(name = "pageSize",required = true) int pageSize,
             @RequestParam(name = "authorId",required = true) int authorId
     ) {
-        return myMusicService.getMusicListByAuthorId(HttpUtils.getFullRequestPath(request),token, authorId, pageNum, pageSize);
+        return musicService.getMusicListByAuthorId(HttpUtils.getFullRequestPath(request),token, authorId, pageNum, pageSize);
     }
 
     //    @ApiOperation("获取我关注的歌手")
-    @GetMapping("/myMusic-getway/getFavoriteAuthor")
+    @GetMapping("/music/getFavoriteAuthor")
     public ResultEntity getFavoriteAuthor(
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize
     ) {
-        return myMusicService.getFavoriteAuthor(token,pageNum,pageSize);
+        return musicService.getFavoriteAuthor(token,pageNum,pageSize);
     }
 
     //    @ApiOperation("获取我关注的歌手")
-    @PostMapping("/myMusic-getway/insertFavoriteAuthor/{authorId}")
+    @PostMapping("/music/insertFavoriteAuthor/{authorId}")
     public ResultEntity insertFavoriteAuthor(
             @RequestHeader("Authorization") String token,
             @PathVariable(name = "authorId",required = true) int authorId
     ) {
-        return myMusicService.insertFavoriteAuthor(token,authorId);
+        return musicService.insertFavoriteAuthor(token,authorId);
     }
 
     //    @ApiOperation("获取我关注的歌手")
-    @DeleteMapping("/myMusic-getway/deleteFavoriteAuthor/{authorId}")
+    @DeleteMapping("/music/deleteFavoriteAuthor/{authorId}")
     public ResultEntity deleteFavoriteAuthor(
             @RequestHeader("Authorization") String token,
             @PathVariable(name = "authorId",required = true) int authorId
     ) {
-        return myMusicService.deleteFavoriteAuthor(token,authorId);
+        return musicService.deleteFavoriteAuthor(token,authorId);
     }
 
     //    @ApiOperation("获取最近播放的歌曲")
-    @GetMapping("/myMusic-getway/getMusicRecord")
+    @GetMapping("/music/getMusicRecord")
     public ResultEntity getMusicRecord(
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize
     ) {
-        return myMusicService.getMusicRecord(token,pageNum,pageSize);
+        return musicService.getMusicRecord(token,pageNum,pageSize);
     }
 
     //    @ApiOperation("插入播放记录")
-    @PostMapping("/myMusic-getway/insertMusicRecord")
+    @PostMapping("/music/insertMusicRecord")
     public ResultEntity insertMusicRecord(
             @RequestHeader("Authorization") String token,
             @RequestBody MusicRecordEntity musicRecordEntity
     ) {
-        return myMusicService.insertMusicRecord(token,musicRecordEntity);
+        return musicService.insertMusicRecord(token,musicRecordEntity);
     }
 
     //    @ApiOperation("插入音乐收藏")
-    @PostMapping("/myMusic-getway/insertMusicLike/{id}")
+    @PostMapping("/music/insertMusicLike/{id}")
     public ResultEntity insertMusicLike(
             @RequestHeader("Authorization") String token,
             @PathVariable("id") int id
     ) {
-        return myMusicService.insertMusicLike(token,id);
+        return musicService.insertMusicLike(token,id);
     }
 
     //    @ApiOperation("删除音乐收藏")
-    @DeleteMapping("/myMusic-getway/deleteMusicLike/{id}")
+    @DeleteMapping("/music/deleteMusicLike/{id}")
     public ResultEntity deleteMusicLike(
             @RequestHeader("Authorization") String token,
             @PathVariable("id") int id
     ) {
-        return myMusicService.deleteMusicLike(token,id);
+        return musicService.deleteMusicLike(token,id);
     }
 
     //    @ApiOperation("查询音乐收藏")
-    @GetMapping("/myMusic-getway/getMusicLike")
+    @GetMapping("/music/getMusicLike")
     public ResultEntity getMusicLike(
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize
     ) {
-        return myMusicService.getMusicLike(token,pageNum,pageSize);
+        return musicService.getMusicLike(token,pageNum,pageSize);
     }
 
     //    @ApiOperation("查询音乐收藏")
-    @GetMapping("/myMusic/searchMusic")
+    @GetMapping("/music/searchMusic")
     public ResultEntity searchMusic(
             @RequestHeader(name = "Authorization",required = false) String token,
             @RequestParam(name = "keyword",required = true) String keyword,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize
     ) {
-        return myMusicService.searchMusic(token,keyword,pageNum,pageSize);
+        return musicService.searchMusic(token,keyword,pageNum,pageSize);
     }
 
     //    @ApiOperation("获取歌手分类")
-    @GetMapping("/myMusic/getMusicAuthorCategory")
+    @GetMapping("/music/getMusicAuthorCategory")
     public ResultEntity getMusicAuthorCategory(
             HttpServletRequest request
     ) {
-        return myMusicService.getMusicAuthorCategory(HttpUtils.getFullRequestPath(request));
+        return musicService.getMusicAuthorCategory(HttpUtils.getFullRequestPath(request));
     }
 
     //    @ApiOperation("查询音乐收藏")
-    @GetMapping("/myMusic-getway/insertMusicRecord")
+    @GetMapping("/music/insertMusicRecord")
     public ResultEntity insertMusicRecord(
             HttpServletRequest request
     ) {
-        return myMusicService.getMusicAuthorCategory(HttpUtils.getFullRequestPath(request));
+        return musicService.getMusicAuthorCategory(HttpUtils.getFullRequestPath(request));
     }
 
     //    @ApiOperation("查询收藏夹列表")
-    @GetMapping("/myMusic-getway/getFavoriteDirectory")
+    @GetMapping("/music/getFavoriteDirectory")
     public ResultEntity getFavoriteDirectory(
             @RequestParam(name = "musicId",required = true) Long musicId,
             @RequestHeader(name = "Authorization",required = true) String token
     ) {
-        return myMusicService.getFavoriteDirectory(token,musicId);
+        return musicService.getFavoriteDirectory(token,musicId);
     }
 
     //    @ApiOperation("创建收藏夹")
-    @PostMapping("/myMusic-getway/insertFavoriteDirectory")
+    @PostMapping("/music/insertFavoriteDirectory")
     public ResultEntity insertFavoriteDirectory(
             @RequestBody MusicFavoriteDirectoryEntity favoriteDirectoryEntity,
             @RequestHeader(name = "Authorization",required = false) String token
     ) {
-        return myMusicService.insertFavoriteDirectory(token,favoriteDirectoryEntity);
+        return musicService.insertFavoriteDirectory(token,favoriteDirectoryEntity);
     }
 
     //    @ApiOperation("删除收藏夹")
-    @DeleteMapping("/myMusic-getway/deleteFavoriteDirectory/{favoriteId}")
+    @DeleteMapping("/music/deleteFavoriteDirectory/{favoriteId}")
     public ResultEntity deleteFavoriteDirectory(
             @PathVariable("favoriteId") Long favoriteId,
             @RequestHeader(name = "Authorization",required = false) String token
     ) {
-        return myMusicService.deleteFavoriteDirectory(token,favoriteId);
+        return musicService.deleteFavoriteDirectory(token,favoriteId);
     }
 
     //    @ApiOperation("查询收藏夹音乐")
-    @GetMapping("/myMusic-getway/getMusicListByFavoriteId")
+    @GetMapping("/music/getMusicListByFavoriteId")
     public ResultEntity getMusicListByFavoriteId(
             @RequestParam(name = "favoriteId",required = true) Long favoriteId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
             @RequestHeader(name = "Authorization",required = true) String token
     ) {
-        return myMusicService.getMusicListByFavoriteId(token,favoriteId,pageNum,pageSize);
+        return musicService.getMusicListByFavoriteId(token,favoriteId,pageNum,pageSize);
     }
 
     //    @ApiOperation("更新收藏夹名称")
-    @PutMapping("/myMusic-getway/updateFavoriteDirectory")
+    @PutMapping("/music/updateFavoriteDirectory")
     public ResultEntity updateFavoriteDirectory(
             @RequestBody MusicFavoriteDirectoryEntity favoriteDirectoryEntity,
             @RequestHeader(name = "Authorization",required = false) String token
     ) {
-        return myMusicService.updateFavoriteDirectory(token,favoriteDirectoryEntity.getId(),favoriteDirectoryEntity.getName());
+        return musicService.updateFavoriteDirectory(token,favoriteDirectoryEntity.getId(),favoriteDirectoryEntity.getName());
     }
 
     //    @ApiOperation("查询音乐收藏")
-    @GetMapping("/myMusic-getway/isMusicFavorite/{musicId}")
+    @GetMapping("/music/isMusicFavorite/{musicId}")
     public ResultEntity isMusicFavorite(
             @PathVariable("musicId") Long musicId,
             @RequestHeader(name = "Authorization",required = false) String token
     ) {
-        return myMusicService.isMusicFavorite(token,musicId);
+        return musicService.isMusicFavorite(token,musicId);
     }
 
     //    @ApiOperation("添加音乐收藏夹")
-    @PostMapping("/myMusic-getway/insertMusicFavorite/{musicId}")
+    @PostMapping("/music/insertMusicFavorite/{musicId}")
     public ResultEntity insertMusicFavorite(
             @PathVariable("musicId") Long musicId,
             @RequestBody List<MusicFavoriteEntity> musicFavoriteEntityList,
             @RequestHeader(name = "Authorization",required = false) String token
     ) {
-        return myMusicService.insertMusicFavorite(token,musicId,musicFavoriteEntityList);
+        return musicService.insertMusicFavorite(token,musicId,musicFavoriteEntityList);
     }
 }
 

@@ -12,13 +12,17 @@ app:
   appName: 在线音乐
   avater-img: /static/user/avater/
   avater-path: E:${app.avater-img}
-
+loggin:
+  config: /src/main/resources/logback-spring.xml
 spring:
   token:
     secret: ${SECRET} #token秘钥
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  http:
+    client:
+      type: simple
   redis:
     database: 2 # Redis数据库索引（默认为0）
     host: 127.0.0.1 # Redis服务器地址
