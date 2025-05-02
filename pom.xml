@@ -31,6 +31,8 @@
         <jjwt.version>0.12.6</jjwt.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <mysql-connector.version>8.0.33</mysql-connector.version>
+        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+        <logback-classic.version>1.5.6</logback-classic.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -88,6 +90,21 @@
                 <artifactId>jjwt-api</artifactId>
                 <version>${jjwt.version}</version>
             </dependency>
+            <!-- JJWT 实现 -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- 选择 JSON 处理器（根据项目实际使用选择其一） -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
@@ -102,7 +119,7 @@
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
-                <version>6.0.0</version> <!-- Jakarta Servlet API固定版本 -->
+                <version>${jakarta.servlet-api.version}</version> <!-- Jakarta Servlet API固定版本 -->
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -116,6 +133,17 @@
                 <groupId>com.player.common</groupId>
                 <artifactId>common</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-mail</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-classic.version}</version> <!-- 与 Spring Boot 3.4.5 兼容 -->
             </dependency>
         </dependencies>
     </dependencyManagement>

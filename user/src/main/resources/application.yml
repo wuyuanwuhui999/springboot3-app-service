@@ -1,30 +1,41 @@
-static:
-  file-path: E:/
 server:
-  port: 3002
+  port: 3005
 token:
+  expiration-time: 2592000000 #token失效时间一个月 1000 * 60 * 60 * 24 * 30
   secret: ${SECRET} #token秘钥
-cookie:
-  name: token #cookie名称
-  expiry: 2592000 #tcookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
 app:
-  appId: com.play.music
-  appName: 在线音乐
+  appId: com.player.user
+  appName: 用户中心
   avater-img: /static/user/avater/
-  avater-path: E:${app.avater-img}
+  avater-path: G:${app.avater-img}
 loggin:
   config: /src/main/resources/logback-spring.xml
 spring:
-  token:
-    secret: ${SECRET} #token秘钥
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
-  http:
-    client:
-      type: simple
+  #邮箱基本配置
+  mail:
+    #配置smtp服务主机地址
+    host: smtp.qq.com
+    #发送者邮箱
+    username: ${EMAIL}
+    #配置密码,注意不是真正的密码，而是刚刚申请到的授权码
+    password: ${EMAIL_PASSWORD}
+    #端口号465或587
+    port: 465
+    #默认的邮件编码为UTF-8
+    default-encoding: UTF-8
+    #其他参数
+    properties:
+      mail:
+        #配置SSL 加密工厂
+        smtp:
+          ssl:
+            #本地测试，先放开ssl
+            enable: true
+            required: false
+          #开启debug模式，这样邮件发送过程的日志会在控制台打印出来，方便排查错误
+        debug: true
   redis:
-    database: 2 # Redis数据库索引（默认为0）
+    database: 0 # Redis数据库索引（默认为0）
     host: 127.0.0.1 # Redis服务器地址
     port: 6379 # Redis服务器连接端口
     password: # Redis服务器连接密码（默认为空）
@@ -35,15 +46,13 @@ spring:
         max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制）
         max-idle: 8 # 连接池中的最大空闲连接
         min-idle: 0 # 连接池中的最小空闲连接
-  jpa:
-    show-sql: true
   application:
-    name: music
+    name: user
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/play?characterEncoding=utf-8
     username: root
     password: ${MYSQL_PASSWORD}
-    driverClassName: com.mysql.cj.jdbc.Driver
+    driverClassName: com.mysql.jdbc.Driver
     initialSize: 5  #初始建立连接数量
     minIdle: 5  #最小连接数量
     maxActive: 20 #最大连接数量
@@ -53,14 +62,13 @@ spring:
     timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
     minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
 
+#mybatis:
+#  mapper-locations: classpath:mapper/*Mapper.xml
+
 mybatis:
-  mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径
-  type-aliases-package: com.player.music.entity  # 实体类包路径，用于别名自动映射
+  mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: com.player.user.entity
   configuration:
     use-actual-param-name: true
-    mapUnderscoreToCamelCase: true              # 自动映射下划线到驼峰命名
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印 SQL 日志
-
-#mybatis-plus:
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 开启SQL日志
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
