@@ -1,9 +1,11 @@
 package com.player.common.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 
 import java.io.Serializable;
 
+@Data
 public class ResultEntity implements Serializable {
 
     @Schema(description = "数据")
