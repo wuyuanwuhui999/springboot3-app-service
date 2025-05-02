@@ -1,200 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.player</groupId>
     <artifactId>player-parent</artifactId>
-    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>player-parent</name>
+    <description>Parent POM for Player Project</description>
 
-    <!-- 升级Spring Boot父POM -->
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.5</version> <!-- 当前最新稳定版 -->
-    </parent>
-
+    <!-- 子模块声明 -->
     <modules>
         <module>common</module>
-<!--        <module>player-circle</module>-->
-<!--        <module>player-movie</module>-->
         <module>music</module>
-<!--        <module>player-social</module>-->
-<!--        <module>player-user</module>-->
     </modules>
 
+    <!-- 统一属性配置 -->
     <properties>
         <java.version>17</java.version>
-<!--        <mysql-connector-java.version>8.0.33</mysql-connector-java.version>-->
-<!--        <druid-spring-boot-starter.version>1.2.21</druid-spring-boot-starter.version>-->
-<!--        <lombok.version>1.18.30</lombok.version>-->
-<!--        <log4j2.version>2.23.1</log4j2.version>-->
-<!--        <springdoc-openapi.version>2.3.0</springdoc-openapi.version>-->
-<!--        <spring-cloud-dependencies.version>2023.0.0</spring-cloud-dependencies.version>-->
-<!--        <commons-io.version>2.16.1</commons-io.version>-->
-<!--        <org.apache.httpcomponents.version>4.5.14</org.apache.httpcomponents.version>-->
-<!--        <redis.clients.version>5.1.0</redis.clients.version>-->
-<!--        <mybatis-spring-boot-starter.version>3.0.3</mybatis-spring-boot-starter.version>-->
-<!--        <org.slf4j.version>2.0.13</org.slf4j.version>-->
-<!--        <org.apache.tomcat.embed.version>10.1.24</org.apache.tomcat.embed.version>-->
-<!--        <commons-lang>3.17.0</commons-lang>-->
-<!--        <com.alibaba>1.2.83</com.alibaba>-->
-<!--        <jakarta.mail.version>2.1.2</jakarta.mail.version>-->
-<!--        <sockjs-client.version>1.5.1</sockjs-client.version>-->
-<!--        <stomp-websocket.version>2.3.6</stomp-websocket.version>-->
-<!--        <angus-mail.version>2.0.3</angus-mail.version>-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <!-- 依赖版本 -->
+        <spring-boot.version>3.4.5</spring-boot.version>
+        <mybatis-starter.version>3.0.4</mybatis-starter.version>
+        <swagger-annotations.version>2.2.15</swagger-annotations.version>
+        <lombok.version>1.18.30</lombok.version>
+        <fastjson2.version>2.0.47</fastjson2.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <httpclient5.version>5.3.1</httpclient5.version>
+        <mysql-connector.version>8.0.33</mysql-connector.version>
     </properties>
 
-    <!-- modules保持不变 -->
-
+    <!-- 依赖管理（统一版本，子模块按需引入） -->
     <dependencyManagement>
         <dependencies>
-<!--            &lt;!&ndash; 移除显式版本号，由父POM管理 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-data-redis</artifactId>-->
-<!--                <version>3.4.5</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>redis.clients</groupId>-->
-<!--                <artifactId>jedis</artifactId>-->
-<!--                <version>${redis.clients.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.mybatis.spring.boot</groupId>-->
-<!--                <artifactId>mybatis-spring-boot-starter</artifactId>-->
-<!--                <version>${mybatis-spring-boot-starter.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>mysql</groupId>-->
-<!--                <artifactId>mysql-connector-java</artifactId>-->
-<!--                <version>${mysql-connector-java.version}</version>-->
-<!--                <scope>runtime</scope>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.alibaba</groupId>-->
-<!--                <artifactId>druid-spring-boot-starter</artifactId>-->
-<!--                <version>${druid-spring-boot-starter.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.cloud</groupId>-->
-<!--                <artifactId>spring-cloud-dependencies</artifactId>-->
-<!--                <version>${spring-cloud-dependencies.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.projectlombok</groupId>-->
-<!--                <artifactId>lombok</artifactId>-->
-<!--                <version>${lombok.version}</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; 替换Log4j为Log4j2 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.logging.log4j</groupId>-->
-<!--                <artifactId>log4j-core</artifactId>-->
-<!--                <version>${log4j2.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.logging.log4j</groupId>-->
-<!--                <artifactId>log4j-api</artifactId>-->
-<!--                <version>${log4j2.version}</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; 替换Springfox为SpringDoc &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.springdoc</groupId>-->
-<!--                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
-<!--                <version>${springdoc-openapi.version}</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; 其他依赖升级 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.httpcomponents</groupId>-->
-<!--                <artifactId>httpclient</artifactId>-->
-<!--                <version>${org.apache.httpcomponents.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>commons-io</groupId>-->
-<!--                <artifactId>commons-io</artifactId>-->
-<!--                <version>${commons-io.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>io.jsonwebtoken</groupId>-->
-<!--                <artifactId>jjwt-api</artifactId>-->
-<!--                <version>0.12.6</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>io.jsonwebtoken</groupId>-->
-<!--                <artifactId>jjwt-impl</artifactId>-->
-<!--                <version>0.12.6</version>-->
-<!--                <scope>runtime</scope>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>io.jsonwebtoken</groupId>-->
-<!--                <artifactId>jjwt-jackson</artifactId>-->
-<!--                <version>0.12.6</version>-->
-<!--                <scope>runtime</scope>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.slf4j</groupId>-->
-<!--                <artifactId>slf4j-api</artifactId>-->
-<!--                <version>${org.slf4j.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.tomcat.embed</groupId>-->
-<!--                <artifactId>tomcat-embed-core</artifactId>-->
-<!--                <version>${org.apache.tomcat.embed.version}</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.commons</groupId>-->
-<!--                <artifactId>commons-lang3</artifactId>-->
-<!--                <version>3.17.0</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.alibaba.fastjson2</groupId>-->
-<!--                <artifactId>fastjson2</artifactId>-->
-<!--                <version>2.0.47</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; 邮件依赖升级 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-mail</artifactId>-->
-<!--                <version>3.4.5</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>jakarta.mail</groupId>-->
-<!--                <artifactId>jakarta.mail-api</artifactId>-->
-<!--                <version>${jakarta.mail.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.eclipse.angus</groupId>-->
-<!--                <artifactId>angus-mail</artifactId>-->
-<!--                <version>${angus-mail.version}</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; Webjars更新 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.webjars</groupId>-->
-<!--                <artifactId>sockjs-client</artifactId>-->
-<!--                <version>${sockjs-client.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.webjars</groupId>-->
-<!--                <artifactId>stomp-websocket</artifactId>-->
-<!--                <version>${stomp-websocket.version}</version>-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; 使用 Swagger 2.x &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>io.swagger.core.v3</groupId>-->
-<!--                <artifactId>swagger-annotations</artifactId>-->
-<!--                <version>2.2.15</version> &lt;!&ndash; 最新版本 &ndash;&gt;-->
-<!--            </dependency>-->
-<!--            &lt;!&ndash; 检查 spring-plugin-core 版本是否兼容 Spring Boot 3 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.plugin</groupId>-->
-<!--                <artifactId>spring-plugin-core</artifactId>-->
-<!--                <version>3.0.0</version> &lt;!&ndash; 升级到支持 Spring Boot 3 的版本 &ndash;&gt;-->
-<!--            </dependency>-->
+            <!-- Spring Boot Starters -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- MyBatis -->
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-starter.version}</version>
+            </dependency>
+
+            <!-- 第三方库 -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <!-- 其他依赖保持不变 -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <!-- 添加 httpclient5-ssl -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5-ssl</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.0.0</version> <!-- Jakarta Servlet API固定版本 -->
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql-connector.version}</version>
+            </dependency>
+
+            <!-- 内部模块 -->
+            <dependency>
+                <groupId>com.player.common</groupId>
+                <artifactId>common</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!-- 插件管理 -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
