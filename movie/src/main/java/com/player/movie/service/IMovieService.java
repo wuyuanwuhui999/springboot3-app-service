@@ -9,7 +9,7 @@ public interface IMovieService {
 
     ResultEntity getKeyWord(String classify,String redisKey);
 
-    ResultEntity getUserMsg(String token);
+    ResultEntity getUserMsg(String userId);
 
     ResultEntity getAllCategoryByClassify(String classsify,String redisKey);
 
@@ -25,21 +25,21 @@ public interface IMovieService {
 
     ResultEntity getMovieUrl(Long movieId,String redisKey);
 
-    ResultEntity getPlayRecord(String token,int pageNum,int pageSize);
+    ResultEntity getPlayRecord(String userId,int pageNum,int pageSize);
 
-    ResultEntity savePlayRecord(MovieEntity movieEntity,String token);
+    ResultEntity savePlayRecord(int movieId,String userId);
 
-    ResultEntity getViewRecord(String token,int pageNum,int pageSize);
+    ResultEntity getViewRecord(String userId,int pageNum,int pageSize);
 
-    ResultEntity saveViewRecord(MovieEntity movieEntity,String token);
+    ResultEntity saveViewRecord(int movieId,String userId);
 
-    ResultEntity getFavoriteList(String token,int pageNum,int pageSize);
+    ResultEntity getFavoriteList(String userId,int pageNum,int pageSize);
 
-    ResultEntity saveFavorite(int movieId,String token);
+    ResultEntity saveFavorite(int movieId,String userId);
 
-    ResultEntity deleteFavorite(int movieId,String token);
+    ResultEntity deleteFavorite(int movieId,String userId);
 
-    ResultEntity isFavorite(Long movieId, String token);
+    ResultEntity isFavorite(Long movieId, String userId);
 
     ResultEntity getYourLikes(String labels,String classify,String redisKey);
 
@@ -49,6 +49,6 @@ public interface IMovieService {
 
     ResultEntity getMovieListByType(String types,String classify,String redisKey);
 
-    ResultEntity getSearchHistory(String token,int pageNum,int pageSize);
+    ResultEntity getSearchHistory(String userId,int pageNum,int pageSize);
 
 }

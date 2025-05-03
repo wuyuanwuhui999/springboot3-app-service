@@ -161,7 +161,7 @@ http {
             proxy_pass http://127.0.0.1:5000;
             client_max_body_size  1g;
         }
-        location /service/movie-getway/ {
+        location /service/circle/ {
             proxy_pass http://127.0.0.1:5000;
             client_max_body_size  1g;
         }
@@ -181,15 +181,11 @@ http {
             proxy_pass http://127.0.0.1:8002;
             client_max_body_size  1g;
         }
-        location /service/social-getway/ {
+        location /service/circle/ {
             proxy_pass http://127.0.0.1:8002;
             client_max_body_size  1g;
         }
         location /service/circle/ {
-            proxy_pass http://127.0.0.1:8003;
-            client_max_body_size  1g;
-        }
-        location /service/circle-getway/ {
             proxy_pass http://127.0.0.1:8003;
             client_max_body_size  1g;
         }

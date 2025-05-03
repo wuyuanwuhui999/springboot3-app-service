@@ -29,13 +29,13 @@ public class CircleController {
     }
 
     // 保存图片和文字
-    @PostMapping("/circle-getway/insertCircle")
+    @PostMapping("/circle/insertCircle")
     public ResultEntity saveSay(@RequestBody CircleEntity circleEntity, @RequestHeader("Authorization") String token) {
         return circleService.insertCircle(circleEntity,token);
     }
 
     // 保存图片和文字
-    @GetMapping("/circle-getway/getCircleByLastUpdateTime")
+    @GetMapping("/circle/getCircleByLastUpdateTime")
     public ResultEntity getCircleByLastUpdateTime(String lastUpdateTime,String type) {
         return circleService.getCircleByLastUpdateTime(lastUpdateTime,type);
     }
