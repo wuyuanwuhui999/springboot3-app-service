@@ -1,36 +1,33 @@
 package com.player.ai.config;
 
-import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.ai.chat.client.ChatClient;
 
 @Configuration
 public class ChatClientConfig {
 
     @Bean
-    public ChatClient chatClient() {
-        // 根据实际需求初始化和返回ChatClient实例
-        return new ChatClient() {
-            @Override
-            public ChatClientRequestSpec prompt() {
-                return null;
-            }
+    public ChatMemory chatMemory() {
+        return new InMemoryChatMemory();
+    }
 
-            @Override
-            public ChatClientRequestSpec prompt(String content) {
-                return null;
-            }
-
-            @Override
-            public ChatClientRequestSpec prompt(Prompt prompt) {
-                return null;
-            }
-
-            @Override
-            public Builder mutate() {
-                return null;
-            }
-        };
+    @Bean
+    public ChatClient chatClient(OllamaChatModel model, ChatMemory chatMemory) {
+        return ChatClient
+                .builder(model)
+                .defaultOptions(ChatOptions.builder().model("deepseek-r1:7B").build())
+                .defaultSystem("你是一个热心、可爱的智能助手，你的名字叫小吴同学，请以小吴同学的身份和语气回答问题。")
+                .defaultAdvisors(
+                        new SimpleLoggerAdvisor(),
+                        new MessageChatMemoryAdvisor(chatMemory)
+                )
+                .build();
     }
 }

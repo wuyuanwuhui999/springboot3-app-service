@@ -4,6 +4,8 @@
 
 有springboot2.0.1+jdk8升级到springboot3.4.5+jdk17
 
+新增AI智能聊天模块和AI智能体，基于spring ai使用ollama调用本地deepseek-r1:7b大语言模型   
+
 使用springboot搭建的音乐，电影后台项目，所有数据来自互联网，使用python爬虫抓取，涉及，负载均衡，redis缓存，JwtToken权限验证，拦截器，日志记录，erauka服务治理，mybatis,spring-data-jpa,swagger等，持续更新中...   
 
 ================================APP界面预览================================   
@@ -91,7 +93,7 @@ vue3+ts明日头条项目：
 国内镜像地址：https://hub.nuaa.cf/wuyuanwuhui99/vue3-ts-toutiao-app-ui   
 ================================手机UI项目================================   
 
-play-user项目启动参数 -DSECRET=wuwenqiang -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=邮箱地址 -DEMAIL_PASSWORD=邮箱第三方授权码   
+项目启动参数 -DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=邮箱地址 -DEMAIL_PASSWORD=邮箱第三方授权码   
 参数解析   
 SECRET：密钥   
 MYSQL_PASSWORD：数据库密码   
@@ -100,180 +102,38 @@ EMAIL_PASSWORD：邮箱授权码（不是登录QQ的密码）
 
 nginx(nginx.conf文件)配置如下   
 ```
-
-
-#user  nobody;
-worker_processes  1;
-
-#error_log  logs/error.log;
-#error_log  logs/error.log  notice;
-#error_log  logs/error.log  info;
-
-#pid        logs/nginx.pid;
-
-
-events {
-    worker_connections  1024;
+server{
+    listen       5001;
+    location /service/movie/ {
+        proxy_pass http://127.0.0.1:3001;
+        client_max_body_size  1g;
+    }
+    location /service/music/ {
+        proxy_pass http://127.0.0.1:3002;
+        client_max_body_size  1g;
+    }
+    location /service/social/ {
+        proxy_pass http://127.0.0.1:3003;
+        client_max_body_size  1g;
+    }
+    location /service/circle/ {
+        proxy_pass http://127.0.0.1:3004;
+        client_max_body_size  1g;
+    }
+    location /service/user/ {
+        proxy_pass http://127.0.0.1:3005;
+        client_max_body_size  1g;
+    }
+    location /service/user-getway/ {
+        proxy_pass http://127.0.0.1:3005;
+        client_max_body_size  1g;
+    }
+     location /service/ai/ {
+        proxy_pass http://127.0.0.1:3006;
+        client_max_body_size  1g;
+    }
+    location /static/ {
+        alias G:/static/;
+    }
 }
-
-
-http {
-    include       mime.types;
-    default_type  application/octet-stream;
-
-    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-    #                  '$status $body_bytes_sent "$http_referer" '
-    #                  '"$http_user_agent" "$http_x_forwarded_for"';
-
-    #access_log  logs/access.log  main;
-
-    sendfile        on;
-    #tcp_nopush     on;
-
-    #keepalive_timeout  0;
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-    server {
-        listen       80;
-        server_name  localhost;
-
-        proxy_set_header X-Forwarded-Host $host;
-		proxy_set_header X-Forwarded-Server $host;
-		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-		
-		location / {
-			proxy_pass http://127.0.0.1:9001;
-			proxy_connect_timeout 600;
-			proxy_read_timeout 600;
-		}
-    }
-
-    upstream music_server{
-        server 127.0.0.1:3000 weight=10;
-        server 127.0.0.1:3001 weight=10;
-    }
-
-    server{
-        listen       5001;
-        location /service/movie/ {
-            proxy_pass http://127.0.0.1:5000;
-            client_max_body_size  1g;
-        }
-        location /service/circle/ {
-            proxy_pass http://127.0.0.1:5000;
-            client_max_body_size  1g;
-        }
-        location /service/myMusic/ {
-            proxy_pass http://127.0.0.1:4000;
-            client_max_body_size  1g;
-        }
-        location /service/myMusic-getway/ {
-            proxy_pass http://127.0.0.1:4000;
-            client_max_body_size  1g;
-        }
-        location /service/music/ {
-            proxy_pass http://127.0.0.1:4000;
-            client_max_body_size  1g;
-        }
-        location /service/social/ {
-            proxy_pass http://127.0.0.1:8002;
-            client_max_body_size  1g;
-        }
-        location /service/circle/ {
-            proxy_pass http://127.0.0.1:8002;
-            client_max_body_size  1g;
-        }
-        location /service/circle/ {
-            proxy_pass http://127.0.0.1:8003;
-            client_max_body_size  1g;
-        }
-        location /service/user/ {
-            proxy_pass http://127.0.0.1:9000;
-            client_max_body_size  1g;
-        }
-        location /service/user-getway/ {
-            proxy_pass http://127.0.0.1:9000;
-            client_max_body_size  1g;
-        }
-        location /static/ {
-            alias G:/static/;
-        }
-    }
-
-
-    server{
-        listen       3002;
-        #静态资源，包括系统所需要的图片，js、css等静态资源
-        location / {
-            alias F:/vue/vue-music-app-ui/dist/;
-        }
-        location /service/ {
-            proxy_pass http://music_server;
-            #proxy_pass http://127.0.0.1:3000;
-        }
-        location /static/ {
-            alias G:/static/;
-        }
-        location /images/ {
-            alias G:/static/music/images/;
-        }
-        location /audio/ {
-            alias G:/static/music/audio/;
-        }
-    }
-
-    server{
-        listen       3003;
-        location / {
-            alias F:/vue/vue3-ts-movie-circle-app-ui/dist/;
-        }
-        location /service/ {
-            proxy_pass http://127.0.0.1:8003;
-        }
-        location /static/ {
-            alias G:/static/;
-        }
-    }
-
-
-    # another virtual host using mix of IP-, name-, and port-based configuration
-    #
-    #server {
-    #    listen       8000;
-    #    listen       somename:8080;
-    #    server_name  somename  alias  another.alias;
-
-    #    location / {
-    #        root   html;
-    #        index  index.html index.htm;
-    #    }
-    #}
-
-
-    # HTTPS server
-    #
-    #server {
-    #    listen       443 ssl;
-    #    server_name  localhost;
-
-    #    ssl_certificate      cert.pem;
-    #    ssl_certificate_key  cert.key;
-
-    #    ssl_session_cache    shared:SSL:1m;
-    #    ssl_session_timeout  5m;
-
-    #    ssl_ciphers  HIGH:!aNULL:!MD5;
-    #    ssl_prefer_server_ciphers  on;
-
-    #    location / {
-    #        root   html;
-    #        index  index.html index.htm;
-    #    }
-    #}
-
-}
-
-   
 ```

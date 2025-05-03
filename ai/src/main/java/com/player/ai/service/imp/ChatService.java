@@ -4,7 +4,7 @@ import com.player.ai.entity.ChatEntity;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.content.Media;
+import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -52,6 +52,7 @@ public class ChatService implements IChatService {
                     .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
                     .stream()
                     .content();
+
         } else {
             // 有附件，多模态聊天
             // 1.解析多媒体
