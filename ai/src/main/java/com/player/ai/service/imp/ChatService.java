@@ -49,6 +49,7 @@ public class ChatService implements IChatService {
             stringFlux = chatClient
                     .prompt()
                     .user(prompt)
+
                     .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
                     .stream()
                     .content();
