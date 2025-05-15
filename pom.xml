@@ -33,11 +33,10 @@
         <lombok.version>1.18.30</lombok.version>
         <fastjson2.version>2.0.47</fastjson2.version>
         <jjwt.version>0.12.6</jjwt.version>
-        <httpclient5.version>5.2.1</httpclient5.version>
+        <httpclient5.version>5.4.3</httpclient5.version>
         <mysql-connector.version>8.0.33</mysql-connector.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <logback-classic.version>1.5.6</logback-classic.version>
-<!--        <spring-ai.version>1.0.0-M8</spring-ai.version>-->
         <spring-ai.version>1.0.0-M6</spring-ai.version>
     </properties>
 
@@ -156,17 +155,6 @@
                 <artifactId>spring-boot-starter-websocket</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.ai</groupId>-->
-<!--                <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>-->
-<!--                <version>${spring-ai.version}</version>-->
-<!--            </dependency>-->
-            <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-ollama -->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.ai</groupId>-->
-<!--                <artifactId>spring-ai-ollama</artifactId>-->
-<!--                <version>${spring-ai.version}</version>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
