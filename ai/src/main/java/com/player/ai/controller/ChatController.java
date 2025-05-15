@@ -1,14 +1,12 @@
 package com.player.ai.controller;
 
 import com.player.ai.service.IChatService;
+import com.player.common.entity.ResultEntity;
 import com.player.common.entity.UserEntity;
 import com.player.common.utils.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
@@ -30,5 +28,14 @@ public class ChatController {
             @RequestParam(value = "files", required = false) List<MultipartFile> files
     ){
         return chatService.chat(JwtToken.getId(token, secret), prompt, chatId, files);
+    }
+
+    @GetMapping("/getChatHistory")
+    public ResultEntity getChatHistory(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("pageSize") int pageSize
+    ){
+        return chatService.getChatHistory(JwtToken.getId(token, secret),pageNum,pageSize);
     }
 }

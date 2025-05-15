@@ -4,5 +4,31 @@
     <insert id="saveChat"  useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         insert into chat_history(user_id,files,chat_id,prompt,content,create_time) VALUES (#{userId},#{files},#{chatId},#{prompt},#{content},now())
     </insert>
+
+    <select id="getChatHistory" resultType="ChatEntity">
+        SELECT
+            id,
+            user_id,
+            files,
+            chat_id,
+            prompt,
+            content,
+            create_time
+        FROM
+            chat_history
+        WHERE
+            user_id = #{userId}
+        ORDER BY
+            create_time DESC
+            LIMIT
+            #{start}, #{limit}
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="getChatHistoryTotal" resultType="int">
+        SELECT COUNT(*)
+        FROM chat_history
+        WHERE user_id = #{userId}
+    </select>
 </mapper>
 
