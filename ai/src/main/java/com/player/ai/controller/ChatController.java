@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
-@RequestMapping(value="/service/ai",produces = "text/html;charset=utf-8")
+@RequestMapping(value="/service/ai")
 @RestController
 public class ChatController {
     @Value("${token.secret}")
@@ -20,7 +20,7 @@ public class ChatController {
     @Autowired
     private IChatService chatService;
 
-    @RequestMapping("/chat")
+    @RequestMapping(value = "/chat",produces = "text/html;charset=utf-8")
     public Flux<String> chat(
             @RequestHeader("Authorization") String token,
             @RequestParam("prompt") String prompt,
@@ -36,6 +36,7 @@ public class ChatController {
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize") int pageSize
     ){
-        return chatService.getChatHistory(JwtToken.getId(token, secret),pageNum,pageSize);
+        ResultEntity chatHistory = chatService.getChatHistory(JwtToken.getId(token, secret), pageNum, pageSize);
+        return chatHistory;
     }
 }

@@ -1,6 +1,7 @@
 package com.player.ai.service.imp;
 
 import com.player.ai.entity.ChatEntity;
+import com.player.ai.handler.ChatWebSocketHandler;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import com.player.common.entity.ResultEntity;
@@ -9,6 +10,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +31,12 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 
 @Service
 public class ChatService implements IChatService {
+
+    @Bean
+    public ChatWebSocketHandler chatWebSocketHandler(ChatClient chatClient, ChatService chatService, ChatMapper chatMapper,
+                                                     @Value("${spring.servlet.multipart.location}") String uploadDir) {
+        return new ChatWebSocketHandler(chatClient, chatService, chatMapper, uploadDir);
+    }
 
     @Autowired
     private ChatMapper chatMapper;

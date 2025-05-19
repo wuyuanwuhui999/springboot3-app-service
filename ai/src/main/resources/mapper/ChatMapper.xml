@@ -25,10 +25,10 @@
     </select>
 
     <!-- 查询总数 -->
-    <select id="getChatHistoryTotal" resultType="int">
+    <select id="getChatHistoryTotal" resultType="Long">
         SELECT COUNT(*)
         FROM chat_history
-        WHERE user_id = #{userId}
+        WHERE user_id = #{userId} order by create_time desc
     </select>
 </mapper>
 
