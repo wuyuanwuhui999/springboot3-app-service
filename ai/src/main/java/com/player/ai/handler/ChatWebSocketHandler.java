@@ -14,6 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.*;
@@ -67,17 +68,34 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setChatId(chatId);
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
-
+            chatEntity.setContent("");
+            Flux<String> stringFlux;
             if (files.isEmpty()) {
                 chatClient.prompt()
                         .user(prompt)
                         .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
                         .stream()
                         .content()
-                        .subscribe(responsePart -> {
-                            sendResponse(session, responsePart);
-                            chatEntity.setContent(chatEntity.getContent() + responsePart);
-                        });
+                        .subscribe(
+                            responsePart -> {
+                                chatEntity.setContent(chatEntity.getContent() + responsePart);
+                                sendResponse(session, responsePart);
+                            },
+                            throwable -> {
+                                log.error("Error during streaming", throwable);
+                                try {
+                                    session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
+                                } catch (IOException e) {
+                                    log.error("Failed to send error message", e);
+                                }
+                            },
+                            () -> {
+                                // 所有数据接收完毕后保存数据库
+                                if (chatEntity.getContent() != null && !chatEntity.getContent().isEmpty()) {
+                                    chatMapper.saveChat(chatEntity);
+                                }
+                            }
+                    );
 
             } else {
                 // 类似原来的多模态处理逻辑
@@ -93,10 +111,26 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                         .advisors(a -> a.param("conversationId", chatId))
                         .stream()
                         .content()
-                        .subscribe(responsePart -> {
-                            sendResponse(session, responsePart);
-                            chatEntity.setContent(chatEntity.getContent() + responsePart);
-                        });
+                        .subscribe(
+                                responsePart -> {
+                                    chatEntity.setContent(chatEntity.getContent() + responsePart);
+                                    sendResponse(session, responsePart);
+                                },
+                                throwable -> {
+                                    log.error("Error during streaming", throwable);
+                                    try {
+                                        session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
+                                    } catch (IOException e) {
+                                        log.error("Failed to send error message", e);
+                                    }
+                                },
+                                () -> {
+                                    // 所有数据接收完毕后保存数据库
+                                    if (chatEntity.getContent() != null && !chatEntity.getContent().isEmpty()) {
+                                        chatMapper.saveChat(chatEntity);
+                                    }
+                                }
+                        );
             }
 
             // 保存到数据库
