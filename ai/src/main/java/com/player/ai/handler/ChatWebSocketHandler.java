@@ -91,8 +91,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                             },
                             () -> {
                                 // 所有数据接收完毕后保存数据库
-                                if (chatEntity.getContent() != null && !chatEntity.getContent().isEmpty()) {
-                                    chatMapper.saveChat(chatEntity);
+                                chatMapper.saveChat(chatEntity);
+                                try {
+                                    session.sendMessage(new TextMessage("#end"));
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                     );
@@ -126,8 +129,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                 },
                                 () -> {
                                     // 所有数据接收完毕后保存数据库
-                                    if (chatEntity.getContent() != null && !chatEntity.getContent().isEmpty()) {
-                                        chatMapper.saveChat(chatEntity);
+                                    chatMapper.saveChat(chatEntity);
+                                    try {
+                                        session.sendMessage(new TextMessage("#end"));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
                                     }
                                 }
                         );
