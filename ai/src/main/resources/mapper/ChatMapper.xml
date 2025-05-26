@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.ai.mapper.ChatMapper">
     <insert id="saveChat"  useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
-        insert into chat_history(user_id,files,chat_id,prompt,content,create_time) VALUES (#{userId},#{files},#{chatId},#{prompt},#{content},now())
+        insert into chat_history(user_id,files,chat_id,prompt,content,model,create_time) VALUES (#{userId},#{files},#{chatId},#{prompt},#{content},#{model},now())
     </insert>
 
     <select id="getChatHistory" resultType="ChatEntity">
@@ -13,6 +13,7 @@
             chat_id,
             prompt,
             content,
+            model,
             create_time
         FROM
             chat_history

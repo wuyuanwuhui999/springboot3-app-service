@@ -26,7 +26,8 @@ spring:
     ollama:
       base-url: http://localhost:11434
       chat:
-        model: deepseek-r1:7b
+        model: qwen3:8b
+        endpoint: /api/chat
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8

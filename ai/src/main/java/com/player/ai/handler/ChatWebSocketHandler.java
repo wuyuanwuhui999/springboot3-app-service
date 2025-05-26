@@ -49,6 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String userId = JwtToken.getId(token, secret);
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
+            String model = (String) payload.get("model");
 
             // 检查是否包含附件信息（假设前端以 base64 或其他方式传输）
             List<Map<String, String>> fileMaps = (List<Map<String, String>>) payload.getOrDefault("files", Collections.emptyList());
@@ -69,6 +70,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
+            chatEntity.setModel(model);
             Flux<String> stringFlux;
             if (files.isEmpty()) {
                 chatClient.prompt()
@@ -93,7 +95,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                 // 所有数据接收完毕后保存数据库
                                 chatMapper.saveChat(chatEntity);
                                 try {
-                                    session.sendMessage(new TextMessage("#end"));
+                                    session.sendMessage(new TextMessage("[completed]"));
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -131,7 +133,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                     // 所有数据接收完毕后保存数据库
                                     chatMapper.saveChat(chatEntity);
                                     try {
-                                        session.sendMessage(new TextMessage("#end"));
+                                        session.sendMessage(new TextMessage("[completed]"));
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
