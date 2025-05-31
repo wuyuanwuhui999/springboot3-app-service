@@ -1,17 +1,15 @@
 package com.player.music.tools;
 
-
 import dev.langchain4j.agent.tool.Tool;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 
 @Component
-class AssistantTools {
+public class AssistantTools {
 
-    @Tool
-    String currentTime() {
-        return LocalTime.now().toString();
+    @Tool("获取当前时间")
+    public String currentTime() {
+        return "当前时间是: " + LocalTime.now().toString();
     }
 }
-

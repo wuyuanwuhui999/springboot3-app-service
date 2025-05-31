@@ -178,11 +178,11 @@
                 <version>${langchain4j.version}</version>
             </dependency>
             <!-- LangChain4j -->
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-ollama</artifactId>
-                <version>${langchain4j.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>dev.langchain4j</groupId>-->
+<!--                <artifactId>langchain4j-ollama</artifactId>-->
+<!--                <version>${langchain4j.version}</version>-->
+<!--            </dependency>-->
             <!-- WebFlux 支持流式输出 -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
