@@ -38,6 +38,8 @@
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <logback-classic.version>1.5.6</logback-classic.version>
         <spring-ai.version>1.0.0-M6</spring-ai.version>
+        <langchain4j.version>1.0.1-beta6</langchain4j.version>
+        <langchain4j-core.version>1.0.1</langchain4j-core.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -164,6 +166,28 @@
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
                 <version>${spring-ai.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-ollama-spring-boot-starter</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-spring-boot-starter</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
+            <!-- LangChain4j -->
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-ollama</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
+            <!-- WebFlux 支持流式输出 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-webflux</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
