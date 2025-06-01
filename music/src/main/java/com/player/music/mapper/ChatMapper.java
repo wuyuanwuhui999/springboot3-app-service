@@ -1,6 +1,7 @@
 package com.player.music.mapper;
 
 import com.player.music.entity.ChatEntity;
+import com.player.music.entity.MusicEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface ChatMapper {
     List<ChatEntity> getChatHistory(String userId,int start,int limit);
 
     Long getChatHistoryTotal(String userId);
+
+    List<MusicEntity> selectMusicList(String name);
 }

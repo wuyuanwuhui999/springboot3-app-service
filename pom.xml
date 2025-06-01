@@ -40,6 +40,7 @@
         <spring-ai.version>1.0.0-M6</spring-ai.version>
         <langchain4j.version>1.0.1-beta6</langchain4j.version>
         <langchain4j-core.version>1.0.1</langchain4j-core.version>
+        <reactor-core.version>3.8.0-M3</reactor-core.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -177,12 +178,16 @@
                 <artifactId>langchain4j-spring-boot-starter</artifactId>
                 <version>${langchain4j.version}</version>
             </dependency>
-            <!-- LangChain4j -->
-<!--            <dependency>-->
-<!--                <groupId>dev.langchain4j</groupId>-->
-<!--                <artifactId>langchain4j-ollama</artifactId>-->
-<!--                <version>${langchain4j.version}</version>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-core</artifactId>
+                <version>${reactor-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-reactor</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
             <!-- WebFlux 支持流式输出 -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

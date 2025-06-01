@@ -31,5 +31,7 @@
         FROM chat_history
         WHERE user_id = #{userId} order by create_time desc
     </select>
+
+
 </mapper>
 

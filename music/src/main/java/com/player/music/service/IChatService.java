@@ -1,9 +1,15 @@
 package com.player.music.service;
 
-import com.player.music.dto.ChatRequest;
-import org.springframework.web.bind.annotation.RequestBody;
+import com.player.common.entity.ResultEntity;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
+
 public interface IChatService {
-    Flux<String> chatStream(String chatId, String message);
+    Flux<String> chat(String userId, String prompt, String chatId, List<MultipartFile> files);
+
+    String upload(List<MultipartFile>files);
+
+    ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
 }
