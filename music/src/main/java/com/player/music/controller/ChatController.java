@@ -1,6 +1,7 @@
 package com.player.music.controller;
 
 import com.player.music.service.IChatService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -14,7 +15,7 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/chat")
+    @GetMapping(value = "/chat",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> streamChat(
             @RequestParam String message,
             @RequestParam String chatId) {
