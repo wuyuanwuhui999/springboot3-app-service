@@ -12,4 +12,6 @@ public interface IChatService {
     String upload(List<MultipartFile>files);
 
     ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
+
+    ResultEntity getModelList();
 }

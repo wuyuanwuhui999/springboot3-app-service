@@ -36,7 +36,11 @@ public class ChatController {
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize") int pageSize
     ){
-        ResultEntity chatHistory = chatService.getChatHistory(JwtToken.getId(token, secret), pageNum, pageSize);
-        return chatHistory;
+        return chatService.getChatHistory(JwtToken.getId(token, secret), pageNum, pageSize);
+    }
+
+    @GetMapping("/getModelList")
+    public ResultEntity getModelList( ){
+        return chatService.getModelList();
     }
 }

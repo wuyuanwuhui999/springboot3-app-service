@@ -142,4 +142,9 @@ public class ChatService implements IChatService {
         success.setTotal(chatMapper.getChatHistoryTotal(userId));
         return success;
     }
+
+    @Override
+    public ResultEntity getModelList(){
+        return ResultUtil.success(chatMapper.getModelList());
+    }
 }

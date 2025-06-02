@@ -32,6 +32,8 @@
         WHERE user_id = #{userId} order by create_time desc
     </select>
 
-
+    <select id="getModelList" resultType="ChatModelEntity">
+        select * from chat_model
+    </select>
 </mapper>
 
