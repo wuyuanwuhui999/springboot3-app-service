@@ -48,12 +48,13 @@ public class ChatService implements IChatService {
     private String UPLOAD_DIR;
 
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, List<MultipartFile> files) {
+    public Flux<String> chat(String userId, String prompt, String chatId,int modelId, List<MultipartFile> files) {
         Flux<String> stringFlux;
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setChatId(chatId);
         chatEntity.setUserId(userId);
         chatEntity.setPrompt(prompt);
+        chatEntity.setModelId(modelId);
         if (files == null || files.isEmpty()) {
             // 没有附件，纯文本聊天
             stringFlux = chatClient

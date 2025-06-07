@@ -25,9 +25,10 @@ public class ChatController {
             @RequestHeader("Authorization") String token,
             @RequestParam("prompt") String prompt,
             @RequestParam("chatId") String chatId,
+            @RequestParam("chatId") int modelId,
             @RequestParam(value = "files", required = false) List<MultipartFile> files
     ){
-        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId, files);
+        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelId, files);
     }
 
     @GetMapping("/getChatHistory")

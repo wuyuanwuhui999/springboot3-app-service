@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 
 public interface IChatService {
-    Flux<String> chat(String userId, String prompt, String chatId, List<MultipartFile> files);
+    Flux<String> chat(String userId, String prompt, String chatId,int modelId, List<MultipartFile> files);
 
     String upload(List<MultipartFile>files);
 

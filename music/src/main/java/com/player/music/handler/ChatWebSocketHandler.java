@@ -52,7 +52,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String userId = JwtToken.getId(token, secret);
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
-            String model = (String) payload.get("model");
+            int modelId = (int) payload.get("modelId");
 
             // 检查是否包含附件信息（假设前端以 base64 或其他方式传输）
             List<Map<String, String>> fileMaps = (List<Map<String, String>>) payload.getOrDefault("files", Collections.emptyList());
@@ -73,7 +73,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
-            chatEntity.setModel(model);
+            chatEntity.setModelId(modelId);
             Flux<String> stringFlux;
             if (files.isEmpty()) {
                 chatClient.prompt()
@@ -143,10 +143,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                 }
                         );
             }
-
-            // 保存到数据库
-            chatMapper.saveChat(chatEntity);
-
         } catch (Exception e) {
             log.error("Error handling WebSocket message", e);
             try {
