@@ -33,7 +33,7 @@ public class ChatController {
 
     @GetMapping("/getChatHistory")
     public ResultEntity getChatHistory(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader(value = "Authorization") String token,
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize") int pageSize
     ){
