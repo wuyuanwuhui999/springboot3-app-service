@@ -21,14 +21,14 @@ public class ChatClientConfig {
     }
 
     @Bean
-    public ChatClient chatClient(OllamaChatModel model, ChatMemory chatMemory,MusicTool musicTool) {
+    public ChatClient chatClient(OllamaChatModel model, RedisChatMemory redisChatMemory,MusicTool musicTool) {
         return ChatClient
                 .builder(model)
                 .defaultOptions(ChatOptions.builder().model("qwen3:8b").build())
                 .defaultSystem(SystemtConstants.MUSIC_SYSTEMT_PROMPT)
                 .defaultAdvisors(
                         new SimpleLoggerAdvisor(),
-                        new MessageChatMemoryAdvisor(chatMemory)
+                        new MessageChatMemoryAdvisor(redisChatMemory)
                 )
                 .defaultTools(musicTool)
                 .build();
