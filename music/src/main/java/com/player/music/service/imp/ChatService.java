@@ -9,6 +9,7 @@ import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.model.Media;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.mysql.cj.util.TimeUtil.DATE_FORMATTER;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
 @Service
@@ -160,6 +159,7 @@ public class ChatService implements IChatService {
         if (fileEntity == null || fileEntity.getBase64() == null || fileEntity.getBase64().length == 0) {
             return ResultUtil.fail("Base64数据不能为空");
         }
+        List<Document> documents = new ArrayList<>();
         List<String> fileUrls = new ArrayList<>();
         try {
             for (String base64 : fileEntity.getBase64()) {
@@ -170,7 +170,7 @@ public class ChatService implements IChatService {
                 // 解析Base64数据
                 String[] parts = base64.split(",");
                 if (parts.length < 2) {
-                    continue; // 或者返回错误
+                    continue;
                 }
 
                 String header = parts[0];
@@ -194,7 +194,15 @@ public class ChatService implements IChatService {
                 Files.write(filePath, fileBytes);
 
                 // 构建访问URL
-                fileUrls.add(UPLOAD_DIR + "/" + fileName);
+                String fileUrl = UPLOAD_DIR + "/" + fileName;
+                fileUrls.add(fileUrl);
+
+                // 将文本文件和pdf转换为Document
+                Document document = convertToDocument(fileBytes, header, fileName);
+                if (document != null) {
+                    documents.add(document);
+                }
+                vectorStore.add(documents);
             }
 
             return ResultUtil.success(fileUrls,"文件保存成功");
@@ -202,5 +210,9 @@ public class ChatService implements IChatService {
             e.printStackTrace();
             return ResultUtil.fail("文件保存失败: " + e.getMessage());
         }
+    }
+
+    private Document convertToDocument(byte[] fileBytes, String mimeTypeHeader, String fileName){
+
     }
 }
