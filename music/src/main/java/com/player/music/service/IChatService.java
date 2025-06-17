@@ -1,6 +1,7 @@
 package com.player.music.service;
 
 import com.player.common.entity.ResultEntity;
+import com.player.music.entity.FileEntity;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
@@ -14,4 +15,6 @@ public interface IChatService {
     ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
 
     ResultEntity getModelList();
+
+    ResultEntity generateVector(FileEntity fileEntity);
 }

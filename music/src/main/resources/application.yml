@@ -28,6 +28,16 @@ spring:
       chat:
         model: qwen3:8b
         endpoint: /api/chat
+    vectorstore:
+      redis:
+        initialize-schema: true
+        host: localhost
+        database: 0
+        port: 6379
+        password:
+        timeout: 5000
+        index: music_docs_index
+        prefix: "music_vector:"
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8

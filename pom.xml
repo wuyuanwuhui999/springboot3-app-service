@@ -41,6 +41,7 @@
         <langchain4j.version>1.0.1-beta6</langchain4j.version>
         <langchain4j-core.version>1.0.1</langchain4j-core.version>
         <reactor-core.version>3.8.0-M3</reactor-core.version>
+        <spring-ai-starter-vector-store-redis.version>1.0.0</spring-ai-starter-vector-store-redis.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -193,6 +194,16 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-webflux</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-redis-store-spring-boot-starter</artifactId>
+                <version>${spring-ai.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-vector-store-redis</artifactId>
+                <version>${spring-ai-starter-vector-store-redis.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

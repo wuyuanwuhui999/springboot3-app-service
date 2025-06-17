@@ -1,6 +1,8 @@
 package com.player.music.service.imp;
 
+import com.player.common.utils.FileTypeUtil;
 import com.player.music.entity.ChatEntity;
+import com.player.music.entity.FileEntity;
 import com.player.music.handler.ChatWebSocketHandler;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
@@ -8,11 +10,13 @@ import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.model.Media;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,11 +26,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
+import static com.mysql.cj.util.TimeUtil.DATE_FORMATTER;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
 @Service
@@ -46,6 +49,9 @@ public class ChatService implements IChatService {
 
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
+
+    @Autowired
+    private VectorStore vectorStore;
 
     @Override
     public Flux<String> chat(String userId, String prompt, String chatId,int modelId, List<MultipartFile> files) {
@@ -147,5 +153,54 @@ public class ChatService implements IChatService {
     @Override
     public ResultEntity getModelList(){
         return ResultUtil.success(chatMapper.getModelList());
+    }
+
+    @Override
+    public ResultEntity generateVector(FileEntity fileEntity) {
+        if (fileEntity == null || fileEntity.getBase64() == null || fileEntity.getBase64().length == 0) {
+            return ResultUtil.fail("Base64数据不能为空");
+        }
+        List<String> fileUrls = new ArrayList<>();
+        try {
+            for (String base64 : fileEntity.getBase64()) {
+                if (!StringUtils.hasText(base64)) {
+                    continue;
+                }
+
+                // 解析Base64数据
+                String[] parts = base64.split(",");
+                if (parts.length < 2) {
+                    continue; // 或者返回错误
+                }
+
+                String header = parts[0];
+                String dataPart = parts[1];
+                byte[] fileBytes = Base64.getDecoder().decode(dataPart);
+
+                // 自动获取文件扩展名
+                String fileExtension = FileTypeUtil.getExtensionFromBase64Header(header);
+
+                // 生成文件名和路径
+                String fileName = UUID.randomUUID() + fileExtension;
+                Path directory = Paths.get(UPLOAD_DIR);
+
+                // 创建目录（如果不存在）
+                if (!Files.exists(directory)) {
+                    Files.createDirectories(directory);
+                }
+
+                // 保存文件
+                Path filePath = directory.resolve(fileName);
+                Files.write(filePath, fileBytes);
+
+                // 构建访问URL
+                fileUrls.add(UPLOAD_DIR + "/" + fileName);
+            }
+
+            return ResultUtil.success(fileUrls,"文件保存成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResultUtil.fail("文件保存失败: " + e.getMessage());
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.player.music.controller;
 
+import com.player.music.entity.FileEntity;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.utils.JwtToken;
@@ -43,5 +44,12 @@ public class ChatController {
     @GetMapping("/getModelList")
     public ResultEntity getModelList( ){
         return chatService.getModelList();
+    }
+
+    @PostMapping("/generateVector")
+    public ResultEntity generateVector(
+            @RequestBody FileEntity fileEntity
+    ){
+        return chatService.generateVector(fileEntity);
     }
 }
