@@ -42,4 +42,21 @@ public class FileTypeUtil {
         String mimeType = base64Header.split(":")[1].split(";")[0];
         return getExtensionFromMimeType(mimeType);
     }
+
+    public static String getFileExtension(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            return ""; // 如果路径为空，返回空字符串
+        }
+
+        int lastDotIndex = filePath.lastIndexOf('.');
+        int lastSeparatorIndex = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+
+        // 确保 '.' 在文件名部分而不是路径部分
+        if (lastDotIndex > lastSeparatorIndex && lastDotIndex < filePath.length() - 1) {
+            return filePath.substring(lastDotIndex).toLowerCase(); // 返回扩展名（包含 "."）
+        }
+
+        return ""; // 如果没有找到有效的扩展名，返回空字符串
+    }
+
 }
