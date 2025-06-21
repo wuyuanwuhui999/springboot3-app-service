@@ -53,8 +53,11 @@ spring:
     minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
   data:
     redis:
-      database: 2
+      host: localhost
+      database: 3
       port: 6379
+      password:
+      timeout: 5000
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径
@@ -68,3 +71,11 @@ logging:
   level:
     org.springframework.ai.chat.client.advisor: debug
     com.ai: debug
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: http://localhost:11434
+      model-name: qwen3:8b
+      log-requests: true
+      log-responses: true

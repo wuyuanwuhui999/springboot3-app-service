@@ -217,6 +217,7 @@
                 <artifactId>pdfbox</artifactId>
                 <version>${pdfbox.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

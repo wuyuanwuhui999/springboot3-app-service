@@ -1,22 +1,15 @@
 package com.player.ai.service.imp;
 
-import com.player.ai.entity.ChatEntity;
-import com.player.ai.handler.ChatWebSocketHandler;
+import com.player.ai.assistant.Assistant;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,76 +17,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
 @Service
 public class ChatService implements IChatService {
 
-    @Bean
-    public ChatWebSocketHandler chatWebSocketHandler(ChatClient chatClient, ChatService chatService, ChatMapper chatMapper,
-                                                     @Value("${spring.servlet.multipart.location}") String uploadDir) {
-        return new ChatWebSocketHandler(chatClient, chatService, chatMapper, uploadDir);
-    }
 
     @Autowired
     private ChatMapper chatMapper;
 
     @Autowired
-    private ChatClient chatClient;
+    private Assistant assistant;
 
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
 
     @Override
     public Flux<String> chat(String userId, String prompt, String chatId, List<MultipartFile> files) {
-        Flux<String> stringFlux;
-        ChatEntity chatEntity = new ChatEntity();
-        chatEntity.setChatId(chatId);
-        chatEntity.setUserId(userId);
-        chatEntity.setPrompt(prompt);
-        if (files == null || files.isEmpty()) {
-            // 没有附件，纯文本聊天
-            stringFlux = chatClient
-                    .prompt()
-                    .user(prompt)
-
-                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
-                    .stream()
-                    .content();
-
-        } else {
-            // 有附件，多模态聊天
-            // 1.解析多媒体
-            String uploadFiles = upload(files);
-            chatEntity.setFiles(uploadFiles);
-            List<Media> medias = files.stream()
-                    .map(file -> new Media(
-                                    MimeType.valueOf(Objects.requireNonNull(file.getContentType())),
-                                    file.getResource()
-                            )
-                    )
-                    .toList();
-            // 2.请求模型
-            stringFlux =  chatClient.prompt()
-                    .user(p -> p.text(prompt).media(medias.toArray(Media[]::new)))
-                    .advisors(a -> a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
-                    .stream()
-                    .content();
-        }
-        // 将 Flux<String> 转换为 Mono<String>
-        Mono<String> contentMono = stringFlux.collectList()
-                .map(list -> String.join("", list)); // 拼接字符串
-
-        // 订阅并保存到数据库
-        contentMono.subscribe(content -> {
-            chatEntity.setContent(content); // 设置内容
-            chatMapper.saveChat(chatEntity);
-        });
-
-        return stringFlux;
+        return assistant.chat(chatId,prompt);
     }
 
     @Override

@@ -1,14 +1,14 @@
 package com.player.ai.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.player.ai.assistant.Assistant;
 import com.player.ai.entity.ChatEntity;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.imp.ChatService;
 import com.player.common.utils.JwtToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -19,21 +19,16 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.util.*;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
-
+@Component
 @Slf4j
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-    private final ChatClient chatClient;
-    private final ChatService chatService;
+    private final Assistant assistant;
     private final ChatMapper chatMapper;
-    private final String uploadDir;
 
-    public ChatWebSocketHandler(ChatClient chatClient, ChatService chatService, ChatMapper chatMapper, String uploadDir) {
-        this.chatClient = chatClient;
-        this.chatService = chatService;
+    public ChatWebSocketHandler(Assistant assistant, ChatMapper chatMapper) {
         this.chatMapper = chatMapper;
-        this.uploadDir = uploadDir;
+        this.assistant = assistant;
     }
 
     @Value("${token.secret}")
@@ -71,78 +66,30 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
             chatEntity.setModel(model);
-            Flux<String> stringFlux;
-            if (files.isEmpty()) {
-                chatClient.prompt()
-                        .user(prompt)
-                        .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
-                        .stream()
-                        .content()
-                        .subscribe(
-                            responsePart -> {
-                                chatEntity.setContent(chatEntity.getContent() + responsePart);
-                                sendResponse(session, responsePart);
-                            },
-                            throwable -> {
-                                log.error("Error during streaming", throwable);
-                                try {
-                                    session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
-                                } catch (IOException e) {
-                                    log.error("Failed to send error message", e);
-                                }
-                            },
-                            () -> {
-                                // 所有数据接收完毕后保存数据库
-                                chatMapper.saveChat(chatEntity);
-                                try {
-                                    session.sendMessage(new TextMessage("[completed]"));
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                    );
-
-            } else {
-                // 类似原来的多模态处理逻辑
-                String uploadedFiles = chatService.upload(files);
-                chatEntity.setFiles(uploadedFiles);
-
-                List<Media> medias = files.stream()
-                        .map(file -> new Media(MimeType.valueOf(file.getContentType()), file.getResource()))
-                        .toList();
-
-                chatClient.prompt()
-                        .user(p -> p.text(prompt).media(medias.toArray(Media[]::new)))
-                        .advisors(a -> a.param("conversationId", chatId))
-                        .stream()
-                        .content()
-                        .subscribe(
-                                responsePart -> {
-                                    chatEntity.setContent(chatEntity.getContent() + responsePart);
-                                    sendResponse(session, responsePart);
-                                },
-                                throwable -> {
-                                    log.error("Error during streaming", throwable);
-                                    try {
-                                        session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
-                                    } catch (IOException e) {
-                                        log.error("Failed to send error message", e);
-                                    }
-                                },
-                                () -> {
-                                    // 所有数据接收完毕后保存数据库
-                                    chatMapper.saveChat(chatEntity);
-                                    try {
-                                        session.sendMessage(new TextMessage("[completed]"));
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                        );
-            }
-
-            // 保存到数据库
-            chatMapper.saveChat(chatEntity);
+        assistant.chat(chatId,prompt)
+                .subscribe(
+                    responsePart -> {
+                        chatEntity.setContent(chatEntity.getContent() + responsePart);
+                        sendResponse(session, responsePart);
+                    },
+                    throwable -> {
+                        log.error("Error during streaming", throwable);
+                        try {
+                            session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
+                        } catch (IOException e) {
+                            log.error("Failed to send error message", e);
+                        }
+                    },
+                    () -> {
+                        // 所有数据接收完毕后保存数据库
+                        chatMapper.saveChat(chatEntity);
+                        try {
+                            session.sendMessage(new TextMessage("[completed]"));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            );
 
         } catch (Exception e) {
             log.error("Error handling WebSocket message", e);
