@@ -2,7 +2,6 @@ package com.player.music.service.imp;
 
 import com.player.common.utils.FileTypeUtil;
 import com.player.music.entity.ChatEntity;
-import com.player.music.entity.FileEntity;
 import com.player.music.handler.ChatWebSocketHandler;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
@@ -10,7 +9,6 @@ import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.fdf.FDFDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
@@ -21,12 +19,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -144,74 +142,71 @@ public class ChatService implements IChatService {
         return ResultUtil.success(chatMapper.getModelList());
     }
 
+    // 允许的文件类型
+    private static final List<String> ALLOWED_TYPES = Arrays.asList("text/plain", "application/pdf");
+
     @Override
-    public ResultEntity generateVector(FileEntity fileEntity) {
-        if (fileEntity == null || fileEntity.getBase64() == null || fileEntity.getBase64().length == 0) {
-            return ResultUtil.fail("Base64数据不能为空");
+    public ResultEntity generateVector(MultipartFile file) throws IOException {
+        // 检查文件类型
+        String contentType = file.getContentType();
+        if (!ALLOWED_TYPES.contains(contentType)) {
+            return ResultUtil.fail(null,"只允许上传txt和pdf格式文件");
         }
-        List<Document> documents = new ArrayList<>();
+
+        // 检查文件是否为空
+        if (file.isEmpty()) {
+            return ResultUtil.fail(null,"文件不能为空");
+        }
+
+        // 创建上传目录（如果不存在）
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+        // 保存文件
+        byte[] bytes = file.getBytes();
+        Path path = uploadPath.resolve(Objects.requireNonNull(file.getOriginalFilename()));
+        Files.write(path, bytes);
         List<String> fileUrls = new ArrayList<>();
-        try {
-            for (String base64 : fileEntity.getBase64()) {
-                if (!StringUtils.hasText(base64)) {
-                    continue;
-                }
-                String[] parts = base64.split(",");
-                if (parts.length < 2) {
-                    continue;
-                }
-                String header = parts[0];
-                String dataPart = parts[1];
-                byte[] fileBytes = Base64.getDecoder().decode(dataPart);
-                String fileExtension = FileTypeUtil.getExtensionFromBase64Header(header);
-                String fileName = UUID.randomUUID() + fileExtension;
-                Path directory = Paths.get(UPLOAD_DIR);
-                if (!Files.exists(directory)) {
-                    Files.createDirectories(directory);
-                }
-                Path filePath = directory.resolve(fileName);
-                Files.write(filePath, fileBytes);
-                String fileUrl = UPLOAD_DIR + "/" + fileName;
-                fileUrls.add(fileUrl);
-                Document document = convertToDocument(filePath);
-                if (document != null) {
-                    documents.add(document);
-                }
-            }
-            vectorStore.add(documents);
-            return ResultUtil.success(fileUrls, "文件保存成功");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResultUtil.fail("文件保存失败: " + e.getMessage());
-        }
+        List<Document> documents = convertToDocument(file);
+        vectorStore.add(documents);
+        return ResultUtil.success(fileUrls, "文件保存成功");
     }
 
-    private Document convertToDocument(Path filePath) throws IOException {
-        // Get file extension
-        String fileName = filePath.getFileName().toString();
-        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+    private List<Document> convertToDocument(MultipartFile file) throws IOException {
+        List<Document> documents = new ArrayList<>();
+        if (file.getContentType().equals("application/pdf")) {
+            // PDF文件处理
+            try ( PDDocument pdfDocument = Loader.loadPDF(file.getBytes())) {
+                PDFTextStripper stripper = new PDFTextStripper();
+                for (int page = 1; page <= pdfDocument.getNumberOfPages(); page++) {
+                    stripper.setStartPage(page);
+                    stripper.setEndPage(page);
+                    String text = stripper.getText(pdfDocument);
 
-        // Read file content based on file type
-        String content;
-        switch (fileExtension) {
-            case "txt":
-                content = new String(Files.readAllBytes(filePath));
-                break;
-            case "pdf":
-                try (PDDocument document = Loader.loadPDF(filePath.toFile())) {
-                    PDFTextStripper stripper = new PDFTextStripper();
-                    content = stripper.getText(document);
+                    documents.add(new Document(
+                            file.getOriginalFilename() + "-page-" + page,
+                            text,
+                            Map.of(
+                                    "type", "pdf",
+                                    "page", page,
+                                    "filename", file.getOriginalFilename()
+                            )
+                    ));
                 }
-                break;
-            default:
-                throw new UnsupportedOperationException("不支持的文件格式: " + fileExtension);
+            }
+        } else {
+            // 文本文件处理
+            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
+            documents.add(new Document(
+                    file.getOriginalFilename(),
+                    content,
+                    Map.of(
+                            "type", "text",
+                            "filename", file.getOriginalFilename()
+                    )
+            ));
         }
-
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put("file_name", fileName);
-        metadata.put("file_path", filePath.toString());
-        metadata.put("file_type", fileExtension);
-
-        return new Document(content, metadata);
+        return documents;
     }
 }

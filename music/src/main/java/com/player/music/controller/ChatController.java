@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequestMapping(value="/service/music")
@@ -48,8 +49,8 @@ public class ChatController {
 
     @PostMapping("/generateVector")
     public ResultEntity generateVector(
-            @RequestBody FileEntity fileEntity
-    ){
-        return chatService.generateVector(fileEntity);
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+        return chatService.generateVector(file);
     }
 }

@@ -5,6 +5,7 @@ import com.player.music.entity.FileEntity;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IChatService {
@@ -16,5 +17,5 @@ public interface IChatService {
 
     ResultEntity getModelList();
 
-    ResultEntity generateVector(FileEntity fileEntity);
+    ResultEntity generateVector(MultipartFile file) throws IOException;
 }
