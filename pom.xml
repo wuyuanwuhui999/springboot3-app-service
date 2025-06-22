@@ -44,6 +44,7 @@
         <spring-ai-starter-vector-store-redis.version>1.0.0</spring-ai-starter-vector-store-redis.version>
         <pdfbox.version>3.0.5</pdfbox.version>
         <tika-core.version>3.2.0</tika-core.version>
+        <spring-ai-starter-model-ollama>1.0.0</spring-ai-starter-model-ollama>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -205,7 +206,8 @@
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-starter-vector-store-redis</artifactId>
-                <version>${spring-ai-starter-vector-store-redis.version}</version>
+                <version>${spring-ai.version}</version>
+<!--                <version>${spring-ai-starter-vector-store-redis.version}</version>-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.ai</groupId>
@@ -217,7 +219,17 @@
                 <artifactId>pdfbox</artifactId>
                 <version>${pdfbox.version}</version>
             </dependency>
-
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.ai</groupId>-->
+<!--                <artifactId>spring-ai-starter-model-ollama</artifactId>-->
+<!--                <version>${spring-ai-starter-model-ollama}</version>-->
+<!--            </dependency>-->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-ollama</artifactId>
+<!--                <version>${spring-ai-starter-model-ollama}</version>-->
+                <version>${spring-ai.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

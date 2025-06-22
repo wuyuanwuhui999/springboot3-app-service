@@ -53,4 +53,12 @@ public class ChatController {
     ) throws IOException {
         return chatService.generateVector(file);
     }
+
+    @GetMapping("/searchDoc")
+    public Flux<String> searchDoc(
+            @RequestParam("query") String query,
+            @RequestParam("chatId") String chatId
+    ) {
+        return chatService.searchDoc(query,chatId);
+    }
 }

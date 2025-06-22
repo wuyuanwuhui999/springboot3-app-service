@@ -5,9 +5,13 @@ import com.player.music.entity.ChatEntity;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.imp.ChatService;
 import com.player.common.utils.JwtToken;
+import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.model.Media;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +35,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final ChatService chatService;
     private final ChatMapper chatMapper;
     private final String uploadDir;
+    @Autowired
+    private VectorStore vectorStore;
 
     public ChatWebSocketHandler(ChatClient chatClient, ChatService chatService, ChatMapper chatMapper, String uploadDir) {
         this.chatClient = chatClient;
@@ -53,20 +59,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
             int modelId = (int) payload.get("modelId");
-
-            // 检查是否包含附件信息（假设前端以 base64 或其他方式传输）
-            List<Map<String, String>> fileMaps = (List<Map<String, String>>) payload.getOrDefault("files", Collections.emptyList());
-            List<MultipartFile> files = new ArrayList<>();
-
-            // 这里只是示例，实际需要处理前端传来的文件数据（比如base64解码保存）
-            for (Map<String, String> fileMap : fileMaps) {
-                String fileName = fileMap.get("name");
-                String contentType = fileMap.get("type");
-                String base64Data = fileMap.get("data");
-
-                // todo: 解码并构造 MultipartFile（可借助 Base64DecodingResource）
+            String type = (String) payload.get("type");
+            if(!type.isEmpty()){
+                // 1. 从向量库检索相关文档
+                List<Document> relevantDocs = vectorStore.similaritySearch(prompt);
+                // 3. 构建完整提示词
+                // 2. 构建上下文提示
+                String context =  PromptUtil.buildContext(relevantDocs);
+                // 3. 构建完整提示词
+                prompt = PromptUtil.buildPrompt(prompt, context);
             }
-
             // 构造 ChatEntity
             ChatEntity chatEntity = new ChatEntity();
             chatEntity.setChatId(chatId);
@@ -74,14 +76,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
             chatEntity.setModelId(modelId);
-            Flux<String> stringFlux;
-            if (files.isEmpty()) {
-                chatClient.prompt()
-                        .user(prompt)
-                        .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
-                        .stream()
-                        .content()
-                        .subscribe(
+            chatClient.prompt()
+                    .user(prompt)
+                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
+                    .stream()
+                    .content()
+                    .subscribe(
                             responsePart -> {
                                 chatEntity.setContent(chatEntity.getContent() + responsePart);
                                 sendResponse(session, responsePart);
@@ -104,45 +104,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                 }
                             }
                     );
-
-            } else {
-                // 类似原来的多模态处理逻辑
-                String uploadedFiles = chatService.upload(files);
-                chatEntity.setFiles(uploadedFiles);
-
-                List<Media> medias = files.stream()
-                        .map(file -> new Media(MimeType.valueOf(file.getContentType()), file.getResource()))
-                        .toList();
-
-                chatClient.prompt()
-                        .user(p -> p.text(prompt).media(medias.toArray(Media[]::new)))
-                        .advisors(a -> a.param("conversationId", chatId))
-                        .stream()
-                        .content()
-                        .subscribe(
-                                responsePart -> {
-                                    chatEntity.setContent(chatEntity.getContent() + responsePart);
-                                    sendResponse(session, responsePart);
-                                },
-                                throwable -> {
-                                    log.error("Error during streaming", throwable);
-                                    try {
-                                        session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
-                                    } catch (IOException e) {
-                                        log.error("Failed to send error message", e);
-                                    }
-                                },
-                                () -> {
-                                    // 所有数据接收完毕后保存数据库
-                                    chatMapper.saveChat(chatEntity);
-                                    try {
-                                        session.sendMessage(new TextMessage("[completed]"));
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                        );
-            }
         } catch (Exception e) {
             log.error("Error handling WebSocket message", e);
             try {

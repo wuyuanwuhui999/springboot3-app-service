@@ -28,6 +28,8 @@ spring:
       chat:
         model: qwen3:8b
         endpoint: /api/chat
+      embedding:
+        model: mxbai-embed-large
     vectorstore:
       redis:
         initialize-schema: true

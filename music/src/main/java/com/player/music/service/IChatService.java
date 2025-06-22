@@ -18,4 +18,6 @@ public interface IChatService {
     ResultEntity getModelList();
 
     ResultEntity generateVector(MultipartFile file) throws IOException;
+
+    Flux<String> searchDoc(String query,String chatId);
 }

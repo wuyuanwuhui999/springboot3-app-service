@@ -7,6 +7,7 @@ import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
+import com.player.music.uitls.PromptUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -168,45 +169,25 @@ public class ChatService implements IChatService {
         Path path = uploadPath.resolve(Objects.requireNonNull(file.getOriginalFilename()));
         Files.write(path, bytes);
         List<String> fileUrls = new ArrayList<>();
-        List<Document> documents = convertToDocument(file);
+        List<Document> documents = PromptUtil.convertToDocument(file);
         vectorStore.add(documents);
         return ResultUtil.success(fileUrls, "文件保存成功");
     }
 
-    private List<Document> convertToDocument(MultipartFile file) throws IOException {
-        List<Document> documents = new ArrayList<>();
-        if (file.getContentType().equals("application/pdf")) {
-            // PDF文件处理
-            try ( PDDocument pdfDocument = Loader.loadPDF(file.getBytes())) {
-                PDFTextStripper stripper = new PDFTextStripper();
-                for (int page = 1; page <= pdfDocument.getNumberOfPages(); page++) {
-                    stripper.setStartPage(page);
-                    stripper.setEndPage(page);
-                    String text = stripper.getText(pdfDocument);
+    @Override
+    public Flux<String> searchDoc(String query,String chatId) {
+        // 1. 从向量库检索相关文档
+        List<Document> relevantDocs = vectorStore.similaritySearch(query);
+        // 2. 构建上下文提示
+        String context = PromptUtil.buildContext(relevantDocs);
+        // 3. 构建完整提示词
+        String fullPrompt = PromptUtil.buildPrompt(query, context);
+        return chatClient
+                .prompt()
+                .user(fullPrompt)
+                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
+                .stream()
+                .content();
 
-                    documents.add(new Document(
-                            file.getOriginalFilename() + "-page-" + page,
-                            text,
-                            Map.of(
-                                    "type", "pdf",
-                                    "page", page,
-                                    "filename", file.getOriginalFilename()
-                            )
-                    ));
-                }
-            }
-        } else {
-            // 文本文件处理
-            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-            documents.add(new Document(
-                    file.getOriginalFilename(),
-                    content,
-                    Map.of(
-                            "type", "text",
-                            "filename", file.getOriginalFilename()
-                    )
-            ));
-        }
-        return documents;
     }
 }
