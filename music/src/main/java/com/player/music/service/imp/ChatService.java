@@ -1,6 +1,8 @@
 package com.player.music.service.imp;
 
 import com.player.common.utils.FileTypeUtil;
+import com.player.music.config.DynamicVectorStore;
+import com.player.music.entity.ChatDocEntity;
 import com.player.music.entity.ChatEntity;
 import com.player.music.handler.ChatWebSocketHandler;
 import com.player.music.mapper.ChatMapper;
@@ -147,7 +149,7 @@ public class ChatService implements IChatService {
     private static final List<String> ALLOWED_TYPES = Arrays.asList("text/plain", "application/pdf");
 
     @Override
-    public ResultEntity generateVector(MultipartFile file) throws IOException {
+    public ResultEntity generateVector(MultipartFile file, String userId) throws IOException {
         // 检查文件类型
         String contentType = file.getContentType();
         if (!ALLOWED_TYPES.contains(contentType)) {
@@ -164,18 +166,46 @@ public class ChatService implements IChatService {
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
-        // 保存文件
+
+        ChatDocEntity chatDocEntity = new ChatDocEntity();
+
+        // 生成32位ID
+        String fileId = UUID.randomUUID().toString().replace("-", "");
+        chatDocEntity.setId(fileId);
+
+        // 获取原始文件名与扩展名
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = PromptUtil.getFileExtension(file);
+
+        chatDocEntity.setName(originalFilename);
+        chatDocEntity.setUserId(userId);
+        chatDocEntity.setExt(fileExtension);
+
+        chatMapper.saveDoc(chatDocEntity);
+
+        // 保存文件：使用32位ID作为文件名
         byte[] bytes = file.getBytes();
-        Path path = uploadPath.resolve(Objects.requireNonNull(file.getOriginalFilename()));
+
+        // 构造新文件名：32位ID + 扩展名
+        String newFileName = fileId + (fileExtension.isEmpty() ? "" : "." + fileExtension);
+        Path path = uploadPath.resolve(newFileName);
+
         Files.write(path, bytes);
+
         List<String> fileUrls = new ArrayList<>();
         List<Document> documents = PromptUtil.convertToDocument(file);
+
+        // 设置当前用户
+        ((DynamicVectorStore)vectorStore).setCurrentUser(userId);
         vectorStore.add(documents);
+
         return ResultUtil.success(fileUrls, "文件保存成功");
     }
 
     @Override
-    public Flux<String> searchDoc(String query,String chatId) {
+    public Flux<String> searchDoc(String query,String chatId,String userId) {
+        // 设置当前用户
+        ((DynamicVectorStore)vectorStore).setCurrentUser(userId);
         // 1. 从向量库检索相关文档
         List<Document> relevantDocs = vectorStore.similaritySearch(query);
         // 2. 构建上下文提示
@@ -189,5 +219,10 @@ public class ChatService implements IChatService {
                 .stream()
                 .content();
 
+    }
+
+    @Override
+    public ResultEntity getDocList(String userId) {
+        return ResultUtil.success(chatMapper.getDocList(userId));
     }
 }

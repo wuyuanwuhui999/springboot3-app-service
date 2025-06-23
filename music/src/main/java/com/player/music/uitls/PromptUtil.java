@@ -74,4 +74,18 @@ public class PromptUtil {
         }
         return documents;
     }
+
+    public static String getFileExtension(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isEmpty()) {
+            return "";
+        }
+
+        int dotIndex = originalFilename.lastIndexOf(".");
+        if (dotIndex == -1 || dotIndex == originalFilename.length() - 1) {
+            return ""; // 没有后缀或以 . 结尾
+        }
+
+        return originalFilename.substring(dotIndex + 1); // 返回后缀，如 "jpg"
+    }
 }

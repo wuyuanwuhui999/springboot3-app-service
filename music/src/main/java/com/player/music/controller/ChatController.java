@@ -49,16 +49,25 @@ public class ChatController {
 
     @PostMapping("/generateVector")
     public ResultEntity generateVector(
-            @RequestParam("file") MultipartFile file
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader("Authorization") String token
     ) throws IOException {
-        return chatService.generateVector(file);
+        return chatService.generateVector(file,JwtToken.getId(token, secret));
     }
 
     @GetMapping("/searchDoc")
     public Flux<String> searchDoc(
             @RequestParam("query") String query,
-            @RequestParam("chatId") String chatId
+            @RequestParam("chatId") String chatId,
+            @RequestHeader("Authorization") String token
     ) {
-        return chatService.searchDoc(query,chatId);
+        return chatService.searchDoc(query,chatId,JwtToken.getId(token, secret));
+    }
+
+    @GetMapping("/getDocList")
+    public ResultEntity getDocList(
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.getDocList(JwtToken.getId(token, secret));
     }
 }

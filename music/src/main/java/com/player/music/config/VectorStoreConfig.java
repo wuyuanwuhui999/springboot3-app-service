@@ -37,25 +37,35 @@ public class VectorStoreConfig {
 
     @Bean
     public VectorStore vectorStore(EmbeddingModel embeddingModel) {
-        SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel)
-                .build();
-        // 尝试从文件加载已有数据
-        try {
-            vectorStore.load(new File("G:\\static\\ai\\vector_store.json"));
-        } catch (Exception e) {
-            System.out.println("No existing vector store file found, starting fresh");
-        }
+        DynamicVectorStore store = new DynamicVectorStore(embeddingModel);
 
-        // 添加关闭钩子以保存数据
+        // 注册关闭钩子
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                vectorStore.save(new File("G:\\static\\ai\\vector_store.json"));
-                System.out.println("Vector store data saved successfully");
-            } catch (Exception e) {
-                System.err.println("Failed to save vector store data: " + e.getMessage());
-            }
+            store.saveAllVectorStores();
         }));
 
-        return vectorStore;
+        return store;
+        // 这里返回一个代理 VectorStore，实际使用时需要传入 userId
+//        return new DynamicVectorStore(embeddingModel);
+//        SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel)
+//                .build();
+//        // 尝试从文件加载已有数据
+//        try {
+//            vectorStore.load(new File("G:\\static\\ai\\vector_store.json"));
+//        } catch (Exception e) {
+//            System.out.println("No existing vector store file found, starting fresh");
+//        }
+//
+//        // 添加关闭钩子以保存数据
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            try {
+//                vectorStore.save(new File("G:\\static\\ai\\vector_store.json"));
+//                System.out.println("Vector store data saved successfully");
+//            } catch (Exception e) {
+//                System.err.println("Failed to save vector store data: " + e.getMessage());
+//            }
+//        }));
+//
+//        return vectorStore;
     }
 }

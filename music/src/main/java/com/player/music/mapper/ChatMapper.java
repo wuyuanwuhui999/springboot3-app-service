@@ -1,5 +1,6 @@
 package com.player.music.mapper;
 
+import com.player.music.entity.ChatDocEntity;
 import com.player.music.entity.ChatEntity;
 import com.player.music.entity.ChatModelEntity;
 import com.player.music.entity.MusicEntity;
@@ -18,4 +19,8 @@ public interface ChatMapper {
     List<MusicEntity> selectMusicList(String name);
 
     List<ChatModelEntity> getModelList();
+
+    void saveDoc(ChatDocEntity chatDocEntity);
+
+    List<ChatDocEntity> getDocList(String userId);
 }

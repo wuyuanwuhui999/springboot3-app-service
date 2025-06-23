@@ -35,5 +35,13 @@
     <select id="getModelList" resultType="ChatModelEntity">
         select * from chat_model
     </select>
+
+    <insert id="saveDoc" parameterType="ChatDocEntity">
+        insert into chat_doc(id,name,ext,user_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},now(),now())
+    </insert>
+
+    <select id="getDocList" resultType="ChatDocEntity">
+        select * from chat_doc where user_id = #{userId}
+    </select>
 </mapper>
 
