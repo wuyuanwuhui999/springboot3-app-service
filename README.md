@@ -137,3 +137,16 @@ server{
     }
 }
 ```
+
+下面是一个使用 ChromaDB 的简单 Python 示例代码，使用python运行chroma，作为RAG向量数据库
+
+```python
+import chromadb
+
+# 启动一个本地内存服务器（不持久化）
+client = chromadb.Client()
+
+# 创建一个集合（collection）
+collection = client.create_collection("chroma_vector")
+
+print("Chroma 已启动并创建了一个集合")
