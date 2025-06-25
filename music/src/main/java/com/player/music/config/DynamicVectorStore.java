@@ -8,10 +8,15 @@ import org.springframework.ai.chroma.vectorstore.ChromaApi;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.web.client.ResourceAccessException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DynamicVectorStore implements VectorStore {
 
@@ -30,15 +35,42 @@ public class DynamicVectorStore implements VectorStore {
 
     @Override
     public void add(List<Document> documents) {
-        // 为每个文档添加用户ID作为元数据
-        List<Document> docsWithUser = documents.stream()
+        // 根据内容大小动态调整批次
+        int maxBatchSizeBytes = 2 * 1024 * 1024; // 2MB
+        int currentBatchSize = 0;
+        List<Document> currentBatch = new ArrayList<>();
+
+        for (Document doc : documents) {
+            int docSize = estimateDocumentSize(doc);
+
+            if (currentBatchSize + docSize > maxBatchSizeBytes && !currentBatch.isEmpty()) {
+                processBatch(currentBatch);
+                currentBatch.clear();
+                currentBatchSize = 0;
+            }
+
+            currentBatch.add(doc);
+            currentBatchSize += docSize;
+        }
+
+        if (!currentBatch.isEmpty()) {
+            processBatch(currentBatch);
+        }
+    }
+
+    private int estimateDocumentSize(Document doc) {
+        // 简单估算：内容长度 + 元数据序列化后的预估大小
+        return doc.getFormattedContent().length() + doc.getMetadata().toString().length() * 2;
+    }
+
+    private void processBatch(List<Document> batch) {
+        List<Document> docsWithUser = batch.stream()
                 .map(doc -> {
-                    Map<String, Object> metadata = doc.getMetadata();
+                    Map<String, Object> metadata = new HashMap<>(doc.getMetadata());
                     metadata.put("user_id", currentUser);
                     return new Document(doc.getFormattedContent(), metadata);
                 })
                 .collect(Collectors.toList());
-
         delegate.add(docsWithUser);
     }
 

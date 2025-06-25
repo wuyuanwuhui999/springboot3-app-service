@@ -146,6 +146,10 @@ public class ChatService implements IChatService {
 
     @Override
     public ResultEntity uploadDoc(MultipartFile file, String userId) throws IOException {
+        // 添加内容检查
+        if (file.getSize() > 10 * 1024 * 1024) { // 10MB
+            return ResultUtil.fail(null,"文件大小不能超过10MB");
+        }
         // 检查文件类型
         String contentType = file.getContentType();
         if (!ALLOWED_TYPES.contains(contentType)) {

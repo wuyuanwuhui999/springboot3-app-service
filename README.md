@@ -150,3 +150,6 @@ client = chromadb.Client()
 collection = client.create_collection("chroma_vector")
 
 print("Chroma 已启动并创建了一个集合")
+```
+运行chroma服务命令行如下   
+chroma run --path "D:/chromadb" --host 0.0.0.0 --port 8000
