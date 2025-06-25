@@ -10,9 +10,6 @@ import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import com.player.music.uitls.PromptUtil;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.model.Media;
@@ -27,7 +24,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -149,7 +145,7 @@ public class ChatService implements IChatService {
     private static final List<String> ALLOWED_TYPES = Arrays.asList("text/plain", "application/pdf");
 
     @Override
-    public ResultEntity generateVector(MultipartFile file, String userId) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId) throws IOException {
         // 检查文件类型
         String contentType = file.getContentType();
         if (!ALLOWED_TYPES.contains(contentType)) {

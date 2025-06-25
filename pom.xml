@@ -45,6 +45,8 @@
         <pdfbox.version>3.0.5</pdfbox.version>
         <tika-core.version>3.2.0</tika-core.version>
         <spring-ai-starter-model-ollama>1.0.0</spring-ai-starter-model-ollama>
+        <pinecone-client.version>5.1.0</pinecone-client.version>
+        <jackson-core.version>2.19.1</jackson-core.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -219,16 +221,30 @@
                 <artifactId>pdfbox</artifactId>
                 <version>${pdfbox.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.ai</groupId>-->
-<!--                <artifactId>spring-ai-starter-model-ollama</artifactId>-->
-<!--                <version>${spring-ai-starter-model-ollama}</version>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>io.pinecone</groupId>
+                <artifactId>pinecone-client</artifactId>
+                <version>${pinecone-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-chroma-store</artifactId>
+                <version>${spring-ai.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-ollama</artifactId>
-<!--                <version>${spring-ai-starter-model-ollama}</version>-->
                 <version>${spring-ai.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version> <!-- 使用最新稳定版 -->
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

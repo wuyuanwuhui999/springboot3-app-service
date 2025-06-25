@@ -89,3 +89,8 @@ ollama:
   top-p: 0.9
   timeout: 120s
   max-retries: 3
+
+chroma:
+  host: localhost
+  port: 8000
+  collectName: chroma_vector

@@ -6,7 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
 
-@SpringBootApplication(scanBasePackages = "com.player.music",exclude = { HttpClientAutoConfiguration.class, RestClientAutoConfiguration.class})
+@SpringBootApplication(
+        scanBasePackages = "com.player.music",exclude = {
+            HttpClientAutoConfiguration.class,
+            RestClientAutoConfiguration.class,
+            org.springframework.ai.autoconfigure.vectorstore.chroma.ChromaVectorStoreAutoConfiguration.class
+        }
+)
 @MapperScan("com.player.music.mapper")
 public class MusicApplication {
 

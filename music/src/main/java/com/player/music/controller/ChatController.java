@@ -47,12 +47,12 @@ public class ChatController {
         return chatService.getModelList();
     }
 
-    @PostMapping("/generateVector")
-    public ResultEntity generateVector(
+    @PostMapping("/uploadDoc")
+    public ResultEntity uploadDoc(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String token
     ) throws IOException {
-        return chatService.generateVector(file,JwtToken.getId(token, secret));
+        return chatService.uploadDoc(file,JwtToken.getId(token, secret));
     }
 
     @GetMapping("/searchDoc")

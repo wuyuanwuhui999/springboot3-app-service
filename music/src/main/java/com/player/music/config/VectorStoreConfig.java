@@ -1,18 +1,17 @@
 package com.player.music.config;
 
 import io.micrometer.observation.ObservationRegistry;
+import org.springframework.ai.chroma.vectorstore.ChromaApi;
+import org.springframework.ai.chroma.vectorstore.ChromaVectorStore;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.ollama.management.ModelManagementOptions;
-import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.io.File;
 
 @Configuration
 public class VectorStoreConfig {
@@ -21,6 +20,12 @@ public class VectorStoreConfig {
 
     @Value("${spring.ai.ollama.embedding.model}")
     private String embeddingModelName;
+
+    @Value("${chroma.host}")
+    private String chromaHost;
+
+    @Value("${chroma.collectName}")
+    private String collectName;
 
     @Bean
     public OllamaApi ollamaApi() {
@@ -37,35 +42,8 @@ public class VectorStoreConfig {
 
     @Bean
     public VectorStore vectorStore(EmbeddingModel embeddingModel) {
-        DynamicVectorStore store = new DynamicVectorStore(embeddingModel);
-
-        // 注册关闭钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            store.saveAllVectorStores();
-        }));
-
-        return store;
-        // 这里返回一个代理 VectorStore，实际使用时需要传入 userId
-//        return new DynamicVectorStore(embeddingModel);
-//        SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel)
-//                .build();
-//        // 尝试从文件加载已有数据
-//        try {
-//            vectorStore.load(new File("G:\\static\\ai\\vector_store.json"));
-//        } catch (Exception e) {
-//            System.out.println("No existing vector store file found, starting fresh");
-//        }
-//
-//        // 添加关闭钩子以保存数据
-//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//            try {
-//                vectorStore.save(new File("G:\\static\\ai\\vector_store.json"));
-//                System.out.println("Vector store data saved successfully");
-//            } catch (Exception e) {
-//                System.err.println("Failed to save vector store data: " + e.getMessage());
-//            }
-//        }));
-//
-//        return vectorStore;
+        // 创建Chroma API客户端
+        ChromaApi chromaApi = new ChromaApi(chromaHost);
+        return new DynamicVectorStore(chromaApi, embeddingModel, collectName);
     }
 }
