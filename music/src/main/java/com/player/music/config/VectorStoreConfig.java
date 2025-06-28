@@ -67,10 +67,11 @@ public class VectorStoreConfig {
         options.setSimilarity(SimilarityFunction.cosine);           // Optional: defaults to COSINE
         options.setDimensions(dimensions);             // Optional: defaults to model dimensions or 1536
 
-        return ElasticsearchVectorStore.builder(restClient, embeddingModel)
-                .options(options)                     // Optional: use custom options
-                .initializeSchema(true)               // Optional: defaults to false
-                .batchingStrategy(new TokenCountBatchingStrategy()) // Optional: defaults to TokenCountBatchingStrategy
-                .build();
+        return new ElasticsearchUserAwareVectorStore(restClient, embeddingModel, options);
+//        return ElasticsearchVectorStore.builder(restClient, embeddingModel)
+//                .options(options)                     // Optional: use custom options
+//                .initializeSchema(true)               // Optional: defaults to false
+//                .batchingStrategy(new TokenCountBatchingStrategy()) // Optional: defaults to TokenCountBatchingStrategy
+//                .build();
     }
 }

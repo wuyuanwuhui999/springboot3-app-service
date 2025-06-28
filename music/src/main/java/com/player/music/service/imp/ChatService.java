@@ -1,5 +1,6 @@
 package com.player.music.service.imp;
 
+import com.player.music.config.UserAwareVectorStore;
 import com.player.music.entity.ChatDocEntity;
 import com.player.music.entity.ChatEntity;
 import com.player.music.handler.ChatWebSocketHandler;
@@ -194,7 +195,7 @@ public class ChatService implements IChatService {
         List<Document> documents = PromptUtil.convertToDocument(file);
 
         // 设置当前用户
-//        ((DynamicVectorStore)vectorStore).setCurrentUser(userId);
+        ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
         vectorStore.add(documents);
 
         return ResultUtil.success(fileUrls, "文件保存成功");
@@ -203,7 +204,7 @@ public class ChatService implements IChatService {
     @Override
     public Flux<String> searchDoc(String query,String chatId,String userId) {
         // 设置当前用户
-//        ((DynamicVectorStore)vectorStore).setCurrentUser(userId);
+        ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
         // 1. 从向量库检索相关文档
         List<Document> relevantDocs = vectorStore.similaritySearch(query);
         // 2. 构建上下文提示
