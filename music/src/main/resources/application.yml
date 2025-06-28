@@ -22,6 +22,9 @@ spring:
       max-file-size: 10MB # 单个文件最大大小
       max-request-size: 50MB # 请求的最大大小
       location: G:/static/ai/
+  elasticsearch:
+    host: localhost
+    port: 9200
   ai:
     ollama:
       base-url: http://localhost:11434
@@ -32,8 +35,13 @@ spring:
         model: mxbai-embed-large
     vectorstore:
       chroma:
+        client:
+          host: http://localhost
+          port: 8000
         batch-size: 50
         max-content-size: 1MB
+        collection-name: chroma_vector
+        initialize-schema: true
       redis:
         initialize-schema: true
         host: localhost
@@ -43,6 +51,12 @@ spring:
         timeout: 5000
         index: music_docs_index
         prefix: "music_vector:"
+      elasticsearch:
+        initialize-schema: true
+        index-name: es_vector_index
+        dimensions: 1024
+        host: 9200
+        similarity: cosine
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8

@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfigura
         scanBasePackages = "com.player.music",exclude = {
             HttpClientAutoConfiguration.class,
             RestClientAutoConfiguration.class,
-            org.springframework.ai.autoconfigure.vectorstore.chroma.ChromaVectorStoreAutoConfiguration.class
+            org.springframework.ai.autoconfigure.vectorstore.elasticsearch.ElasticsearchVectorStoreAutoConfiguration.class
         }
 )
 @MapperScan("com.player.music.mapper")

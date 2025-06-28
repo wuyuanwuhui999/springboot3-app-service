@@ -1,17 +1,25 @@
 package com.player.music.config;
 
 import io.micrometer.observation.ObservationRegistry;
-import org.springframework.ai.chroma.vectorstore.ChromaApi;
-import org.springframework.ai.chroma.vectorstore.ChromaVectorStore;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
+import org.elasticsearch.client.RestClient;
 import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.embedding.TokenCountBatchingStrategy;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.ollama.management.ModelManagementOptions;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStore;
+import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStoreOptions;
+import org.springframework.ai.vectorstore.elasticsearch.SimilarityFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.util.List;
 
 @Configuration
 public class VectorStoreConfig {
@@ -21,11 +29,17 @@ public class VectorStoreConfig {
     @Value("${spring.ai.ollama.embedding.model}")
     private String embeddingModelName;
 
-    @Value("${chroma.host}")
-    private String chromaHost;
+    @Value("${spring.ai.vectorstore.elasticsearch.index-name}")
+    private String IndexName;
 
-    @Value("${chroma.collectName}")
-    private String collectName;
+    @Value("${spring.elasticsearch.port}")
+    private int port;
+
+    @Value("${spring.elasticsearch.host}")
+    private String host;
+
+    @Value("${spring.ai.vectorstore.elasticsearch.dimensions}")
+    private int dimensions;
 
     @Bean
     public OllamaApi ollamaApi() {
@@ -41,9 +55,22 @@ public class VectorStoreConfig {
     }
 
     @Bean
-    public VectorStore vectorStore(EmbeddingModel embeddingModel) {
-        // 创建Chroma API客户端
-        ChromaApi chromaApi = new ChromaApi(chromaHost);
-        return new DynamicVectorStore(chromaApi, embeddingModel, collectName);
+    public RestClient restClient() {
+        return RestClient.builder(new HttpHost(host, port, "http"))
+                .build();
+    }
+
+    @Bean
+    public VectorStore vectorStore(RestClient restClient, EmbeddingModel embeddingModel) {
+        ElasticsearchVectorStoreOptions options = new ElasticsearchVectorStoreOptions();
+        options.setIndexName(IndexName);    // Optional: defaults to "spring-ai-document-index"
+        options.setSimilarity(SimilarityFunction.cosine);           // Optional: defaults to COSINE
+        options.setDimensions(dimensions);             // Optional: defaults to model dimensions or 1536
+
+        return ElasticsearchVectorStore.builder(restClient, embeddingModel)
+                .options(options)                     // Optional: use custom options
+                .initializeSchema(true)               // Optional: defaults to false
+                .batchingStrategy(new TokenCountBatchingStrategy()) // Optional: defaults to TokenCountBatchingStrategy
+                .build();
     }
 }

@@ -207,12 +207,6 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-starter-vector-store-redis</artifactId>
-                <version>${spring-ai.version}</version>
-<!--                <version>${spring-ai-starter-vector-store-redis.version}</version>-->
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-pdf-document-reader</artifactId>
                 <version>${spring-ai.version}</version>
             </dependency>
@@ -230,6 +224,26 @@
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-chroma-store-spring-boot-starter</artifactId>
                 <version>${spring-ai.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-vector-store-chroma</artifactId>
+                <version>${spring-ai-starter-model-ollama}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-vector-store-redis</artifactId>
+                <version>${spring-ai-starter-model-ollama}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-vector-store-elasticsearch</artifactId>
+                <version>${spring-ai-starter-model-ollama}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-elasticsearch-store</artifactId>
+                <version>${spring-ai-starter-model-ollama}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ai</groupId>

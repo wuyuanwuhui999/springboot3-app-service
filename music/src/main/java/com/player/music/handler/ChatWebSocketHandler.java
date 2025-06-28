@@ -60,7 +60,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String chatId = (String) payload.get("chatId");
             int modelId = (int) payload.get("modelId");
             String type = (String) payload.get("type");
-            if(!type.isEmpty()){
+            if("document".equals(type)) {
                 // 1. 从向量库检索相关文档
                 List<Document> relevantDocs = vectorStore.similaritySearch(prompt);
                 // 3. 构建完整提示词
