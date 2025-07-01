@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -17,18 +18,28 @@ public class RedisChatMemory implements ChatMemory {
 
     @Override
     public void add(String conversationId, List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+
+        // 过滤掉null消息
+        List<Message> filteredMessages = messages.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
         String key = REDIS_KEY_PREFIX + conversationId;
-        // 存储到 Redis
-        redisTemplate.opsForList().rightPushAll(key, messages);
+        redisTemplate.opsForList().rightPushAll(key, filteredMessages);
     }
 
     @Override
     public List<Message> get(String conversationId, int lastN) {
         String key = REDIS_KEY_PREFIX + conversationId;
-        // 从 Redis 获取最新的 lastN 条消息
         List<Message> serializedMessages = redisTemplate.opsForList().range(key, -lastN, -1);
+
         if (serializedMessages != null) {
-            return serializedMessages;
+            return serializedMessages.stream()
+                    .filter(Objects::nonNull)
+                    .toList();
         }
         return List.of();
     }

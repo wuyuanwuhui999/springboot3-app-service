@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class ChatConfig {
     @Autowired
-    private RedisCharMemoryStore redisCharMemoryStore;
+    private RedisChatMemoryStore redisCharMemoryStore;
 
     @Bean
     public ChatMemoryProvider chatMemoryProvider() {
@@ -19,5 +19,10 @@ class ChatConfig {
                 .maxMessages(20)
                 .chatMemoryStore(redisCharMemoryStore)
                 .build();
+    }
+
+    @Bean
+    ChatMemory chatMemory() {
+        return MessageWindowChatMemory.builder().maxMessages(15).build();
     }
 }

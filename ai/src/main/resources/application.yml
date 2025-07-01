@@ -22,12 +22,6 @@ spring:
       location: G:/static/ai/
   token:
     secret: ${SECRET} #token秘钥
-  ai:
-    ollama:
-      base-url: http://localhost:11434
-      chat:
-        model: qwen3:8b
-        endpoint: /api/chat
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -69,8 +63,10 @@ mybatis:
 
 logging:
   level:
-    org.springframework.ai.chat.client.advisor: debug
-    com.ai: debug
+    root: INFO
+    com.player.ai: DEBUG  # 你的应用包路径
+    dev.langchain4j: DEBUG  # LangChain4J相关日志
+    org.springframework.web: DEBUG
 
 langchain4j:
   ollama:

@@ -4,7 +4,6 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageDeserializer;
 import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,7 @@ import java.time.Duration;
 import java.util.List;
 
 @Component
-public class RedisCharMemoryStore implements ChatMemoryStore {
+public class RedisChatMemoryStore implements ChatMemoryStore {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
