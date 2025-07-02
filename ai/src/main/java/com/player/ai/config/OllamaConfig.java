@@ -31,11 +31,15 @@ public class OllamaConfig {
     @Value("${langchain4j.ollama.chat-model.model-name}")
     private String modelName;
 
+    @Value("${langchain4j.ollama.chat-model.temperature}")
+    private Double temperature;
+
     @Bean
     public OllamaStreamingChatModel streamingChatModel() {
         return OllamaStreamingChatModel.builder()
                 .baseUrl(url)
                 .modelName(modelName)
+                .temperature(temperature)
                 .timeout(Duration.ofMinutes(2))
                 .build();
     }

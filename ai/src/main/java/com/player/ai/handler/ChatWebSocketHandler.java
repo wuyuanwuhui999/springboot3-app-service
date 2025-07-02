@@ -44,20 +44,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String userId = JwtToken.getId(token, secret);
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
-            String model = (String) payload.get("model");
-
-            // 检查是否包含附件信息（假设前端以 base64 或其他方式传输）
-            List<Map<String, String>> fileMaps = (List<Map<String, String>>) payload.getOrDefault("files", Collections.emptyList());
-            List<MultipartFile> files = new ArrayList<>();
-
-            // 这里只是示例，实际需要处理前端传来的文件数据（比如base64解码保存）
-            for (Map<String, String> fileMap : fileMaps) {
-                String fileName = fileMap.get("name");
-                String contentType = fileMap.get("type");
-                String base64Data = fileMap.get("data");
-
-                // todo: 解码并构造 MultipartFile（可借助 Base64DecodingResource）
-            }
+            String modelName = (String) payload.get("modelName");
 
             // 构造 ChatEntity
             ChatEntity chatEntity = new ChatEntity();
@@ -65,7 +52,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
-            chatEntity.setModel(model);
+            chatEntity.setModelName(modelName);
         assistant.chat(chatId,prompt)
                 .subscribe(
                     responsePart -> {

@@ -58,8 +58,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String userId = JwtToken.getId(token, secret);
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
-            int modelId = (int) payload.get("modelId");
+            String modelName = (String) payload.get("modelName");
             String type = (String) payload.get("type");
+            // 构造 ChatEntity
+            ChatEntity chatEntity = new ChatEntity();
+            chatEntity.setChatId(chatId);
+            chatEntity.setUserId(userId);
+            chatEntity.setPrompt(prompt);
+            chatEntity.setContent("");
+            chatEntity.setModelName(modelName);
             if("document".equals(type)) {
                 // 1. 从向量库检索相关文档
                 List<Document> relevantDocs = vectorStore.similaritySearch(prompt);
@@ -69,13 +76,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 // 3. 构建完整提示词
                 prompt = PromptUtil.buildPrompt(prompt, context);
             }
-            // 构造 ChatEntity
-            ChatEntity chatEntity = new ChatEntity();
-            chatEntity.setChatId(chatId);
-            chatEntity.setUserId(userId);
-            chatEntity.setPrompt(prompt);
-            chatEntity.setContent("");
-            chatEntity.setModelId(modelId);
             chatClient.prompt()
                     .user(prompt)
                     .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))

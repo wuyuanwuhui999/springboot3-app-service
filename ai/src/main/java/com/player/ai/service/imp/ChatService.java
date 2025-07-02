@@ -1,6 +1,7 @@
 package com.player.ai.service.imp;
 
 import com.player.ai.assistant.Assistant;
+import com.player.ai.entity.ChatEntity;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import com.player.common.entity.ResultEntity;
@@ -33,10 +34,39 @@ public class ChatService implements IChatService {
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
 
-    @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, List<MultipartFile> files) {
-        return assistant.chat(chatId,prompt);
+    private String ensureChineseEncoding(String text) {
+        try {
+            return new String(text.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (Exception e) {
+            return text; // 如果转换失败返回原文本
+        }
     }
+
+    @Override
+    public Flux<String> chat(String userId, String prompt, String chatId,String modelName) {
+        // 确保中文编码正确
+        prompt = ensureChineseEncoding(prompt);
+        // 构建ChatEntity对象用于保存
+        ChatEntity chatEntity = new ChatEntity();
+        chatEntity.setUserId(userId);
+        chatEntity.setChatId(chatId);
+        chatEntity.setPrompt(prompt);
+        chatEntity.setModelName(modelName);
+        return assistant.chat(chatId,prompt)
+                .collectList()
+                .flatMapMany(aiResponses -> {
+                    // 合并所有AI响应
+                    String fullResponse = String.join("", aiResponses);
+                    chatEntity.setContent(fullResponse); // 这会自动设置thinkContent和responseContent
+
+                    // 保存到数据库
+                    chatMapper.saveChat(chatEntity);
+
+                    // 返回响应流
+                    return Flux.fromIterable(aiResponses);
+                });
+    }
+
 
     @Override
     public String upload(List<MultipartFile>files){

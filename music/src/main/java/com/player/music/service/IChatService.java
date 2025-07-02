@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IChatService {
-    Flux<String> chat(String userId, String prompt, String chatId,int modelId, List<MultipartFile> files);
+    Flux<String> chat(String userId, String prompt, String chatId,String modelName, List<MultipartFile> files);
 
     String upload(List<MultipartFile>files);
 
