@@ -1,10 +1,11 @@
 package com.player.ai.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.player.ai.assistant.Assistant;
+import com.player.ai.assistant.AssistantSelector;
+import com.player.ai.assistant.DeepSeekAssistant;
+import com.player.ai.assistant.QwenAssistant;
 import com.player.ai.entity.ChatEntity;
 import com.player.ai.mapper.ChatMapper;
-import com.player.ai.service.imp.ChatService;
 import com.player.common.utils.JwtToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.springframework.util.MimeType;
-import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,12 +21,14 @@ import java.util.*;
 @Slf4j
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-    private final Assistant assistant;
+    private final QwenAssistant qwenAssistant;
+    private final DeepSeekAssistant deepSeekAssistant;
     private final ChatMapper chatMapper;
 
-    public ChatWebSocketHandler(Assistant assistant, ChatMapper chatMapper) {
+    public ChatWebSocketHandler(QwenAssistant qwenAssistant,DeepSeekAssistant deepSeekAssistant, ChatMapper chatMapper) {
         this.chatMapper = chatMapper;
-        this.assistant = assistant;
+        this.qwenAssistant = qwenAssistant;
+        this.deepSeekAssistant = deepSeekAssistant;
     }
 
     @Value("${token.secret}")
@@ -53,31 +53,30 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
             chatEntity.setModelName(modelName);
-        assistant.chat(chatId,prompt)
-                .subscribe(
-                    responsePart -> {
-                        chatEntity.setContent(chatEntity.getContent() + responsePart);
-                        sendResponse(session, responsePart);
-                    },
-                    throwable -> {
-                        log.error("Error during streaming", throwable);
-                        try {
-                            session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
-                        } catch (IOException e) {
-                            log.error("Failed to send error message", e);
-                        }
-                    },
-                    () -> {
-                        // 所有数据接收完毕后保存数据库
-                        chatMapper.saveChat(chatEntity);
-                        try {
-                            session.sendMessage(new TextMessage("[completed]"));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            );
-
+            AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt)
+                        .subscribe(
+                                responsePart -> {
+                                    chatEntity.setContent(chatEntity.getContent() + responsePart);
+                                    sendResponse(session, responsePart);
+                                },
+                                throwable -> {
+                                    log.error("Error during streaming", throwable);
+                                    try {
+                                        session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
+                                    } catch (IOException e) {
+                                        log.error("Failed to send error message", e);
+                                    }
+                                },
+                                () -> {
+                                    // 所有数据接收完毕后保存数据库
+                                    chatMapper.saveChat(chatEntity);
+                                    try {
+                                        session.sendMessage(new TextMessage("[completed]"));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                        );
         } catch (Exception e) {
             log.error("Error handling WebSocket message", e);
             try {

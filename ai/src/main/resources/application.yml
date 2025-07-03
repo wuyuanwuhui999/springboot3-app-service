@@ -26,10 +26,6 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
   http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
     client:
       type: simple
   jpa:
@@ -76,7 +72,8 @@ langchain4j:
   ollama:
     chat-model:
       base-url: http://localhost:11434
-      model-name: qwen3:8b
+      qwen-model-name: qwen3:8b
+      deepseek-model-name: qwen3:8b
       log-requests: true
       log-responses: true
       temperature: 0.3
