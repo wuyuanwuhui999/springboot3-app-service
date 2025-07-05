@@ -52,7 +52,13 @@ spring:
       port: 6379
       password:
       timeout: 5000
-
+  elasticsearch:
+    uris: http://localhost:9200
+    initialize-schema: true
+    index-name: es_vector_index
+    dimensions: 1024
+    host: 9200
+    similarity: cosine
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径
   type-aliases-package: com.player.ai.entity  # 实体类包路径，用于别名自动映射
@@ -77,3 +83,7 @@ langchain4j:
       log-requests: true
       log-responses: true
       temperature: 0.3
+nomic:
+  embedding:
+    model-name: nomic-embed-text-v1 # 或其他可用模型
+    timeout: 60s

@@ -6,8 +6,12 @@ import com.player.ai.assistant.DeepSeekAssistant;
 import com.player.ai.assistant.QwenAssistant;
 import com.player.ai.entity.ChatEntity;
 import com.player.ai.mapper.ChatMapper;
+import com.player.ai.utils.PromptUtil;
 import com.player.common.utils.JwtToken;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -24,10 +28,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final QwenAssistant qwenAssistant;
     private final DeepSeekAssistant deepSeekAssistant;
     private final ChatMapper chatMapper;
-
-    public ChatWebSocketHandler(QwenAssistant qwenAssistant,DeepSeekAssistant deepSeekAssistant, ChatMapper chatMapper) {
+    private final ElasticsearchEmbeddingStore elasticsearchEmbeddingStore;
+    private final EmbeddingModel nomicEmbeddingModel;
+    public ChatWebSocketHandler(QwenAssistant qwenAssistant,DeepSeekAssistant deepSeekAssistant,ElasticsearchEmbeddingStore elasticsearchEmbeddingStore,EmbeddingModel nomicEmbeddingModel, ChatMapper chatMapper) {
         this.chatMapper = chatMapper;
         this.qwenAssistant = qwenAssistant;
+        this.elasticsearchEmbeddingStore = elasticsearchEmbeddingStore;
+        this.nomicEmbeddingModel = nomicEmbeddingModel;
         this.deepSeekAssistant = deepSeekAssistant;
     }
 
@@ -45,6 +52,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
             String modelName = (String) payload.get("modelName");
+            String type = (String) payload.get("type");
 
             // 构造 ChatEntity
             ChatEntity chatEntity = new ChatEntity();
@@ -57,7 +65,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             if (showThink == null) {
                 showThink = false; // 默认值为true
             }
-
+            if("document".equals(type)) {
+                prompt = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, prompt);
+            }
             AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt,showThink)
                         .subscribe(
                                 responsePart -> {

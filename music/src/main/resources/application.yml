@@ -36,23 +36,6 @@ spring:
       embedding:
         model: mxbai-embed-large
     vectorstore:
-      chroma:
-        client:
-          host: http://localhost
-          port: 8000
-        batch-size: 50
-        max-content-size: 1MB
-        collection-name: chroma_vector
-        initialize-schema: true
-      redis:
-        initialize-schema: true
-        host: localhost
-        database: 0
-        port: 6379
-        password:
-        timeout: 5000
-        index: music_docs_index
-        prefix: "music_vector:"
       elasticsearch:
         initialize-schema: true
         index-name: es_vector_index

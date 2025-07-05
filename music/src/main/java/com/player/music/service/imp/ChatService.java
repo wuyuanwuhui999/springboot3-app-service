@@ -1,9 +1,7 @@
 package com.player.music.service.imp;
 
+import com.player.common.entity.ChatDocEntity;
 import com.player.music.config.UserAwareVectorStore;
-import com.player.music.entity.ChatDocEntity;
-import com.player.music.entity.ChatEntity;
-import com.player.music.handler.ChatWebSocketHandler;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
@@ -11,14 +9,11 @@ import com.player.common.entity.ResultUtil;
 import com.player.music.uitls.PromptUtil;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.model.Media;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

@@ -1,25 +1,19 @@
 package com.player.music.config;
 
 import io.micrometer.observation.ObservationRegistry;
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
-import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.embedding.TokenCountBatchingStrategy;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.ollama.management.ModelManagementOptions;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStore;
 import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStoreOptions;
 import org.springframework.ai.vectorstore.elasticsearch.SimilarityFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.util.List;
 
 @Configuration
 public class VectorStoreConfig {
@@ -68,10 +62,5 @@ public class VectorStoreConfig {
         options.setDimensions(dimensions);             // Optional: defaults to model dimensions or 1536
 
         return new ElasticsearchUserAwareVectorStore(restClient, embeddingModel, options);
-//        return ElasticsearchVectorStore.builder(restClient, embeddingModel)
-//                .options(options)                     // Optional: use custom options
-//                .initializeSchema(true)               // Optional: defaults to false
-//                .batchingStrategy(new TokenCountBatchingStrategy()) // Optional: defaults to TokenCountBatchingStrategy
-//                .build();
     }
 }

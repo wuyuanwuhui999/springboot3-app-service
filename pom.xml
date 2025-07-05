@@ -39,6 +39,7 @@
         <logback-classic.version>1.5.6</logback-classic.version>
         <spring-ai.version>1.0.0-M6</spring-ai.version>
         <langchain4j.version>1.0.1-beta6</langchain4j.version>
+        <langchain4j-elasticsearch.version>1.1.0-beta7</langchain4j-elasticsearch.version>
         <langchain4j-core.version>1.0.1</langchain4j-core.version>
         <reactor-core.version>3.8.0-M3</reactor-core.version>
         <spring-ai-starter-vector-store-redis.version>1.0.0</spring-ai-starter-vector-store-redis.version>
@@ -244,6 +245,16 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-elasticsearch</artifactId>
+                <version>${langchain4j-elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-nomic</artifactId>
+                <version>${langchain4j-elasticsearch.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

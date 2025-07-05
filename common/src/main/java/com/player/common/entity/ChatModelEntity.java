@@ -1,4 +1,4 @@
-package com.player.music.entity;
+package com.player.common.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
