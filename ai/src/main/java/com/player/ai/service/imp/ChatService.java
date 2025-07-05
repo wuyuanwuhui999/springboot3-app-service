@@ -41,7 +41,7 @@ public class ChatService implements IChatService {
     private String UPLOAD_DIR;
 
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, String modelName) {
+    public Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink) {
         // 确保中文编码正确
         // 构建ChatEntity对象用于保存
         ChatEntity chatEntity = new ChatEntity();
@@ -49,7 +49,7 @@ public class ChatService implements IChatService {
         chatEntity.setChatId(chatId);
         chatEntity.setPrompt(prompt);
         chatEntity.setModelName(modelName);
-        return AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt)
+        return AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt,showThink)
                 .collectList()
                 .flatMapMany(aiResponses -> {
                     String fullResponse = String.join("", aiResponses);

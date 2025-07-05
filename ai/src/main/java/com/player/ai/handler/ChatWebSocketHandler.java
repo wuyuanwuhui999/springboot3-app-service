@@ -53,7 +53,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
             chatEntity.setModelName(modelName);
-            AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt)
+            Boolean showThink = (Boolean) payload.get("showThink");
+            if (showThink == null) {
+                showThink = false; // 默认值为true
+            }
+
+            AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt,showThink)
                         .subscribe(
                                 responsePart -> {
                                     chatEntity.setContent(chatEntity.getContent() + responsePart);

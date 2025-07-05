@@ -73,7 +73,7 @@ langchain4j:
     chat-model:
       base-url: http://localhost:11434
       qwen-model-name: qwen3:8b
-      deepseek-model-name: qwen3:8b
+      deepseek-model-name: deepseek-r1:8b
       log-requests: true
       log-responses: true
       temperature: 0.3

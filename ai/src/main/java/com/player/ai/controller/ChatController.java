@@ -25,9 +25,10 @@ public class ChatController {
             @RequestHeader("Authorization") String token,
             @RequestParam("prompt") String prompt,
             @RequestParam("chatId") String chatId,
-            @RequestParam("modelName") String modelName
+            @RequestParam("modelName") String modelName,
+            @RequestParam("showThink") boolean showThink
     ){
-        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId, modelName);
+        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId, modelName,showThink);
     }
 
     @GetMapping("/getChatHistory")
