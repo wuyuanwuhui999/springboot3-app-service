@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IChatService {
-    Flux<String> chat(String userId, String prompt, String chatId,String modelName, List<MultipartFile> files);
+    Flux<String> chat(String userId, String prompt, String chatId,String modelName);
 
     String upload(List<MultipartFile>files);
 
@@ -19,7 +19,7 @@ public interface IChatService {
 
     ResultEntity uploadDoc(MultipartFile file,String userId) throws IOException;
 
-    Flux<String> searchDoc(String query,String chatId,String userId);
+    Flux<String> searchDoc(String query,String chatId,String userId,String modelName);
 
     ResultEntity getDocList(String userId);
 }

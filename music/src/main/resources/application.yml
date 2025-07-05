@@ -30,6 +30,8 @@ spring:
       base-url: http://localhost:11434
       chat:
         model: qwen3:8b
+        qwen-model: qwen3:8b
+        deepseek-model: deepseek-r1:8b
         endpoint: /api/chat
       embedding:
         model: mxbai-embed-large
@@ -96,9 +98,14 @@ mybatis:
     mapUnderscoreToCamelCase: true              # 自动映射下划线到驼峰命名
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印 SQL 日志
 
-#mybatis-plus:
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 开启SQL日志
+logging:
+  level:
+    # 添加以下AI模型调用相关日志配置
+    com.player.music.config.ChatClientConfig: DEBUG
+    org.springframework.ai.chat.client: DEBUG
+    org.springframework.ai.ollama: INFO
+    org.springframework.ai.model: INFO
+
 ollama:
   base-url: http://localhost:11434
   model-name: qwen3:8b
@@ -106,8 +113,3 @@ ollama:
   top-p: 0.9
   timeout: 120s
   max-retries: 3
-
-chroma:
-  host: http://localhost:8000
-  port: 8000
-  collectName: chroma_vector

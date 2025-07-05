@@ -14,6 +14,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.model.Media;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -33,17 +34,17 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 @Service
 public class ChatService implements IChatService {
 
-    @Bean
-    public ChatWebSocketHandler chatWebSocketHandler(ChatClient chatClient, ChatService chatService, ChatMapper chatMapper,
-                                                     @Value("${spring.servlet.multipart.location}") String uploadDir) {
-        return new ChatWebSocketHandler(chatClient, chatService, chatMapper, uploadDir);
-    }
-
     @Autowired
     private ChatMapper chatMapper;
 
+
     @Autowired
-    private ChatClient chatClient;
+    @Qualifier("deepseekChatClient")
+    private ChatClient deepseekChatClient;
+
+    @Autowired
+    @Qualifier("qwenChatClient")
+    private ChatClient qwenChatClient;
 
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
@@ -51,43 +52,35 @@ public class ChatService implements IChatService {
     @Autowired
     private VectorStore vectorStore;
 
+    private ChatClient getChatClientByModelName(String modelName) {
+        if ("qwen3:8b".equalsIgnoreCase(modelName)) {
+            return qwenChatClient;
+        } else if ("deepseek-r1:8b".equalsIgnoreCase(modelName)) {
+            return deepseekChatClient;
+        }
+        return null;
+    }
+
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, String modelName, List<MultipartFile> files) {
+    public Flux<String> chat(String userId, String prompt, String chatId, String modelName) {
         Flux<String> stringFlux;
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setChatId(chatId);
         chatEntity.setUserId(userId);
         chatEntity.setPrompt(prompt);
         chatEntity.setModelName(modelName);
-
-        if (files == null || files.isEmpty()) {
-            // 没有附件，纯文本聊天
-            stringFlux = chatClient
-                    .prompt()
-                    .user(prompt)
-                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
-                    .stream()
-                    .content();
-
-        } else {
-            // 有附件，多模态聊天
-            // 1.解析多媒体
-            String uploadFiles = upload(files);
-            chatEntity.setFiles(uploadFiles);
-            List<Media> medias = files.stream()
-                    .map(file -> new Media(
-                                    MimeType.valueOf(Objects.requireNonNull(file.getContentType())),
-                                    file.getResource()
-                            )
-                    )
-                    .toList();
-            // 2.请求模型
-            stringFlux = chatClient.prompt()
-                    .user(p -> p.text(prompt).media(medias.toArray(Media[]::new)))
-                    .advisors(a -> a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
-                    .stream()
-                    .content();
+        ChatClient chatClient = getChatClientByModelName(modelName);
+        if (chatClient == null) {
+            return Flux.error(new IllegalArgumentException("Unsupported model: " + modelName));
         }
+        // 没有附件，纯文本聊天
+        stringFlux = chatClient
+                .prompt()
+                .user(prompt)
+                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
+                .stream()
+                .content();
+
 
         // 将 Flux<String> 转换为 Mono<String>
         Mono<String> contentMono = stringFlux.collectList()
@@ -202,7 +195,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> searchDoc(String query,String chatId,String userId) {
+    public Flux<String> searchDoc(String query,String chatId,String userId,String modelName) {
         // 设置当前用户
         ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
         // 1. 从向量库检索相关文档
@@ -211,7 +204,7 @@ public class ChatService implements IChatService {
         String context = PromptUtil.buildContext(relevantDocs);
         // 3. 构建完整提示词
         String fullPrompt = PromptUtil.buildPrompt(query, context);
-        return chatClient
+        return getChatClientByModelName(modelName)
                 .prompt()
                 .user(fullPrompt)
                 .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))

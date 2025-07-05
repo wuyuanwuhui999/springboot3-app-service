@@ -12,7 +12,9 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.model.Media;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.TextMessage;
@@ -28,21 +30,24 @@ import java.util.Map;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
+@Component
 @Slf4j
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-    private final ChatClient chatClient;
-    private final ChatService chatService;
+    @Autowired
+    @Qualifier("qwenChatClient")
+    private ChatClient qwenChatClient;
+
+    @Autowired
+    @Qualifier("deepseekChatClient")
+    private ChatClient deepseekChatClient;
+
     private final ChatMapper chatMapper;
-    private final String uploadDir;
     @Autowired
     private VectorStore vectorStore;
 
-    public ChatWebSocketHandler(ChatClient chatClient, ChatService chatService, ChatMapper chatMapper, String uploadDir) {
-        this.chatClient = chatClient;
-        this.chatService = chatService;
+    public ChatWebSocketHandler(ChatMapper chatMapper) {
         this.chatMapper = chatMapper;
-        this.uploadDir = uploadDir;
     }
 
     @Value("${token.secret}")
@@ -60,25 +65,29 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String chatId = (String) payload.get("chatId");
             String modelName = (String) payload.get("modelName");
             String type = (String) payload.get("type");
-            // 构造 ChatEntity
+
             ChatEntity chatEntity = new ChatEntity();
             chatEntity.setChatId(chatId);
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
             chatEntity.setModelName(modelName);
+
             if("document".equals(type)) {
-                // 1. 从向量库检索相关文档
                 List<Document> relevantDocs = vectorStore.similaritySearch(prompt);
-                // 3. 构建完整提示词
-                // 2. 构建上下文提示
-                String context =  PromptUtil.buildContext(relevantDocs);
-                // 3. 构建完整提示词
+                String context = PromptUtil.buildContext(relevantDocs);
                 prompt = PromptUtil.buildPrompt(prompt, context);
             }
-            chatClient.prompt()
+
+            ChatClient client = getChatClientByModelName(modelName);
+            if (client == null) {
+                session.sendMessage(new TextMessage("{\"error\": \"Unsupported model: " + modelName + "\"}"));
+                return;
+            }
+
+            client.prompt()
                     .user(prompt)
-                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
+                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
                     .stream()
                     .content()
                     .subscribe(
@@ -95,7 +104,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                 }
                             },
                             () -> {
-                                // 所有数据接收完毕后保存数据库
                                 chatMapper.saveChat(chatEntity);
                                 try {
                                     session.sendMessage(new TextMessage("[completed]"));
@@ -112,6 +120,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 log.error("Failed to send error message", ex);
             }
         }
+    }
+
+    private ChatClient getChatClientByModelName(String modelName) {
+        if ("qwen3:8b".equalsIgnoreCase(modelName)) {
+            return qwenChatClient;
+        } else if ("deepseek-r1:8b".equalsIgnoreCase(modelName)) {
+            return deepseekChatClient;
+        }
+        return null;
     }
 
     private void sendResponse(WebSocketSession session, String content) {

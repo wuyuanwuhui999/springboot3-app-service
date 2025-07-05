@@ -27,10 +27,9 @@ public class ChatController {
             @RequestHeader("Authorization") String token,
             @RequestParam("prompt") String prompt,
             @RequestParam("chatId") String chatId,
-            @RequestParam("chatId") String modelName,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files
+            @RequestParam("modelName") String modelName
     ){
-        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelName, files);
+        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelName);
     }
 
     @GetMapping("/getChatHistory")
@@ -59,9 +58,10 @@ public class ChatController {
     public Flux<String> searchDoc(
             @RequestParam("query") String query,
             @RequestParam("chatId") String chatId,
+            @RequestParam("modelName") String modelName,
             @RequestHeader("Authorization") String token
     ) {
-        return chatService.searchDoc(query,chatId,JwtToken.getId(token, secret));
+        return chatService.searchDoc(query,chatId,JwtToken.getId(token, secret),modelName);
     }
 
     @GetMapping("/getDocList")
