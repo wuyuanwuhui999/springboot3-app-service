@@ -6,11 +6,25 @@
 
 新增AI智能聊天模块和AI智能体，基于spring ai/langchain4j使用ollama调用本地deepseek-r1:8b/qwen3:8b大语言模型，支持模型切换，支持RAG文档查询和文档上传   
 
+本地安装deepseek和千问大模型   
+ollama pull deepseek-r1:8b   
+ollama pull qwen3:8b  
+
+本地安装向量数据库   
+ollama pull mxbai-embed-large   
+ollama pull nomic-embed-text   
+
 使用springboot搭建的音乐，电影后台项目，所有数据来自互联网，使用python爬虫抓取，涉及，负载均衡，redis缓存，JwtToken权限验证，拦截器，日志记录，erauka服务治理，mybatis,spring-data-jpa,swagger等，持续更新中...   
 
 ================================APP界面预览================================   
 ![电影app整体预览](./%E7%94%B5%E5%BD%B1app%E6%95%B4%E4%BD%93%E9%A2%84%E8%A7%88.jpg)
 ![电影app整体预览](./音乐整体预览图.png)
+![ai智能聊天助手](ai智能聊天助手.png)
+![ai聊天RAG文档查询](ai聊天RAG文档查询.png)
+![ai聊天菜单功能](ai聊天菜单功能.png)
+![ai聊天会话记录](ai聊天会话记录.png)
+![ai聊天切换模型](ai聊天切换模型.png)
+![ai聊天我的文档](ai聊天我的文档.png)
 ================================APP界面预览================================   
 
 ================================sql实例===============================   
