@@ -34,7 +34,7 @@ spring:
         deepseek-model: deepseek-r1:8b
         endpoint: /api/chat
       embedding:
-        model: mxbai-embed-large
+        model: mxbai-embed-large #nomic-embed-text:latest
     vectorstore:
       elasticsearch:
         initialize-schema: true

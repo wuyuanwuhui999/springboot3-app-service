@@ -88,6 +88,11 @@ public class ChatService implements IChatService {
     }
 
     @Override
+    public ResultEntity getModelList() {
+        return ResultUtil.success(chatMapper.getModelList());
+    }
+
+    @Override
     public ResultEntity uploadDoc(MultipartFile file,String userId) throws IOException {
         // 检查文件是否为空
         if (file.isEmpty()) {
@@ -115,6 +120,7 @@ public class ChatService implements IChatService {
                 TextSegment textSegment = TextSegment.from(pageContent);
                 Embedding embedding = nomicEmbeddingModel.embed(pageContent).content();
                 Metadata metadata = textSegment.metadata();
+                metadata.put("id", originalFilename + "-page-" + page);
                 metadata.put("filename", originalFilename);
                 metadata.put("page", String.valueOf(page));
                 metadata.put("total_pages", String.valueOf(pdfDocument.getNumberOfPages()));
@@ -143,7 +149,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> searchDoc(String query,String chatId,String modelName) {
+    public Flux<String> searchDoc(String query,String chatId,String userId,String modelName) {
         String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, query);
         String finalPrompt = PromptUtil.buildPrompt(query, context);
         return AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, finalPrompt, false);

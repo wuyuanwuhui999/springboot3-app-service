@@ -55,7 +55,7 @@ spring:
   elasticsearch:
     uris: http://localhost:9200
     initialize-schema: true
-    index-name: es_vector_index
+    index-name: music_vector_index
     dimensions: 1024
     host: 9200
     similarity: cosine
@@ -85,5 +85,5 @@ langchain4j:
       temperature: 0.3
 nomic:
   embedding:
-    model-name: nomic-embed-text-v1 # 或其他可用模型
+    model-name: nomic-embed-text:latest # 或其他可用模型
     timeout: 60s

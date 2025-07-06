@@ -5,7 +5,7 @@
         insert into chat_history(user_id,files,chat_id,prompt,content,think_content,response_content,model_name,create_time) VALUES (#{userId},#{files},#{chatId},#{prompt},#{content},#{thinkContent},#{responseContent},#{modelName},now())
     </insert>
 
-    <select id="getChatHistory" resultType="ChatEntity">
+    <select id="getChatHistory" resultType="com.player.common.entity.ChatEntity">
         SELECT
             id,
             user_id,
@@ -32,15 +32,15 @@
         WHERE user_id = #{userId} order by create_time desc
     </select>
 
-    <select id="getModelList" resultType="ChatModelEntity">
+    <select id="getModelList" resultType="com.player.common.entity.ChatModelEntity">
         select * from chat_model
     </select>
 
-    <insert id="saveDoc" parameterType="ChatDocEntity">
+    <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
         insert into chat_doc(id,name,ext,user_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},now(),now())
     </insert>
 
-    <select id="getDocList" resultType="ChatDocEntity">
+    <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
         select * from chat_doc where user_id = #{userId}
     </select>
 </mapper>

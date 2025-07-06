@@ -11,8 +11,6 @@ import java.util.List;
 public interface IChatService {
     Flux<String> chat(String userId, String prompt, String chatId,String modelName);
 
-    String upload(List<MultipartFile>files);
-
     ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
 
     ResultEntity getModelList();

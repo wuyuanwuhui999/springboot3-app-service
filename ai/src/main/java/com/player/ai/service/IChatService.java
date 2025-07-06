@@ -12,9 +12,11 @@ public interface IChatService {
 
     ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
 
+    ResultEntity getModelList();
+
     ResultEntity uploadDoc(MultipartFile file,String userId) throws IOException;
 
-    Flux<String> searchDoc(String query,String chatId,String modelName);
+    Flux<String> searchDoc(String query,String chatId,String userId,String modelName);
 
     ResultEntity getDocList(String userId);
 }

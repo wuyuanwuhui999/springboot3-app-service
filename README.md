@@ -4,7 +4,7 @@
 
 有springboot2.0.1+jdk8升级到springboot3.4.5+jdk17
 
-新增AI智能聊天模块和AI智能体，基于spring ai使用ollama调用本地deepseek-r1:7b大语言模型   
+新增AI智能聊天模块和AI智能体，基于spring ai/langchain4j使用ollama调用本地deepseek-r1:8b/qwen3:8b大语言模型，支持模型切换，支持RAG文档查询和文档上传   
 
 使用springboot搭建的音乐，电影后台项目，所有数据来自互联网，使用python爬虫抓取，涉及，负载均衡，redis缓存，JwtToken权限验证，拦截器，日志记录，erauka服务治理，mybatis,spring-data-jpa,swagger等，持续更新中...   
 
@@ -139,17 +139,3 @@ server{
 ```
 
 下面是一个使用 ChromaDB 的简单 Python 示例代码，使用python运行chroma，作为RAG向量数据库
-
-```python
-import chromadb
-
-# 启动一个本地内存服务器（不持久化）
-client = chromadb.Client()
-
-# 创建一个集合（collection）
-collection = client.create_collection("chroma_vector")
-
-print("Chroma 已启动并创建了一个集合")
-```
-运行chroma服务命令行如下   
-chroma run --path "D:/chromadb" --host 0.0.0.0 --port 8000

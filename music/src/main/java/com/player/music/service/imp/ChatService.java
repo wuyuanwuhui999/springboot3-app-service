@@ -1,6 +1,7 @@
 package com.player.music.service.imp;
 
 import com.player.common.entity.ChatDocEntity;
+import com.player.common.entity.ChatEntity;
 import com.player.music.config.UserAwareVectorStore;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
@@ -88,31 +89,6 @@ public class ChatService implements IChatService {
         });
 
         return stringFlux;
-    }
-
-    @Override
-    public String upload(List<MultipartFile> files) {
-        File uploadDir = new File(this.UPLOAD_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-        List<String> uploadedFileNames = new ArrayList<>();
-        for (MultipartFile file : files) {
-            try {
-                String originalFileName = file.getOriginalFilename();
-                String fileExtension = "";
-                if (originalFileName != null && originalFileName.contains(".")) {
-                    fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-                }
-                String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-                Path filePath = Paths.get(UPLOAD_DIR + uniqueFileName);
-                Files.copy(file.getInputStream(), filePath);
-                uploadedFileNames.add(uniqueFileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return String.join(";", uploadedFileNames);
     }
 
     @Override
