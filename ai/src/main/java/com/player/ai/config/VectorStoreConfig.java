@@ -20,14 +20,21 @@ public class VectorStoreConfig {
 
     @Bean
     public RestClient restClient() {
-        return RestClient.builder(HttpHost.create(elasticsearchUrl)).build();
+        return RestClient.builder(HttpHost.create(elasticsearchUrl))
+                .setRequestConfigCallback(requestConfigBuilder ->
+                        requestConfigBuilder
+                                .setConnectTimeout(60000) // 60 seconds connection timeout
+                                .setSocketTimeout(120000) // 120 seconds socket timeout
+                )
+                .build();
     }
 
     @Bean
     public ElasticsearchEmbeddingStore elasticsearchEmbeddingStore(RestClient restClient) {
         return ElasticsearchEmbeddingStore.builder()
                 .restClient(restClient)
-                .configuration(ElasticsearchConfigurationKnn.builder().build())
+                .configuration(ElasticsearchConfigurationKnn.builder()
+                        .build())
                 .indexName(indexName)
                 .build();
     }

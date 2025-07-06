@@ -66,7 +66,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 showThink = false; // 默认值为true
             }
             if("document".equals(type)) {
-                prompt = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, prompt);
+                prompt = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, prompt,userId);
             }
             AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt,showThink)
                         .subscribe(

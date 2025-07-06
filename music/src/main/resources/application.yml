@@ -38,7 +38,7 @@ spring:
     vectorstore:
       elasticsearch:
         initialize-schema: true
-        index-name: es_vector_index
+        index-name: music_vector_index
         dimensions: 1024
         host: 9200
         similarity: cosine

@@ -15,11 +15,9 @@ import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.nomic.NomicEmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
-import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
-import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
+import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchRequestFailedException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -31,9 +29,11 @@ import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class ChatService implements IChatService {
 
@@ -93,64 +93,113 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file,String userId) throws IOException {
-        // 检查文件是否为空
+    public ResultEntity uploadDoc(MultipartFile file, String userId) throws IOException {
+        // 1. 基础验证
         if (file.isEmpty()) {
-            return ResultUtil.fail(null,"文件不能为空");
+            return ResultUtil.fail(null, "文件不能为空");
         }
+
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null ||
                 (!originalFilename.toLowerCase().endsWith(".pdf") &&
                         !originalFilename.toLowerCase().endsWith(".txt"))) {
             return ResultUtil.fail("只能上传pdf和txt的文档");
         }
-        String filePath = UPLOAD_DIR + "/" + originalFilename;
-        File dest = new File(filePath);
-        file.transferTo(dest);
-        String content;
-        if (originalFilename.toLowerCase().endsWith(".pdf")) {
-            PDDocument pdfDocument = Loader.loadPDF(file.getBytes());
-            PDFTextStripper stripper = new PDFTextStripper();
-            content = stripper.getText(pdfDocument);
 
-            for (int page = 1; page <= pdfDocument.getNumberOfPages(); page++) {
-                stripper.setStartPage(page);
-                stripper.setEndPage(page);
-                String pageContent = stripper.getText(pdfDocument);
-                TextSegment textSegment = TextSegment.from(pageContent);
-                Embedding embedding = nomicEmbeddingModel.embed(pageContent).content();
-                Metadata metadata = textSegment.metadata();
-                metadata.put("id", originalFilename + "-page-" + page);
-                metadata.put("filename", originalFilename);
-                metadata.put("page", String.valueOf(page));
-                metadata.put("total_pages", String.valueOf(pdfDocument.getNumberOfPages()));
-                elasticsearchEmbeddingStore.add(embedding, textSegment);
+        try {
+            // 2. 读取文件内容
+            byte[] fileBytes = file.getBytes();
+            String content;
+
+            // 3. 分块处理文档
+            if (originalFilename.toLowerCase().endsWith(".pdf")) {
+                try (PDDocument pdfDocument = Loader.loadPDF(fileBytes)) {
+                    PDFTextStripper stripper = new PDFTextStripper();
+
+                    // 分页处理PDF（每3页一批，避免过大请求）
+                    int batchSize = 3;
+                    for (int page = 1; page <= pdfDocument.getNumberOfPages(); page += batchSize) {
+                        int endPage = Math.min(page + batchSize - 1, pdfDocument.getNumberOfPages());
+                        stripper.setStartPage(page);
+                        stripper.setEndPage(endPage);
+
+                        String batchContent = stripper.getText(pdfDocument);
+                        processContentBatch(batchContent, originalFilename, userId, page, endPage);
+                    }
+                }
+            } else {
+                // 处理TXT文件（每5000字符一批）
+                content = new String(fileBytes, StandardCharsets.UTF_8);
+                int chunkSize = 5000;
+                for (int i = 0; i < content.length(); i += chunkSize) {
+                    String chunk = content.substring(i, Math.min(i + chunkSize, content.length()));
+                    processContentBatch(chunk, originalFilename, userId, 1, 1);
+                }
             }
-        } else {
-            // Read TXT file
-            content = new String(Files.readAllBytes(dest.toPath()));
+
+            // 4. 保存文件到本地
+            String filePath = UPLOAD_DIR + "/" + originalFilename;
+            File dest = new File(filePath);
+            if (!dest.getParentFile().exists()) {
+                dest.getParentFile().mkdirs();
+            }
+            file.transferTo(dest);
+
+            // 5. 保存文档元数据
+            ChatDocEntity chatDocEntity = new ChatDocEntity();
+            chatDocEntity.setName(originalFilename);
+            chatDocEntity.setUserId(userId);
+            chatDocEntity.setExt(PromptUtil.getFileExtension(file));
+            chatDocEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+
+            chatMapper.saveDoc(chatDocEntity);
+
+            return ResultUtil.success("文件上传成功");
+
+        } catch (ElasticsearchRequestFailedException e) {
+            log.error("Elasticsearch操作失败: {}", e.getMessage());
+            return ResultUtil.fail("文档处理失败，请稍后重试");
+        } catch (IOException e) {
+            log.error("文件处理失败: {}", e.getMessage());
+            return ResultUtil.fail("文件处理失败");
+        } catch (Exception e) {
+            log.error("未知错误: {}", e.getMessage());
+            return ResultUtil.fail("系统错误");
         }
+    }
 
-        Embedding embedding = nomicEmbeddingModel.embed(content).content();
-        TextSegment textSegment = TextSegment.from(content);
-        elasticsearchEmbeddingStore.add(embedding, textSegment);
+    private void processContentBatch(String content, String filename, String userId, int startPage, int endPage) {
+        try {
+            TextSegment textSegment = TextSegment.from(content);
+            Embedding embedding = nomicEmbeddingModel.embed(content).content();
 
-        ChatDocEntity chatDocEntity = new ChatDocEntity();
-        chatDocEntity.setName(originalFilename);
-        chatDocEntity.setUserId(userId);
-        chatDocEntity.setExt(PromptUtil.getFileExtension(file));
-        // 生成32位ID
-        String fileId = UUID.randomUUID().toString().replace("-", "");
-        chatDocEntity.setId(fileId);
+            Metadata metadata = textSegment.metadata();
+            metadata.put("id", filename + "-pages-" + startPage + "-" + endPage);
+            metadata.put("filename", filename);
+            metadata.put("user_id", userId);
+            metadata.put("page_range", startPage + "-" + endPage);
 
-        chatMapper.saveDoc(chatDocEntity);
-
-        return ResultUtil.success("文件上传成功");
+            // 带重试机制的存储
+            int maxRetries = 3;
+            for (int i = 0; i < maxRetries; i++) {
+                try {
+                    elasticsearchEmbeddingStore.add(embedding, textSegment);
+                    break;
+                } catch (ElasticsearchRequestFailedException e) {
+                    if (i == maxRetries - 1) throw e;
+                    Thread.sleep(1000 * (i + 1)); // 指数退避
+                }
+            }
+        } catch (Exception e) {
+            log.error("处理文档分块失败: {} pages {}-{}", filename, startPage, endPage, e);
+            throw new RuntimeException("文档处理失败", e);
+        }
     }
 
     @Override
-    public Flux<String> searchDoc(String query,String chatId,String userId,String modelName) {
-        String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, query);
+    public Flux<String> searchDoc(String query, String chatId, String userId, String modelName) {
+        // 修改buildContext方法调用，传入userId
+        String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, query, userId);
         String finalPrompt = PromptUtil.buildPrompt(query, context);
         return AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, finalPrompt, false);
     }

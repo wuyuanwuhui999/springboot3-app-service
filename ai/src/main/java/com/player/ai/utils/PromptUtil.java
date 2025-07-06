@@ -17,10 +17,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PromptUtil {
-    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query) {
+    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId) {
+        // 创建过滤条件
+        Map<String, String> filter = new HashMap<>();
+        filter.put("user_id", userId);
         Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()
