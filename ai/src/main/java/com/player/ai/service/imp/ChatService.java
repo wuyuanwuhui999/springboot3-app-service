@@ -110,6 +110,7 @@ public class ChatService implements IChatService {
             // 2. 读取文件内容
             byte[] fileBytes = file.getBytes();
             String content;
+            String docId = UUID.randomUUID().toString().replace("-", "");
 
             // 3. 分块处理文档
             if (originalFilename.toLowerCase().endsWith(".pdf")) {
@@ -124,7 +125,7 @@ public class ChatService implements IChatService {
                         stripper.setEndPage(endPage);
 
                         String batchContent = stripper.getText(pdfDocument);
-                        processContentBatch(batchContent, originalFilename, userId, page, endPage);
+                        processContentBatch(batchContent, originalFilename, userId,docId, page, endPage);
                     }
                 }
             } else {
@@ -133,7 +134,7 @@ public class ChatService implements IChatService {
                 int chunkSize = 5000;
                 for (int i = 0; i < content.length(); i += chunkSize) {
                     String chunk = content.substring(i, Math.min(i + chunkSize, content.length()));
-                    processContentBatch(chunk, originalFilename, userId, 1, 1);
+                    processContentBatch(chunk, originalFilename, userId, docId, 1, 1);
                 }
             }
 
@@ -168,7 +169,7 @@ public class ChatService implements IChatService {
         }
     }
 
-    private void processContentBatch(String content, String filename, String userId, int startPage, int endPage) {
+    private void processContentBatch(String content, String filename,String docId, String userId, int startPage, int endPage) {
         try {
             TextSegment textSegment = TextSegment.from(content);
             Embedding embedding = nomicEmbeddingModel.embed(content).content();
@@ -176,6 +177,7 @@ public class ChatService implements IChatService {
             Metadata metadata = textSegment.metadata();
             metadata.put("id", filename + "-pages-" + startPage + "-" + endPage);
             metadata.put("filename", filename);
+            metadata.put("doc_id", docId);
             metadata.put("user_id", userId);
             metadata.put("page_range", startPage + "-" + endPage);
 

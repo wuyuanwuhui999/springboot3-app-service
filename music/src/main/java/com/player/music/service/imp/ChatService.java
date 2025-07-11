@@ -206,7 +206,7 @@ public class ChatService implements IChatService {
 
             // 3. 从Elasticsearch中删除文档
             ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
-            vectorStore.delete(List.of(docId));
+            vectorStore.delete(List.of("doc_id",docId));
 
             // 4. 从数据库中删除记录
             chatMapper.deleteDoc(docId, userId);
