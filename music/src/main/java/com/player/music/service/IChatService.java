@@ -20,4 +20,6 @@ public interface IChatService {
     Flux<String> searchDoc(String query,String chatId,String userId,String modelName);
 
     ResultEntity getDocList(String userId);
+
+    ResultEntity deleteDoc(String docId, String userId);
 }

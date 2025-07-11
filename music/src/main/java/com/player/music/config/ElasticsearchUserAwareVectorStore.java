@@ -81,8 +81,16 @@ public class ElasticsearchUserAwareVectorStore extends ElasticsearchVectorStore 
 
     @Override
     public void delete(List<String> idList) {
-        // 可选：实现按用户ID删除文档
-        super.delete(idList);
+        // 创建用户ID过滤条件
+        FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder().eq("user_id", currentUser);
+
+        // 创建文档ID过滤条件
+        FilterExpressionBuilder.Op idFilterOp = new FilterExpressionBuilder().in("id", idList);
+
+        // 组合两个条件
+        FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder().and(idFilterOp, userFilterOp);
+
+        super.delete(combinedFilterOp.build());
     }
 
     @Override

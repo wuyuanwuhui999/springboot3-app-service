@@ -8,6 +8,7 @@ import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import com.player.music.uitls.PromptUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -27,6 +28,7 @@ import java.util.*;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
+@Slf4j
 @Service
 public class ChatService implements IChatService {
 
@@ -156,7 +158,7 @@ public class ChatService implements IChatService {
         Files.write(path, bytes);
 
         List<String> fileUrls = new ArrayList<>();
-        List<Document> documents = PromptUtil.convertToDocument(file);
+        List<Document> documents = PromptUtil.convertToDocument(file,fileId);
 
         // 设置当前用户
         ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
@@ -187,5 +189,32 @@ public class ChatService implements IChatService {
     @Override
     public ResultEntity getDocList(String userId) {
         return ResultUtil.success(chatMapper.getDocList(userId));
+    }
+
+    @Override
+    public ResultEntity deleteDoc(String docId, String userId) {
+        try {
+            // 1. 先查询文档是否存在且属于该用户
+            ChatDocEntity doc = chatMapper.getDocById(docId, userId);
+            if (doc == null) {
+                return ResultUtil.fail(null, "文档不存在或无权删除");
+            }
+
+            // 2. 从文件系统中删除文件
+            Path filePath = Paths.get(UPLOAD_DIR, doc.getId() + (doc.getExt().isEmpty() ? "" : "." + doc.getExt()));
+            Files.deleteIfExists(filePath);
+
+            // 3. 从Elasticsearch中删除文档
+            ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
+            vectorStore.delete(List.of(docId));
+
+            // 4. 从数据库中删除记录
+            chatMapper.deleteDoc(docId, userId);
+
+            return ResultUtil.success(null, "文档删除成功");
+        } catch (IOException e) {
+            log.error("删除文档失败", e);
+            return ResultUtil.fail(null, "删除文档失败: " + e.getMessage());
+        }
     }
 }

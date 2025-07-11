@@ -38,7 +38,7 @@ public class PromptUtil {
             """, context, query);
     }
 
-    public static List<Document> convertToDocument(MultipartFile file) throws IOException {
+    public static List<Document> convertToDocument(MultipartFile file,String docId) throws IOException {
         List<Document> documents = new ArrayList<>();
         if (file.getContentType().equals("application/pdf")) {
             // PDF文件处理
@@ -53,6 +53,7 @@ public class PromptUtil {
                             file.getOriginalFilename() + "-page-" + page,
                             text,
                             Map.of(
+                                    "doc_id", docId,
                                     "type", "pdf",
                                     "page", page,
                                     "filename", file.getOriginalFilename()

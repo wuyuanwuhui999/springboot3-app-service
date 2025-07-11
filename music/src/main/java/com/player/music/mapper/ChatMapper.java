@@ -23,4 +23,8 @@ public interface ChatMapper {
     void saveDoc(ChatDocEntity chatDocEntity);
 
     List<ChatDocEntity> getDocList(String userId);
+
+    ChatDocEntity getDocById(String docId, String userId);
+
+    void deleteDoc(String docId, String userId);
 }
