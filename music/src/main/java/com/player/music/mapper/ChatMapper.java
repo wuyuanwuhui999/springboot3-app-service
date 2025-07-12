@@ -26,5 +26,5 @@ public interface ChatMapper {
 
     ChatDocEntity getDocById(String docId, String userId);
 
-    void deleteDoc(String docId, String userId);
+    long deleteDoc(String docId, String userId);
 }

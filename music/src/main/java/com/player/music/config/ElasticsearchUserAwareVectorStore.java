@@ -82,35 +82,50 @@ public class ElasticsearchUserAwareVectorStore extends ElasticsearchVectorStore 
 
     @Override
     public void delete(List<String> idList) {
-        // 创建用户ID过滤条件
-        FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder().eq("user_id", currentUser);
+        if (idList == null || idList.isEmpty()) {
+            return;
+        }
 
-        // 创建文档ID过滤条件
-        FilterExpressionBuilder.Op idFilterOp = new FilterExpressionBuilder().in("doc_id", idList);
+        try {
+            // 方案1：尝试使用.keyword后缀
+            FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder()
+                    .eq("metadata.user_id", currentUser);
+            FilterExpressionBuilder.Op idFilterOp = new FilterExpressionBuilder()
+                    .in("metadata.doc_id", idList.toArray(new String[0]));
+            Filter.Expression filter = new FilterExpressionBuilder()
+                    .and(idFilterOp, userFilterOp).build();
 
-        // 组合两个条件
-        FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder().and(idFilterOp, userFilterOp);
-
-        // 添加调试日志
-        log.debug("Deleting documents with filter: {}", combinedFilterOp.build());
-
-        super.delete(combinedFilterOp.build());
+            log.debug("Attempting to delete with filter: {}", filter);
+            super.delete(filter);
+        } catch (Exception e) {
+            log.error("Failed to delete documents with IDs: {}, for user: {}", idList, currentUser, e);
+            throw new IllegalStateException("Failed to delete documents by filter", e);
+        }
     }
 
     @Override
     public void delete(Filter.Expression filterExpression) {
-        // 创建用户ID过滤条件
-        FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder().eq("user_id", currentUser);
+        try {
+            // 创建用户ID过滤条件 - 注意访问嵌套的metadata.user_id字段
+            FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder()
+                    .eq("metadata.user_id", currentUser);
 
-        if (filterExpression != null) {
-            // 将原始过滤器转换为Op
-            FilterExpressionBuilder.Op originalFilterOp = new FilterExpressionBuilder.Op(filterExpression);
-            // 组合两个条件
-            FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder().and(originalFilterOp, userFilterOp);
-            super.delete(combinedFilterOp.build());
-        } else {
-            // 只有用户ID过滤条件
-            super.delete(userFilterOp.build());
+            if (filterExpression != null) {
+                // 将原始过滤器转换为Op
+                FilterExpressionBuilder.Op originalFilterOp = new FilterExpressionBuilder.Op(filterExpression);
+                // 组合两个条件
+                FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder()
+                        .and(originalFilterOp, userFilterOp);
+                log.debug("Deleting documents with combined filter: {}", combinedFilterOp.build());
+                super.delete(combinedFilterOp.build());
+            } else {
+                // 只有用户ID过滤条件
+                log.debug("Deleting all documents for user: {}", currentUser);
+                super.delete(userFilterOp.build());
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete documents with filter for user: {}", currentUser, e);
+            throw new IllegalStateException("Failed to delete documents by filter", e);
         }
     }
 

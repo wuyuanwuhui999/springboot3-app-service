@@ -206,12 +206,12 @@ public class ChatService implements IChatService {
 
             // 3. 从Elasticsearch中删除文档
             ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
-            vectorStore.delete(List.of("doc_id",docId));
+            vectorStore.delete(List.of(docId));
 
             // 4. 从数据库中删除记录
-            chatMapper.deleteDoc(docId, userId);
+            long rows = chatMapper.deleteDoc(docId, userId);
 
-            return ResultUtil.success(null, "文档删除成功");
+            return ResultUtil.success(rows, "文档删除成功");
         } catch (IOException e) {
             log.error("删除文档失败", e);
             return ResultUtil.fail(null, "删除文档失败: " + e.getMessage());
