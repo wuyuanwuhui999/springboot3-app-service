@@ -76,6 +76,6 @@ public class ChatController {
             @PathVariable("docId") String docId,
             @RequestHeader("Authorization") String token
     ) {
-        return chatService.deleteDoc(JwtToken.getId(token, secret),docId);
+        return chatService.deleteDoc(docId,JwtToken.getId(token, secret));
     }
 }

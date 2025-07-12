@@ -169,7 +169,7 @@ public class ChatService implements IChatService {
         }
     }
 
-    private void processContentBatch(String content, String filename,String docId, String userId, int startPage, int endPage) {
+    private void processContentBatch(String content, String filename, String userId, String docId, int startPage, int endPage) {
         try {
             TextSegment textSegment = TextSegment.from(content);
             Embedding embedding = nomicEmbeddingModel.embed(content).content();

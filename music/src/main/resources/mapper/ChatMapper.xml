@@ -49,7 +49,7 @@
     </delete>
 
     <select id="getDocById" resultType="com.player.common.entity.ChatDocEntity">
-        select * from chat_doc where user_id = #{userId} and id =  #{docId}
+        select * from chat_doc where  id =  #{docId} and user_id = #{userId}
     </select>
 </mapper>
 

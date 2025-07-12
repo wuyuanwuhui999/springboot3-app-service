@@ -158,7 +158,7 @@ public class ChatService implements IChatService {
         Files.write(path, bytes);
 
         List<String> fileUrls = new ArrayList<>();
-        List<Document> documents = PromptUtil.convertToDocument(file,fileId);
+        List<Document> documents = PromptUtil.convertToDocument(file,fileId,userId);
 
         // 设置当前用户
         ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);

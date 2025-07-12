@@ -1,5 +1,6 @@
 package com.player.music.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.TokenCountBatchingStrategy;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+@Slf4j
 public class ElasticsearchUserAwareVectorStore extends ElasticsearchVectorStore implements UserAwareVectorStore {
 
     private String currentUser;
@@ -85,10 +86,13 @@ public class ElasticsearchUserAwareVectorStore extends ElasticsearchVectorStore 
         FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder().eq("user_id", currentUser);
 
         // 创建文档ID过滤条件
-        FilterExpressionBuilder.Op idFilterOp = new FilterExpressionBuilder().in("id", idList);
+        FilterExpressionBuilder.Op idFilterOp = new FilterExpressionBuilder().in("doc_id", idList);
 
         // 组合两个条件
         FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder().and(idFilterOp, userFilterOp);
+
+        // 添加调试日志
+        log.debug("Deleting documents with filter: {}", combinedFilterOp.build());
 
         super.delete(combinedFilterOp.build());
     }
