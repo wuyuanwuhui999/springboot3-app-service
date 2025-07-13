@@ -2,6 +2,7 @@ package com.player.music.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.player.common.entity.ChatEntity;
+import com.player.music.config.UserAwareVectorStore;
 import com.player.music.mapper.ChatMapper;
 import com.player.common.utils.JwtToken;
 import com.player.music.uitls.PromptUtil;
@@ -67,6 +68,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setModelName(modelName);
 
             if("document".equals(type)) {
+                // 设置当前用户
+                ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
                 List<Document> relevantDocs = vectorStore.similaritySearch(prompt);
                 String context = PromptUtil.buildContext(relevantDocs);
                 prompt = PromptUtil.buildPrompt(prompt, context);

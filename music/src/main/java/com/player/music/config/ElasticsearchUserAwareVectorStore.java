@@ -131,34 +131,54 @@ public class ElasticsearchUserAwareVectorStore extends ElasticsearchVectorStore 
 
     @Override
     public List<Document> similaritySearch(SearchRequest request) {
-        // 添加用户ID过滤条件
+        // 创建用户ID和app_id过滤条件
+        FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder()
+                .eq("metadata.user_id", currentUser);
+        FilterExpressionBuilder.Op appFilterOp = new FilterExpressionBuilder()
+                .eq("metadata.app_id", "com.player.music");
+
+        // 组合用户ID和app_id条件
+        FilterExpressionBuilder.Op baseFilterOp = new FilterExpressionBuilder()
+                .and(userFilterOp, appFilterOp);
+
         Filter.Expression originalFilter = request.getFilterExpression();
-
-        // 创建用户ID过滤条件
-        FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder().eq("user_id", currentUser);
-
         if (originalFilter != null) {
             // 将原始过滤器转换为Op
             FilterExpressionBuilder.Op originalFilterOp = new FilterExpressionBuilder.Op(originalFilter);
-            // 组合两个条件
-            FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder().and(originalFilterOp, userFilterOp);
+            // 组合所有条件
+            FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder()
+                    .and(baseFilterOp, originalFilterOp);
             Filter.Expression finalFilter = combinedFilterOp.build();
 
-            SearchRequest filteredRequest = SearchRequest.from(request).filterExpression(finalFilter)
+            SearchRequest filteredRequest = SearchRequest.from(request)
+                    .filterExpression(finalFilter)
                     .build();
-
             return super.similaritySearch(filteredRequest);
         } else {
-            // 只有用户ID过滤条件
-            SearchRequest filteredRequest = SearchRequest.from(request).filterExpression(originalFilter).build();
-
+            // 只有用户ID和app_id过滤条件
+            SearchRequest filteredRequest = SearchRequest.from(request)
+                    .filterExpression(baseFilterOp.build())
+                    .build();
             return super.similaritySearch(filteredRequest);
         }
     }
 
     @Override
     public List<Document> similaritySearch(String query) {
-        SearchRequest request = SearchRequest.builder().query(query).filterExpression(new FilterExpressionBuilder().eq("user_id", currentUser).build()).build();
+        // 创建用户ID和app_id过滤条件
+        FilterExpressionBuilder.Op userFilterOp = new FilterExpressionBuilder()
+                .eq("metadata.user_id", currentUser);
+        FilterExpressionBuilder.Op appFilterOp = new FilterExpressionBuilder()
+                .eq("metadata.app_id", "com.player.music");
+
+        // 组合条件
+        FilterExpressionBuilder.Op combinedFilterOp = new FilterExpressionBuilder()
+                .and(userFilterOp, appFilterOp);
+
+        SearchRequest request = SearchRequest.builder()
+                .query(query)
+                .filterExpression(userFilterOp.build())
+                .build();
         return super.similaritySearch(request);
     }
 }

@@ -37,19 +37,19 @@
     </select>
 
     <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
-        insert into chat_doc(id,name,ext,user_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},now(),now())
+        insert into chat_doc(id,app_id,name,ext,user_id,create_time,update_time) VALUES (#{id},#{appId},#{name},#{ext},#{userId},now(),now())
     </insert>
 
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
-        select * from chat_doc where user_id = #{userId}
+        select * from chat_doc where user_id = #{userId} and app_id = 'com.player.music'
     </select>
 
     <delete id="deleteDoc">
-        delete from chat_doc where user_id = #{userId} and id =  #{docId}
+        delete from chat_doc where user_id = #{userId} and id =  #{docId} and app_id = 'com.player.music'
     </delete>
 
     <select id="getDocById" resultType="com.player.common.entity.ChatDocEntity">
-        select * from chat_doc where  id =  #{docId} and user_id = #{userId}
+        select * from chat_doc where  id =  #{docId} and user_id = #{userId} and app_id = 'com.player.music'
     </select>
 </mapper>
 
