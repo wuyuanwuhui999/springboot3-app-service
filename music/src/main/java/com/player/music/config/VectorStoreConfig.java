@@ -8,6 +8,7 @@ import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.ollama.management.ModelManagementOptions;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStore;
 import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStoreOptions;
 import org.springframework.ai.vectorstore.elasticsearch.SimilarityFunction;
 import org.springframework.context.annotation.Bean;
@@ -60,7 +61,8 @@ public class VectorStoreConfig {
         options.setIndexName(IndexName);    // Optional: defaults to "spring-ai-document-index"
         options.setSimilarity(SimilarityFunction.cosine);           // Optional: defaults to COSINE
         options.setDimensions(dimensions);             // Optional: defaults to model dimensions or 1536
-
-        return new ElasticsearchUserAwareVectorStore(restClient, embeddingModel, options);
+        return ElasticsearchVectorStore.builder(restClient, embeddingModel)
+                .options(options)
+                .initializeSchema(true).build();
     }
 }

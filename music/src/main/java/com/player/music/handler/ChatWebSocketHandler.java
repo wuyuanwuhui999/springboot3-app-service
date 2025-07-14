@@ -2,14 +2,16 @@ package com.player.music.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.player.common.entity.ChatEntity;
-import com.player.music.config.UserAwareVectorStore;
 import com.player.music.mapper.ChatMapper;
 import com.player.common.utils.JwtToken;
 import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.Filter;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,9 +70,29 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setModelName(modelName);
 
             if("document".equals(type)) {
-                // 设置当前用户
-                ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
-                List<Document> relevantDocs = vectorStore.similaritySearch(prompt);
+                // 构建原始查询DSL
+                String queryDsl = String.format("""
+                    {
+                      "query": {
+                        "bool": {
+                          "must": {
+                            "match": {
+                              "content": "%s"
+                            }
+                          },
+                          "filter": [
+                            {"term": {"metadata.user_id": "%s"}},
+                            {"term": {"metadata.app_id": "com.player.music"}}
+                          ]
+                        }
+                      }
+                    }
+                    """, prompt, userId);
+                List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
+                if(relevantDocs.isEmpty()){
+                    session.sendMessage(new TextMessage("没有查询到相关文档"));
+                    return;
+                }
                 String context = PromptUtil.buildContext(relevantDocs);
                 prompt = PromptUtil.buildPrompt(prompt, context);
             }

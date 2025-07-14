@@ -2,7 +2,6 @@ package com.player.music.service.imp;
 
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatEntity;
-import com.player.music.config.UserAwareVectorStore;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
@@ -11,7 +10,10 @@ import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.Filter;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -162,7 +164,6 @@ public class ChatService implements IChatService {
         List<Document> documents = PromptUtil.convertToDocument(file,fileId,userId);
 
         // 设置当前用户
-        ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
         vectorStore.add(documents);
 
         return ResultUtil.success(fileUrls, "文件保存成功");
@@ -170,10 +171,29 @@ public class ChatService implements IChatService {
 
     @Override
     public Flux<String> searchDoc(String query,String chatId,String userId,String modelName) {
-        // 设置当前用户
-        ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
-        // 1. 从向量库检索相关文档
-        List<Document> relevantDocs = vectorStore.similaritySearch(query);
+        // 构建原始查询DSL
+        String queryDsl = String.format("""
+                    {
+                      "query": {
+                        "bool": {
+                          "must": {
+                            "match": {
+                              "content": "%s"
+                            }
+                          },
+                          "filter": [
+                            {"term": {"metadata.user_id": "%s"}},
+                            {"term": {"metadata.app_id": "com.player.music"}}
+                          ]
+                        }
+                      }
+                    }
+                    """, query, userId);
+
+        List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
+        if(relevantDocs.isEmpty()){
+            return Flux.just("没有查询到相关文档，请尝试其他关键词或上传相关文档");
+        }
         // 2. 构建上下文提示
         String context = PromptUtil.buildContext(relevantDocs);
         // 3. 构建完整提示词
@@ -206,7 +226,6 @@ public class ChatService implements IChatService {
             Files.deleteIfExists(filePath);
 
             // 3. 从Elasticsearch中删除文档
-            ((UserAwareVectorStore)vectorStore).setCurrentUser(userId);
             vectorStore.delete(List.of(docId));
 
             // 4. 从数据库中删除记录
