@@ -52,6 +52,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
+
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> payload = mapper.readValue(message.getPayload(), Map.class);
 
@@ -61,6 +62,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String chatId = (String) payload.get("chatId");
             String modelName = (String) payload.get("modelName");
             String type = (String) payload.get("type");
+            boolean showThink = (boolean) payload.get("showThink");
 
             ChatEntity chatEntity = new ChatEntity();
             chatEntity.setChatId(chatId);
@@ -68,6 +70,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
             chatEntity.setModelName(modelName);
+
+            ChatClient client = getChatClientByModelName(modelName);
+            if (client == null) {
+                session.sendMessage(new TextMessage("{\"error\": \"Unsupported model: " + modelName + "\"}"));
+                return;
+            }
 
             if("document".equals(type)) {
                 // 构建原始查询DSL
@@ -96,13 +104,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 String context = PromptUtil.buildContext(relevantDocs);
                 prompt = PromptUtil.buildPrompt(prompt, context);
             }
-
-            ChatClient client = getChatClientByModelName(modelName);
-            if (client == null) {
-                session.sendMessage(new TextMessage("{\"error\": \"Unsupported model: " + modelName + "\"}"));
-                return;
+            if(!showThink){// 不要输出思考过程
+                prompt += "/no_think";
             }
-
             client.prompt()
                     .user(prompt)
                     .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))

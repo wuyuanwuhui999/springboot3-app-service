@@ -62,7 +62,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, String modelName) {
+    public Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink) {
         Flux<String> stringFlux;
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setChatId(chatId);
@@ -72,6 +72,9 @@ public class ChatService implements IChatService {
         ChatClient chatClient = getChatClientByModelName(modelName);
         if (chatClient == null) {
             return Flux.error(new IllegalArgumentException("Unsupported model: " + modelName));
+        }
+        if(!showThink){// 不要输出思考过程
+            prompt += "/no_think";
         }
         // 没有附件，纯文本聊天
         stringFlux = chatClient
@@ -170,7 +173,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> searchDoc(String query,String chatId,String userId,String modelName) {
+    public Flux<String> searchDoc(String query,String chatId,String userId,String modelName,boolean showThink) {
         // 构建原始查询DSL
         String queryDsl = String.format("""
                     {
@@ -198,6 +201,9 @@ public class ChatService implements IChatService {
         String context = PromptUtil.buildContext(relevantDocs);
         // 3. 构建完整提示词
         String fullPrompt = PromptUtil.buildPrompt(query, context);
+        if(!showThink){// 不要输出思考过程
+            fullPrompt += "/no_think";
+        }
         return getChatClientByModelName(modelName)
                 .prompt()
                 .user(fullPrompt)
