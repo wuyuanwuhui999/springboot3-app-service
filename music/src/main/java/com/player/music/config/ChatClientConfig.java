@@ -26,7 +26,7 @@ public class ChatClientConfig {
     private String deepseekModel;
 
     @Bean(name = "qwenChatClient")
-    public ChatClient qwenChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory, MusicTool musicTool) {
+    public ChatClient qwenChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory) {
         log.info("创建Qwen聊天客户端，模型: {}", model.getDefaultOptions().getModel());
         return ChatClient.builder(model)
                 .defaultOptions(ChatOptions.builder()
@@ -37,12 +37,11 @@ public class ChatClientConfig {
                         new SimpleLoggerAdvisor(),
                         new MessageChatMemoryAdvisor(redisChatMemory)
                 )
-                .defaultTools(musicTool)
                 .build();
     }
 
     @Bean(name = "deepseekChatClient")
-    public ChatClient deepseekChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory, MusicTool musicTool) {
+    public ChatClient deepseekChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory) {
         log.info("创建DeepSeek聊天客户端，模型: {}", model.getDefaultOptions().getModel());
         return ChatClient.builder(model)
                 .defaultOptions(ChatOptions.builder()
@@ -53,7 +52,6 @@ public class ChatClientConfig {
                         new SimpleLoggerAdvisor(),
                         new MessageChatMemoryAdvisor(redisChatMemory)
                 )
-                .defaultTools(musicTool)
                 .build();
     }
 }

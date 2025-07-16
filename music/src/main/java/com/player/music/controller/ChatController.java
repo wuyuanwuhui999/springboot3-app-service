@@ -28,9 +28,10 @@ public class ChatController {
             @RequestParam("prompt") String prompt,
             @RequestParam("chatId") String chatId,
             @RequestParam("modelName") String modelName,
-            @RequestParam("showThink") boolean showThink
+            @RequestParam("showThink") boolean showThink,
+            @RequestParam("type") String type
     ){
-        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelName,showThink);
+        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelName,showThink,type);
     }
 
     @GetMapping("/getChatHistory")
@@ -53,17 +54,6 @@ public class ChatController {
             @RequestHeader("Authorization") String token
     ) throws IOException {
         return chatService.uploadDoc(file,JwtToken.getId(token, secret));
-    }
-
-    @GetMapping("/searchDoc")
-    public Flux<String> searchDoc(
-            @RequestParam("query") String query,
-            @RequestParam("chatId") String chatId,
-            @RequestParam("modelName") String modelName,
-            @RequestParam("showThink") boolean showThink,
-            @RequestHeader("Authorization") String token
-    ) {
-        return chatService.searchDoc(query,chatId,JwtToken.getId(token, secret),modelName,showThink);
     }
 
     @GetMapping("/getDocList")

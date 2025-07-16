@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.player.common.entity.ChatEntity;
 import com.player.music.mapper.ChatMapper;
 import com.player.common.utils.JwtToken;
+import com.player.music.tools.MusicTool;
 import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -48,6 +49,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Value("${token.secret}")
     private String secret;
+
+    @Autowired
+    private MusicTool musicTool;
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -104,12 +108,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 String context = PromptUtil.buildContext(relevantDocs);
                 prompt = PromptUtil.buildPrompt(prompt, context);
             }
-            if(!showThink){// 不要输出思考过程
-                prompt += "/no_think";
-            }
-            client.prompt()
+
+            ChatClient.ChatClientRequestSpec advisors = client.prompt()
                     .user(prompt)
-                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
+                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId));
+            if("db".equals(type)){
+                advisors.tools(musicTool);
+            }
+            advisors
                     .stream()
                     .content()
                     .subscribe(

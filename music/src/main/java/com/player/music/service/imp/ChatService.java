@@ -6,6 +6,7 @@ import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
+import com.player.music.tools.MusicTool;
 import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -50,6 +51,9 @@ public class ChatService implements IChatService {
     private String UPLOAD_DIR;
 
     @Autowired
+    private MusicTool musicTool;
+
+    @Autowired
     private VectorStore vectorStore;
 
     private ChatClient getChatClientByModelName(String modelName) {
@@ -62,7 +66,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink) {
+    public Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink,String type) {
         Flux<String> stringFlux;
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setChatId(chatId);
@@ -73,17 +77,46 @@ public class ChatService implements IChatService {
         if (chatClient == null) {
             return Flux.error(new IllegalArgumentException("Unsupported model: " + modelName));
         }
-        if(!showThink){// 不要输出思考过程
-            prompt += "/no_think";
+        if("document".equals(type)) {
+            // 构建原始查询DSL
+            String queryDsl = String.format("""
+                    {
+                      "query": {
+                        "bool": {
+                          "must": {
+                            "match": {
+                              "content": "%s"
+                            }
+                          },
+                          "filter": [
+                            {"term": {"metadata.user_id": "%s"}},
+                            {"term": {"metadata.app_id": "com.player.music"}}
+                          ]
+                        }
+                      }
+                    }
+                    """, prompt, userId);
+
+            List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
+            if(relevantDocs.isEmpty()){
+                return Flux.just("没有查询到相关文档，请尝试其他关键词或上传相关文档");
+            }
+            // 2. 构建上下文提示
+            String context = PromptUtil.buildContext(relevantDocs);
+            // 3. 构建完整提示词
+            prompt = PromptUtil.buildPrompt(prompt, context);
         }
-        // 没有附件，纯文本聊天
-        stringFlux = chatClient
+
+        ChatClient.ChatClientRequestSpec advisors = chatClient
                 .prompt()
                 .user(prompt)
-                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
-                .stream()
-                .content();
+                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId));
 
+        if("type".equals(type)) {
+            advisors.tools(musicTool);
+        }
+
+        stringFlux = advisors.stream().content();
 
         // 将 Flux<String> 转换为 Mono<String>
         Mono<String> contentMono = stringFlux.collectList()
@@ -170,47 +203,6 @@ public class ChatService implements IChatService {
         vectorStore.add(documents);
 
         return ResultUtil.success(fileUrls, "文件保存成功");
-    }
-
-    @Override
-    public Flux<String> searchDoc(String query,String chatId,String userId,String modelName,boolean showThink) {
-        // 构建原始查询DSL
-        String queryDsl = String.format("""
-                    {
-                      "query": {
-                        "bool": {
-                          "must": {
-                            "match": {
-                              "content": "%s"
-                            }
-                          },
-                          "filter": [
-                            {"term": {"metadata.user_id": "%s"}},
-                            {"term": {"metadata.app_id": "com.player.music"}}
-                          ]
-                        }
-                      }
-                    }
-                    """, query, userId);
-
-        List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
-        if(relevantDocs.isEmpty()){
-            return Flux.just("没有查询到相关文档，请尝试其他关键词或上传相关文档");
-        }
-        // 2. 构建上下文提示
-        String context = PromptUtil.buildContext(relevantDocs);
-        // 3. 构建完整提示词
-        String fullPrompt = PromptUtil.buildPrompt(query, context);
-        if(!showThink){// 不要输出思考过程
-            fullPrompt += "/no_think";
-        }
-        return getChatClientByModelName(modelName)
-                .prompt()
-                .user(fullPrompt)
-                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
-                .stream()
-                .content();
-
     }
 
     @Override
