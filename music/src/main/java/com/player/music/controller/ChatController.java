@@ -1,5 +1,6 @@
 package com.player.music.controller;
 
+import com.player.music.entity.ChatParamsEntity;
 import com.player.music.entity.FileEntity;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
@@ -22,16 +23,13 @@ public class ChatController {
     @Autowired
     private IChatService chatService;
 
-    @RequestMapping(value = "/chat",produces = "text/html;charset=utf-8")
+    @PostMapping(value = "/chat",produces = "text/html;charset=utf-8")
     public Flux<String> chat(
             @RequestHeader("Authorization") String token,
-            @RequestParam("prompt") String prompt,
-            @RequestParam("chatId") String chatId,
-            @RequestParam("modelName") String modelName,
-            @RequestParam("showThink") boolean showThink,
-            @RequestParam("type") String type
-    ){
-        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelName,showThink,type);
+            @RequestBody ChatParamsEntity chatParamsEntity
+
+            ){
+        return chatService.chat(JwtToken.getId(token, secret), chatParamsEntity);
     }
 
     @GetMapping("/getChatHistory")

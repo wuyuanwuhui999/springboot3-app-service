@@ -2,6 +2,7 @@ package com.player.music.service.imp;
 
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatEntity;
+import com.player.music.entity.ChatParamsEntity;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
@@ -10,6 +11,10 @@ import com.player.music.tools.MusicTool;
 import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -27,6 +32,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
@@ -66,18 +72,19 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink,String type) {
+    public Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity) {
         Flux<String> stringFlux;
         ChatEntity chatEntity = new ChatEntity();
-        chatEntity.setChatId(chatId);
+        chatEntity.setChatId(chatParamsEntity.getChatId());
         chatEntity.setUserId(userId);
+        String prompt = chatParamsEntity.getPrompt();
         chatEntity.setPrompt(prompt);
-        chatEntity.setModelName(modelName);
-        ChatClient chatClient = getChatClientByModelName(modelName);
+        chatEntity.setModelName(chatParamsEntity.getModelName());
+        ChatClient chatClient = getChatClientByModelName(chatParamsEntity.getModelName());
         if (chatClient == null) {
-            return Flux.error(new IllegalArgumentException("Unsupported model: " + modelName));
+            return Flux.error(new IllegalArgumentException("Unsupported model: " + chatParamsEntity.getModelName()));
         }
-        if("document".equals(type)) {
+        if("document".equals(chatParamsEntity.getType())) {
             // 构建原始查询DSL
             String queryDsl = String.format("""
                     {
@@ -95,7 +102,7 @@ public class ChatService implements IChatService {
                         }
                       }
                     }
-                    """, prompt, userId);
+                    """, chatParamsEntity.getPrompt(), userId);
 
             List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
             if(relevantDocs.isEmpty()){
@@ -107,12 +114,43 @@ public class ChatService implements IChatService {
             prompt = PromptUtil.buildPrompt(prompt, context);
         }
 
-        ChatClient.ChatClientRequestSpec advisors = chatClient
-                .prompt()
-                .user(prompt)
-                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId));
+        prompt += "\n请用" + ("zh".equals(chatParamsEntity.getLanguage()) ? "中文" : "英文") + "回答";
 
-        if("type".equals(type)) {
+        String systemPromptTemplate = """
+        你是一个{role}。
+        {thinking}
+        当前日期: {current_date}
+        """;
+
+        Map<String, Object> systemVariables = Map.of(
+                "role", "有帮助的AI助手",
+                "thinking", chatParamsEntity.getShowThink() ? "请详细解释你的思考过程。" : "直接给出最终答案，不要解释思考过程。",
+                "current_date", LocalDate.now().toString()
+        );
+
+        SystemPromptTemplate systemPrompt = new SystemPromptTemplate(systemPromptTemplate);
+        Message systemMessage = systemPrompt.createMessage(systemVariables);
+
+        PromptTemplate userPromptTemplate = new PromptTemplate("""
+        用户问题: {message}
+        请用{language}回答。
+        """);
+
+        Map<String, Object> userVariables = Map.of(
+                "message", prompt,
+                "language", "中文"
+        );
+
+        Message userMessage = userPromptTemplate.createMessage(userVariables);
+
+        Prompt prompt1 = new Prompt(List.of(systemMessage, userMessage));
+
+        ChatClient.ChatClientRequestSpec advisors = chatClient
+                .prompt(prompt1)
+//                .user()
+                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatParamsEntity.getChatId()));
+
+        if("type".equals(chatParamsEntity.getType())) {
             advisors.tools(musicTool);
         }
 
