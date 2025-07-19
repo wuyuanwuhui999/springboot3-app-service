@@ -2,12 +2,14 @@ package com.player.music.service.imp;
 
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatEntity;
+import com.player.music.constants.SystemtConstants;
 import com.player.music.entity.ChatParamsEntity;
 import com.player.music.mapper.ChatMapper;
 import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import com.player.music.tools.MusicTool;
+import com.player.music.uitls.ChatUtils;
 import com.player.music.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -73,96 +75,33 @@ public class ChatService implements IChatService {
 
     @Override
     public Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity) {
-        Flux<String> stringFlux;
-        ChatEntity chatEntity = new ChatEntity();
-        chatEntity.setChatId(chatParamsEntity.getChatId());
-        chatEntity.setUserId(userId);
-        String prompt = chatParamsEntity.getPrompt();
-        chatEntity.setPrompt(prompt);
-        chatEntity.setModelName(chatParamsEntity.getModelName());
         ChatClient chatClient = getChatClientByModelName(chatParamsEntity.getModelName());
         if (chatClient == null) {
             return Flux.error(new IllegalArgumentException("Unsupported model: " + chatParamsEntity.getModelName()));
         }
-        if("document".equals(chatParamsEntity.getType())) {
-            // 构建原始查询DSL
-            String queryDsl = String.format("""
-                    {
-                      "query": {
-                        "bool": {
-                          "must": {
-                            "match": {
-                              "content": "%s"
-                            }
-                          },
-                          "filter": [
-                            {"term": {"metadata.user_id": "%s"}},
-                            {"term": {"metadata.app_id": "com.player.music"}}
-                          ]
-                        }
-                      }
-                    }
-                    """, chatParamsEntity.getPrompt(), userId);
 
-            List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
-            if(relevantDocs.isEmpty()){
-                return Flux.just("没有查询到相关文档，请尝试其他关键词或上传相关文档");
-            }
-            // 2. 构建上下文提示
-            String context = PromptUtil.buildContext(relevantDocs);
-            // 3. 构建完整提示词
-            prompt = PromptUtil.buildPrompt(prompt, context);
-        }
-
-        prompt += "\n请用" + ("zh".equals(chatParamsEntity.getLanguage()) ? "中文" : "英文") + "回答";
-
-        String systemPromptTemplate = """
-        你是一个{role}。
-        {thinking}
-        当前日期: {current_date}
-        """;
-
-        Map<String, Object> systemVariables = Map.of(
-                "role", "有帮助的AI助手",
-                "thinking", chatParamsEntity.getShowThink() ? "请详细解释你的思考过程。" : "直接给出最终答案，不要解释思考过程。",
-                "current_date", LocalDate.now().toString()
+        Flux<String> stringFlux = ChatUtils.processChat(
+                chatParamsEntity,
+                chatClient,
+                vectorStore,
+                userId,
+                SystemtConstants.MUSIC_SYSTEMT_PROMPT,
+                musicTool  // Added musicTool parameter
         );
 
-        SystemPromptTemplate systemPrompt = new SystemPromptTemplate(systemPromptTemplate);
-        Message systemMessage = systemPrompt.createMessage(systemVariables);
-
-        PromptTemplate userPromptTemplate = new PromptTemplate("""
-        用户问题: {message}
-        请用{language}回答。
-        """);
-
-        Map<String, Object> userVariables = Map.of(
-                "message", prompt,
-                "language", "中文"
-        );
-
-        Message userMessage = userPromptTemplate.createMessage(userVariables);
-
-        Prompt prompt1 = new Prompt(List.of(systemMessage, userMessage));
-
-        ChatClient.ChatClientRequestSpec advisors = chatClient
-                .prompt(prompt1)
-//                .user()
-                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatParamsEntity.getChatId()));
-
-        if("type".equals(chatParamsEntity.getType())) {
-            advisors.tools(musicTool);
-        }
-
-        stringFlux = advisors.stream().content();
+        ChatEntity chatEntity = new ChatEntity();
+        chatEntity.setChatId(chatParamsEntity.getChatId());
+        chatEntity.setUserId(userId);
+        chatEntity.setPrompt(chatParamsEntity.getPrompt());
+        chatEntity.setModelName(chatParamsEntity.getModelName());
 
         // 将 Flux<String> 转换为 Mono<String>
         Mono<String> contentMono = stringFlux.collectList()
-                .map(list -> String.join("", list)); // 拼接字符串
+                .map(list -> String.join("", list));
 
         // 订阅并保存到数据库
         contentMono.subscribe(content -> {
-            chatEntity.setContent(content); // 设置内容
+            chatEntity.setContent(content);
             chatMapper.saveChat(chatEntity);
         });
 

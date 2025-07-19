@@ -2,17 +2,17 @@ package com.player.music.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.player.common.entity.ChatEntity;
+import com.player.music.constants.SystemtConstants;
+import com.player.music.entity.ChatParamsEntity;
 import com.player.music.mapper.ChatMapper;
 import com.player.common.utils.JwtToken;
 import com.player.music.tools.MusicTool;
-import com.player.music.uitls.PromptUtil;
+import com.player.music.uitls.ChatUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.SearchRequest;
+
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.Filter;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +20,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +69,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String modelName = (String) payload.get("modelName");
             String type = (String) payload.get("type");
             boolean showThink = (boolean) payload.get("showThink");
+            String language = (String) payload.get("language");
+
+            ChatParamsEntity chatParamsEntity = new ChatParamsEntity();
+            chatParamsEntity.setChatId(chatId);
+            chatParamsEntity.setModelName(modelName);
+            chatParamsEntity.setPrompt(prompt);
+            chatParamsEntity.setShowThink(showThink);
+            chatParamsEntity.setLanguage(language);
+            chatParamsEntity.setType(type);
 
             ChatEntity chatEntity = new ChatEntity();
             chatEntity.setChatId(chatId);
@@ -75,71 +86,44 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setContent("");
             chatEntity.setModelName(modelName);
 
-            ChatClient client = getChatClientByModelName(modelName);
-            if (client == null) {
+            ChatClient chatClient = getChatClientByModelName(modelName);
+
+            if (chatClient == null) {
                 session.sendMessage(new TextMessage("{\"error\": \"Unsupported model: " + modelName + "\"}"));
                 return;
             }
 
-            if("document".equals(type)) {
-                // 构建原始查询DSL
-                String queryDsl = String.format("""
-                    {
-                      "query": {
-                        "bool": {
-                          "must": {
-                            "match": {
-                              "content": "%s"
-                            }
-                          },
-                          "filter": [
-                            {"term": {"metadata.user_id": "%s"}},
-                            {"term": {"metadata.app_id": "com.player.music"}}
-                          ]
-                        }
-                      }
-                    }
-                    """, prompt, userId);
-                List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
-                if(relevantDocs.isEmpty()){
-                    session.sendMessage(new TextMessage("没有查询到相关文档"));
-                    return;
-                }
-                String context = PromptUtil.buildContext(relevantDocs);
-                prompt = PromptUtil.buildPrompt(prompt, context);
-            }
+            Flux<String> chatStream  = ChatUtils.processChat(
+                    chatParamsEntity,
+                    chatClient,
+                    vectorStore,
+                    userId,
+                    SystemtConstants.MUSIC_SYSTEMT_PROMPT,
+                    musicTool  // Added musicTool parameter
+            );
 
-            ChatClient.ChatClientRequestSpec advisors = client.prompt()
-                    .user(prompt)
-                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId));
-            if("db".equals(type)){
-                advisors.tools(musicTool);
-            }
-            advisors
-                    .stream()
-                    .content()
-                    .subscribe(
-                            responsePart -> {
-                                chatEntity.setContent(chatEntity.getContent() + responsePart);
-                                sendResponse(session, responsePart);
-                            },
-                            throwable -> {
-                                log.error("Error during streaming", throwable);
-                                try {
-                                    session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
-                                } catch (IOException e) {
-                                    log.error("Failed to send error message", e);
-                                }
-                            },
-                            () -> {
-                                chatMapper.saveChat(chatEntity);
-                                try {
-                                    session.sendMessage(new TextMessage("[completed]"));
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                    );
+            chatStream.subscribe(
+                    responsePart -> {
+                        chatEntity.setContent(chatEntity.getContent() + responsePart);
+                        sendResponse(session, responsePart);
+                    },
+                    throwable -> {
+                        log.error("Error during streaming", throwable);
+                        try {
+                            session.sendMessage(new TextMessage("{\"error\": \"AI响应异常中断\"}"));
+                        } catch (IOException e) {
+                            log.error("Failed to send error message", e);
+                        }
+                    },
+                    () -> {
+                        chatMapper.saveChat(chatEntity);
+                        try {
+                            session.sendMessage(new TextMessage("[completed]"));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            );
         } catch (Exception e) {
             log.error("Error handling WebSocket message", e);
             try {
