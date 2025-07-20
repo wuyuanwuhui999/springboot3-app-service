@@ -21,4 +21,6 @@ public interface IChatService {
     ResultEntity getDocList(String userId,String appId);
 
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
+
+    ResultEntity deleteDoc(String docId, String userId, String directoryId);
 }

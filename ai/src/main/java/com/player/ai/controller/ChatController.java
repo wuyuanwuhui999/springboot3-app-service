@@ -60,4 +60,13 @@ public class ChatController {
     ) {
         return chatService.getDocList(JwtToken.getId(token, secret),directoryId);
     }
+
+    @DeleteMapping("/deleteDoc/{docId}")
+    public ResultEntity deleteDoc(
+            @PathVariable("docId") String docId,
+            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.deleteDoc(docId,JwtToken.getId(token, secret),directoryId);
+    }
 }

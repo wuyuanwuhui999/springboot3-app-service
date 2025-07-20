@@ -3,6 +3,7 @@ package com.player.ai.mapper;
 import com.player.ai.entity.ChatEntity;
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatModelEntity;
+import com.player.common.entity.ResultEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,8 @@ public interface ChatMapper {
     void saveDoc(ChatDocEntity chatDocEntity);
 
     List<ChatDocEntity> getDocList(String userId,String appId);
+
+    ChatDocEntity getDocById(String docId, String userId,String directoryId);
+
+    long deleteDoc(String docId, String userId, String directoryId);
 }

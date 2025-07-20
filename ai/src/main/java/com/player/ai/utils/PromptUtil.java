@@ -28,11 +28,11 @@ public class PromptUtil {
         Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
         IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
         IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
-        Filter and = Filter.and(directoryFilter, userIdFilter);
+        Filter andFilter = Filter.and(directoryFilter, userIdFilter);
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()
                         .queryEmbedding(queryEmbedding)
-                        .filter(and)
+                        .filter(andFilter)
                         .build());
         if (relevant.matches().isEmpty()) {
             return "";

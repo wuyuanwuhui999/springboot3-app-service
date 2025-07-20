@@ -19,6 +19,8 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchRequestFailedException;
+import dev.langchain4j.store.embedding.filter.Filter;
+import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -32,6 +34,9 @@ import reactor.core.publisher.Flux;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -116,6 +121,35 @@ public class ChatService implements IChatService {
                 .doOnError(e -> {
                     log.error("Error during chat streaming", e);
                 });
+    }
+
+    @Override
+    public ResultEntity deleteDoc(String docId, String userId, String directoryId) {
+        try {
+            // 1. 先查询文档是否存在且属于该用户
+            ChatDocEntity doc = chatMapper.getDocById(docId, userId,directoryId);
+            if (doc == null) {
+                return ResultUtil.fail(null, "文档不存在或无权删除");
+            }
+
+            // 2. 从文件系统中删除文件
+            Path filePath = Paths.get(UPLOAD_DIR, doc.getId() + (doc.getExt().isEmpty() ? "" : "." + doc.getExt()));
+            Files.deleteIfExists(filePath);
+
+            // 3. 从Elasticsearch中删除文档
+            IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
+            IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
+            Filter andFilter = Filter.and(directoryFilter, userIdFilter);
+            elasticsearchEmbeddingStore.removeAll(andFilter);
+
+            // 4. 从数据库中删除记录
+            long rows = chatMapper.deleteDoc(docId, userId,directoryId);
+
+            return ResultUtil.success(rows, "文档删除成功");
+        } catch (IOException e) {
+            log.error("删除文档失败", e);
+            return ResultUtil.fail(null, "删除文档失败: " + e.getMessage());
+        }
     }
 
     @Override
