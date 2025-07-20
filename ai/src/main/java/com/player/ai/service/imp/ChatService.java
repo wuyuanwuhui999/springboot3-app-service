@@ -4,6 +4,7 @@ import com.player.ai.assistant.AssistantSelector;
 import com.player.ai.assistant.DeepSeekAssistant;
 import com.player.ai.assistant.QwenAssistant;
 import com.player.ai.entity.ChatEntity;
+import com.player.ai.entity.ChatParamsEntity;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import com.player.ai.utils.PromptUtil;
@@ -15,6 +16,7 @@ import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchRequestFailedException;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +32,8 @@ import reactor.core.publisher.Flux;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Slf4j
 @Service
@@ -61,21 +63,58 @@ public class ChatService implements IChatService {
 
 
     @Override
-    public Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink) {
-        // 确保中文编码正确
-        // 构建ChatEntity对象用于保存
+    public Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity) {
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setUserId(userId);
-        chatEntity.setChatId(chatId);
-        chatEntity.setPrompt(prompt);
-        chatEntity.setModelName(modelName);
-        return AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, prompt,showThink)
+        chatEntity.setChatId(chatParamsEntity.getChatId());
+        chatEntity.setPrompt(chatParamsEntity.getPrompt());
+        chatEntity.setModelName(chatParamsEntity.getModelName());
+        chatEntity.setContent(""); // Initialize empty content
+
+        StringBuilder responseCollector = new StringBuilder();
+
+        return chatWithWebSocketHandling(
+                userId,
+                chatParamsEntity,
+                responsePart -> {
+                    // Collect each response part
+                    responseCollector.append(responsePart);
+                    chatEntity.setContent(responseCollector.toString());
+                }
+        )
                 .collectList()
                 .flatMapMany(aiResponses -> {
+                    // Save the final chat content
                     String fullResponse = String.join("", aiResponses);
                     chatEntity.setContent(fullResponse);
                     chatMapper.saveChat(chatEntity);
                     return Flux.fromIterable(aiResponses);
+                });
+    }
+
+    @Override
+    public Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler) {
+        ChatEntity chatEntity = new ChatEntity();
+        chatEntity.setUserId(userId);
+        chatEntity.setChatId(chatParamsEntity.getChatId());
+        chatEntity.setPrompt(chatParamsEntity.getPrompt());
+        chatEntity.setModelName(chatParamsEntity.getModelName());
+
+        if ("document".equals(chatParamsEntity.getType())) {
+            String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity.getPrompt(), userId,chatParamsEntity.getDirectoryId());
+            if (context == null || context.isEmpty()) {
+                return Flux.just("对不起，没有查询到相关文档");
+            }
+            chatParamsEntity.setPrompt(context);
+        }
+
+        return AssistantSelector.selectAssistant(chatParamsEntity, qwenAssistant, deepSeekAssistant)
+                .doOnNext(responseHandler)
+                .doOnComplete(() -> {
+                    chatMapper.saveChat(chatEntity);
+                })
+                .doOnError(e -> {
+                    log.error("Error during chat streaming", e);
                 });
     }
 
@@ -93,7 +132,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file, String userId) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId,String directoryId) throws IOException {
         // 1. 基础验证
         if (file.isEmpty()) {
             return ResultUtil.fail(null, "文件不能为空");
@@ -111,21 +150,33 @@ public class ChatService implements IChatService {
             byte[] fileBytes = file.getBytes();
             String content;
             String docId = UUID.randomUUID().toString().replace("-", "");
+            String fileExtension = PromptUtil.getFileExtension(file);
 
             // 3. 分块处理文档
             if (originalFilename.toLowerCase().endsWith(".pdf")) {
                 try (PDDocument pdfDocument = Loader.loadPDF(fileBytes)) {
                     PDFTextStripper stripper = new PDFTextStripper();
+                    int totalPages = pdfDocument.getNumberOfPages();
 
                     // 分页处理PDF（每3页一批，避免过大请求）
                     int batchSize = 3;
-                    for (int page = 1; page <= pdfDocument.getNumberOfPages(); page += batchSize) {
-                        int endPage = Math.min(page + batchSize - 1, pdfDocument.getNumberOfPages());
+                    for (int page = 1; page <= totalPages; page += batchSize) {
+                        int endPage = Math.min(page + batchSize - 1, totalPages);
                         stripper.setStartPage(page);
                         stripper.setEndPage(endPage);
 
                         String batchContent = stripper.getText(pdfDocument);
-                        processContentBatch(batchContent, originalFilename, userId,docId, page, endPage);
+                        processContentBatch(
+                                batchContent,
+                                originalFilename,
+                                userId,
+                                docId,
+                                page,
+                                endPage,
+                                directoryId, // app_id
+                                totalPages,         // total pages
+                                fileExtension       // file type
+                        );
                     }
                 }
             } else {
@@ -134,7 +185,17 @@ public class ChatService implements IChatService {
                 int chunkSize = 5000;
                 for (int i = 0; i < content.length(); i += chunkSize) {
                     String chunk = content.substring(i, Math.min(i + chunkSize, content.length()));
-                    processContentBatch(chunk, originalFilename, userId, docId, 1, 1);
+                    processContentBatch(
+                            chunk,
+                            originalFilename,
+                            userId,
+                            docId,
+                            1,
+                            1,
+                            directoryId, // app_id
+                            1,                 // total pages (1 for txt)
+                            fileExtension      // file type
+                    );
                 }
             }
 
@@ -150,8 +211,8 @@ public class ChatService implements IChatService {
             ChatDocEntity chatDocEntity = new ChatDocEntity();
             chatDocEntity.setName(originalFilename);
             chatDocEntity.setUserId(userId);
-            chatDocEntity.setExt(PromptUtil.getFileExtension(file));
-            chatDocEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+            chatDocEntity.setExt(fileExtension);
+            chatDocEntity.setId(docId);
 
             chatMapper.saveDoc(chatDocEntity);
 
@@ -169,7 +230,17 @@ public class ChatService implements IChatService {
         }
     }
 
-    private void processContentBatch(String content, String filename, String userId, String docId, int startPage, int endPage) {
+    private void processContentBatch(
+            String content,
+            String filename,
+            String userId,
+            String docId,
+            int startPage,
+            int endPage,
+            String directoryId,
+            int totalPages,
+            String fileType
+    ) {
         try {
             TextSegment textSegment = TextSegment.from(content);
             Embedding embedding = nomicEmbeddingModel.embed(content).content();
@@ -180,6 +251,11 @@ public class ChatService implements IChatService {
             metadata.put("doc_id", docId);
             metadata.put("user_id", userId);
             metadata.put("page_range", startPage + "-" + endPage);
+
+            // 添加新的元数据
+            metadata.put("app_id", directoryId);
+            metadata.put("page", String.valueOf(totalPages)); // 总页数
+            metadata.put("type", fileType);
 
             // 带重试机制的存储
             int maxRetries = 3;
@@ -199,15 +275,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> searchDoc(String query, String chatId, String userId, String modelName) {
-        // 修改buildContext方法调用，传入userId
-        String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, query, userId);
-        String finalPrompt = PromptUtil.buildPrompt(query, context);
-        return AssistantSelector.selectAssistant(modelName, qwenAssistant, deepSeekAssistant, chatId, finalPrompt, false);
-    }
-
-    @Override
-    public ResultEntity getDocList(String userId) {
-        return ResultUtil.success(chatMapper.getDocList(userId));
+    public ResultEntity getDocList(String userId,String directoryId) {
+        return ResultUtil.success(chatMapper.getDocList(userId,directoryId));
     }
 }

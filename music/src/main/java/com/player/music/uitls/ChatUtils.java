@@ -42,7 +42,7 @@ public class ChatUtils {
                           },
                           "filter": [
                             {"term": {"metadata.user_id": "%s"}},
-                            {"term": {"metadata.app_id": "com.player.music"}}
+                            {"term": {"metadata.directory_id": "public"}}
                           ]
                         }
                       }

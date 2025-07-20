@@ -8,6 +8,10 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
+import dev.langchain4j.store.embedding.filter.Filter;
+import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
+import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
+import dev.langchain4j.store.embedding.filter.comparison.IsIn;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -16,22 +20,22 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PromptUtil {
-    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId) {
+    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId,String directoryId) {
         // 创建过滤条件
-        Map<String, String> filter = new HashMap<>();
-        filter.put("user_id", userId);
         Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
+        IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
+        IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
+        Filter and = Filter.and(directoryFilter, userIdFilter);
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()
                         .queryEmbedding(queryEmbedding)
+                        .filter(and)
                         .build());
         if (relevant.matches().isEmpty()) {
-            return "没有找到相关文档";
+            return "";
         }
         StringBuilder contextBuilder = new StringBuilder();
         contextBuilder.append("以下是一些相关的文档摘录，可能有助于回答您的问题:\n\n");

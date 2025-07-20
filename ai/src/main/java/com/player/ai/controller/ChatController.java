@@ -1,5 +1,6 @@
 package com.player.ai.controller;
 
+import com.player.ai.entity.ChatParamsEntity;
 import com.player.ai.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.UserEntity;
@@ -21,15 +22,12 @@ public class ChatController {
     @Autowired
     private IChatService chatService;
 
-    @RequestMapping(value = "/chat",produces = "text/html;charset=utf-8")
+    @PostMapping(value = "/chat",produces = "text/html;charset=utf-8")
     public Flux<String> chat(
             @RequestHeader("Authorization") String token,
-            @RequestParam("prompt") String prompt,
-            @RequestParam("chatId") String chatId,
-            @RequestParam("modelName") String modelName,
-            @RequestParam("showThink") boolean showThink
+            @RequestBody ChatParamsEntity chatParamsEntity
     ){
-        return chatService.chat(JwtToken.getId(token, secret), prompt, chatId,modelName,showThink);
+        return chatService.chat(JwtToken.getId(token, secret), chatParamsEntity);
     }
 
     @GetMapping("/getChatHistory")
@@ -49,25 +47,17 @@ public class ChatController {
     @PostMapping("/uploadDoc")
     public ResultEntity uploadDoc(
             @RequestParam("file") MultipartFile file,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId
     ) throws IOException {
-        return chatService.uploadDoc(file,JwtToken.getId(token, secret));
-    }
-
-    @GetMapping("/searchDoc")
-    public Flux<String> searchDoc(
-            @RequestParam("query") String query,
-            @RequestParam("chatId") String chatId,
-            @RequestParam("modelName") String modelName,
-            @RequestHeader("Authorization") String token
-    ) {
-        return chatService.searchDoc(query,chatId,JwtToken.getId(token, secret),modelName);
+        return chatService.uploadDoc(file,JwtToken.getId(token, secret),directoryId);
     }
 
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
+            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId,
             @RequestHeader("Authorization") String token
     ) {
-        return chatService.getDocList(JwtToken.getId(token, secret));
+        return chatService.getDocList(JwtToken.getId(token, secret),directoryId);
     }
 }

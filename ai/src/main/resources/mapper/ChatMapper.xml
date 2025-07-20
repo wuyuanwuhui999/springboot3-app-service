@@ -37,11 +37,11 @@
     </select>
 
     <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
-        insert into chat_doc(id,name,ext,user_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},now(),now())
+        insert into chat_doc(id,name,ext,user_id,app_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{appId},now(),now())
     </insert>
 
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
-        select * from chat_doc where user_id = #{userId}
+        select * from chat_doc where user_id = #{userId} and app_id = #{appId}
     </select>
 </mapper>
 

@@ -160,7 +160,6 @@ public class ChatService implements IChatService {
         chatDocEntity.setName(originalFilename);
         chatDocEntity.setUserId(userId);
         chatDocEntity.setExt(fileExtension);
-        chatDocEntity.setAppId("com.player.music");
 
         chatMapper.saveDoc(chatDocEntity);
 

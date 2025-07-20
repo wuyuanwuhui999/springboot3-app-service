@@ -1,22 +1,24 @@
 package com.player.ai.service;
 
+import com.player.ai.entity.ChatParamsEntity;
 import com.player.common.entity.ResultEntity;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface IChatService {
-    Flux<String> chat(String userId, String prompt, String chatId, String modelName,boolean showThink);
+    Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity);
 
     ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
 
     ResultEntity getModelList();
 
-    ResultEntity uploadDoc(MultipartFile file,String userId) throws IOException;
+    ResultEntity uploadDoc(MultipartFile file,String userId,String appId) throws IOException;
 
-    Flux<String> searchDoc(String query,String chatId,String userId,String modelName);
+    ResultEntity getDocList(String userId,String appId);
 
-    ResultEntity getDocList(String userId);
+    Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 }

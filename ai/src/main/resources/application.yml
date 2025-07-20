@@ -55,7 +55,7 @@ spring:
   elasticsearch:
     uris: http://localhost:9200
     initialize-schema: true
-    index-name: music_vector_index
+    index-name: chat_vector_index
     dimensions: 1024
     host: 9200
     similarity: cosine

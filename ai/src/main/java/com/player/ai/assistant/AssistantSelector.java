@@ -1,20 +1,29 @@
+// AssistantSelector.java
 package com.player.ai.assistant;
 
+import com.player.ai.entity.ChatParamsEntity;
 import reactor.core.publisher.Flux;
 
 public class AssistantSelector {
     public static Flux<String> selectAssistant(
-            String modelName,
+            ChatParamsEntity chatParamsEntity,
             QwenAssistant qwenAssistant,
-            DeepSeekAssistant deepSeekAssistant,
-            String chatId,
-            String prompt,
-            boolean showThink
+            DeepSeekAssistant deepSeekAssistant
     ) {
-        if ("qwen3:8b".equals(modelName)) {
-            return qwenAssistant.chat(chatId, prompt, showThink);
-        } else if ("deepseek-r1:8b".equals(modelName)) {
-            return deepSeekAssistant.chat(chatId, prompt, showThink);
+        if ("qwen3:8b".equals(chatParamsEntity.getModelName())) {
+            return qwenAssistant.chat(
+                    chatParamsEntity.getChatId(),
+                    chatParamsEntity.getPrompt(),
+                    chatParamsEntity.getShowThink(),
+                    chatParamsEntity.getLanguage()
+            );
+        } else if ("deepseek-r1:8b".equals(chatParamsEntity.getModelName())) {
+            return deepSeekAssistant.chat(
+                    chatParamsEntity.getChatId(),
+                    chatParamsEntity.getPrompt(),
+                    chatParamsEntity.getShowThink(),
+                    chatParamsEntity.getLanguage()
+            );
         }
         return Flux.empty();
     }
