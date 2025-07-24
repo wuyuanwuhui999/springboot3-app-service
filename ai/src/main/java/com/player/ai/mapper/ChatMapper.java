@@ -1,6 +1,7 @@
 package com.player.ai.mapper;
 
 import com.player.ai.entity.ChatEntity;
+import com.player.ai.entity.DirectoryEntity;
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatModelEntity;
 import com.player.common.entity.ResultEntity;
@@ -25,4 +26,14 @@ public interface ChatMapper {
     ChatDocEntity getDocById(String docId, String userId,String directoryId);
 
     long deleteDoc(String docId, String userId, String directoryId);
+
+    List<DirectoryEntity> getDirectoryList(String userId);
+
+    long isDirExist(String userId, String directory);
+
+    long createDir(DirectoryEntity directoryEntity);
+
+    long renameDir(DirectoryEntity directoryEntity);
+
+    long deleteDir(String userId, long directoryId);
 }

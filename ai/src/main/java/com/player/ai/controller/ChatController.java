@@ -1,6 +1,7 @@
 package com.player.ai.controller;
 
 import com.player.ai.entity.ChatParamsEntity;
+import com.player.ai.entity.DirectoryEntity;
 import com.player.ai.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.UserEntity;
@@ -68,5 +69,46 @@ public class ChatController {
             @RequestHeader("Authorization") String token
     ) {
         return chatService.deleteDoc(docId,JwtToken.getId(token, secret),directoryId);
+    }
+
+    @GetMapping("/getDirectoryList")
+    public ResultEntity getDirectory(
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.getDirectoryList(JwtToken.getId(token, secret));
+    }
+
+    @GetMapping("/isDirExist")
+    public ResultEntity isDirExist(
+            @RequestParam("directory") String directory,
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.isDirExist(JwtToken.getId(token, secret),directory);
+    }
+
+    @PostMapping("/createDir")
+    public ResultEntity createDir(
+            @RequestBody DirectoryEntity directoryEntity,
+            @RequestHeader("Authorization") String token
+    ) {
+        directoryEntity.setUserId(JwtToken.getId(token, secret));
+        return chatService.createDir(directoryEntity);
+    }
+
+    @PutMapping("/renameDir")
+    public ResultEntity renameDir(
+            @RequestBody DirectoryEntity directoryEntity,
+            @RequestHeader("Authorization") String token
+    ) {
+        directoryEntity.setUserId(JwtToken.getId(token, secret));
+        return chatService.renameDir(directoryEntity);
+    }
+
+    @PutMapping("/deleteDir/{directoryId}")
+    public ResultEntity renameDir(
+            @RequestParam("id") long directoryId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.deleteDir(JwtToken.getId(token, secret),directoryId);
     }
 }

@@ -5,6 +5,7 @@ import com.player.ai.assistant.DeepSeekAssistant;
 import com.player.ai.assistant.QwenAssistant;
 import com.player.ai.entity.ChatEntity;
 import com.player.ai.entity.ChatParamsEntity;
+import com.player.ai.entity.DirectoryEntity;
 import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import com.player.ai.utils.PromptUtil;
@@ -16,7 +17,6 @@ import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchRequestFailedException;
 import dev.langchain4j.store.embedding.filter.Filter;
@@ -308,8 +308,70 @@ public class ChatService implements IChatService {
         }
     }
 
+    /**
+     * @author: wuwenqiang
+     * @methodsName: getDocList
+     * @description: 获取文档列表
+     * @return: String
+     * @date: 2025-07-24 21:23
+     */
     @Override
     public ResultEntity getDocList(String userId,String directoryId) {
         return ResultUtil.success(chatMapper.getDocList(userId,directoryId));
+    }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: getDirectoryList
+     * @description: 获取目录列表
+     * @date: 2025-07-24 21:23
+     */
+    @Override
+    public ResultEntity getDirectoryList(String userId) {
+        return ResultUtil.success(chatMapper.getDirectoryList(userId));
+    }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: isDirExist
+     * @description: 判断目录是否已存在
+     * @date: 2025-07-24 21:23
+     */
+    @Override
+    public ResultEntity isDirExist(String userId, String directory) {
+        return ResultUtil.success(chatMapper.isDirExist(userId,directory));
+    }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: createDir
+     * @description: 创建目录
+     * @date: 2025-07-24 21:23
+     */
+    @Override
+    public ResultEntity createDir(DirectoryEntity directoryEntity){
+        return ResultUtil.success(chatMapper.createDir(directoryEntity));
+    }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: createDir
+     * @description: 更改目录名称
+     * @date: 2025-07-24 21:23
+     */
+    @Override
+    public ResultEntity renameDir(DirectoryEntity directoryEntity){
+        return ResultUtil.success(chatMapper.renameDir(directoryEntity));
+    }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: createDir
+     * @description: 更改目录名称
+     * @date: 2025-07-24 21:23
+     */
+    @Override
+    public ResultEntity deleteDir(String userId, long directoryId) {
+        return ResultUtil.success(chatMapper.deleteDir(userId,directoryId));
     }
 }
