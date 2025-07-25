@@ -10,6 +10,7 @@ import com.player.ai.mapper.ChatMapper;
 import com.player.ai.service.IChatService;
 import com.player.ai.utils.PromptUtil;
 import com.player.common.entity.ChatDocEntity;
+import com.player.common.entity.ChatModelEntity;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 
@@ -27,6 +28,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
@@ -37,13 +42,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Slf4j
 @Service
 public class ChatService implements IChatService {
-
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private ChatMapper chatMapper;
@@ -160,6 +169,11 @@ public class ChatService implements IChatService {
         return success;
     }
 
+    /**
+     * 获取模型列表
+     * 使用@Cacheable缓存结果，key为固定值"model:list"
+     */
+    @Cacheable(value = "model", key = "'list'")
     @Override
     public ResultEntity getModelList() {
         return ResultUtil.success(chatMapper.getModelList());
@@ -323,55 +337,79 @@ public class ChatService implements IChatService {
     /**
      * @author: wuwenqiang
      * @methodsName: getDirectoryList
-     * @description: 获取目录列表
+     * @description: 获取目录列表，使用@Cacheable缓存结果，key为"directory:list:{userId}"
      * @date: 2025-07-24 21:23
      */
+    @Cacheable(value = "directory", key = "'list:' + #userId")
     @Override
     public ResultEntity getDirectoryList(String userId) {
-        return ResultUtil.success(chatMapper.getDirectoryList(userId));
+        List<DirectoryEntity> directoryList = chatMapper.getDirectoryList(userId);
+        return ResultUtil.success(directoryList);
     }
 
     /**
      * @author: wuwenqiang
      * @methodsName: isDirExist
-     * @description: 判断目录是否已存在
+     * @description: 判断目录是否已存在 使用@Cacheable缓存结果，key为"directory:exist:{userId}:{directory}"
      * @date: 2025-07-24 21:23
      */
+    @Cacheable(value = "directory", key = "'exist:' + #userId + ':' + #directory")
     @Override
     public ResultEntity isDirExist(String userId, String directory) {
-        return ResultUtil.success(chatMapper.isDirExist(userId,directory));
+        long result = chatMapper.isDirExist(userId, directory);
+        return ResultUtil.success(result);
     }
 
     /**
      * @author: wuwenqiang
      * @methodsName: createDir
-     * @description: 创建目录
+     * @description: 创建目录，使用@CacheEvict清除目录列表缓存
      * @date: 2025-07-24 21:23
      */
+    @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId")
     @Override
-    public ResultEntity createDir(DirectoryEntity directoryEntity){
-        return ResultUtil.success(chatMapper.createDir(directoryEntity));
+    public ResultEntity createDir(DirectoryEntity directoryEntity) {
+        long result = chatMapper.createDir(directoryEntity);
+        if (result > 0) {
+            return ResultUtil.success(result);
+        }
+        return ResultUtil.fail("创建目录失败");
     }
 
     /**
      * @author: wuwenqiang
-     * @methodsName: createDir
-     * @description: 更改目录名称
+     * @methodsName: renameDir
+     * @description: 重命名目录，清除目录列表缓存和该目录的存在检查缓存
      * @date: 2025-07-24 21:23
      */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId"),
+                    @CacheEvict(value = "directory", key = "'exist:' + #directoryEntity.userId + ':' + #directoryEntity.directory")
+            }
+    )
     @Override
-    public ResultEntity renameDir(DirectoryEntity directoryEntity){
-        return ResultUtil.success(chatMapper.renameDir(directoryEntity));
+    public ResultEntity renameDir(DirectoryEntity directoryEntity) {
+        long result = chatMapper.renameDir(directoryEntity);
+        if (result > 0) {
+            return ResultUtil.success(result);
+        }
+        return ResultUtil.fail("重命名目录失败");
     }
 
     /**
      * @author: wuwenqiang
-     * @methodsName: createDir
-     * @description: 更改目录名称
+     * @methodsName: deleteDir
+     * @description: 删除目录。清除该用户所有相关的目录缓存
      * @date: 2025-07-24 21:23
      */
+    @CacheEvict(value = "directory", allEntries = true)
     @Override
     public ResultEntity deleteDir(String userId, long directoryId) {
-        return ResultUtil.success(chatMapper.deleteDir(userId,directoryId));
+        long result = chatMapper.deleteDir(userId, directoryId);
+        if (result > 0) {
+            return ResultUtil.success(result);
+        }
+        return ResultUtil.fail("删除目录失败");
     }
 }
