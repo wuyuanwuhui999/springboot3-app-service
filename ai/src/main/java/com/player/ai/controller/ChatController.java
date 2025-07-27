@@ -56,10 +56,9 @@ public class ChatController {
 
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
-            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId,
             @RequestHeader("Authorization") String token
     ) {
-        return chatService.getDocList(JwtToken.getId(token, secret),directoryId);
+        return chatService.getDocList(JwtToken.getId(token, secret));
     }
 
     @DeleteMapping("/deleteDoc/{docId}")
@@ -76,14 +75,6 @@ public class ChatController {
             @RequestHeader("Authorization") String token
     ) {
         return chatService.getDirectoryList(JwtToken.getId(token, secret));
-    }
-
-    @GetMapping("/isDirExist")
-    public ResultEntity isDirExist(
-            @RequestParam("directory") String directory,
-            @RequestHeader("Authorization") String token
-    ) {
-        return chatService.isDirExist(JwtToken.getId(token, secret),directory);
     }
 
     @PostMapping("/createDir")

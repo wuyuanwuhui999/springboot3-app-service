@@ -9,8 +9,10 @@ import java.util.Date;
 public class ChatDocEntity {
     @Schema(description = "主键")
     private String id;
-    @Schema(description = "目录id，默认public")
+    @Schema(description = "目录id，默认为default")
     private String directoryId;
+    @Schema(description = "目录名称，")
+    private String directoryName;
     @Schema(description = "文件名称")
     private String name;
     @Schema(description = "文件格式")

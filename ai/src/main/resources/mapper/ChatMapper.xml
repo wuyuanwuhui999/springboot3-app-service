@@ -41,7 +41,18 @@
     </insert>
 
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
-        select * from chat_doc where user_id = #{userId} and app_id = #{appId}
+        SELECT
+            cd.*,
+            CASE
+                WHEN cd.directory_id = 'default' THEN '默认文件夹'
+                ELSE cdd.directory
+                END AS directory_name
+        FROM
+            chat_doc cd
+                LEFT JOIN
+            chat_doc_directory cdd ON cd.directory_id = cdd.id AND cd.directory_id != 'default'
+        WHERE
+            cd.user_id = #{userId}
     </select>
 
     <!-- 获取目录列表 -->
@@ -53,45 +64,41 @@
             create_time,
             update_time
         FROM
-            chat_directory
+            chat_doc_directory
         WHERE
             user_id = #{userId}
         ORDER BY
             create_time DESC
     </select>
 
-    <!-- 判断目录是否存在 -->
-    <select id="isDirExist" resultType="long">
-        SELECT
-            COUNT(*)
-        FROM
-            chat_directory
-        WHERE
-            user_id = #{userId}
-          AND directory = #{directory}
-    </select>
 
     <!-- 创建目录 -->
     <insert id="createDir" parameterType="DirectoryEntity">
-        INSERT INTO chat_directory(
+        INSERT INTO chat_doc_directory(
             id,
             user_id,
             directory,
             create_time,
             update_time
-        ) VALUES (
-                     #{id},
-                     #{userId},
-                     #{directory},
-                     NOW(),
-                     NOW()
-                 )
+        )
+        SELECT
+            #{id},
+            #{userId},
+            #{directory},
+            NOW(),
+            NOW()
+        FROM dual
+        WHERE NOT EXISTS (
+            SELECT 1 FROM chat_doc_directory
+            WHERE directory = #{directory}
+              AND user_id = #{userId}
+        )
     </insert>
 
     <!-- 重命名目录 -->
     <update id="renameDir" parameterType="DirectoryEntity">
         UPDATE
-            chat_directory
+            chat_doc_directory
         SET
             directory = #{directory},
             update_time = NOW()
@@ -103,7 +110,7 @@
     <!-- 删除目录 -->
     <delete id="deleteDir">
         DELETE FROM
-            chat_directory
+            chat_doc_directory
         WHERE
             id = #{directoryId}
           AND user_id = #{userId}

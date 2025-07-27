@@ -19,15 +19,13 @@ public interface IChatService {
 
     ResultEntity uploadDoc(MultipartFile file,String userId,String appId) throws IOException;
 
-    ResultEntity getDocList(String userId,String appId);
+    ResultEntity getDocList(String userId);
 
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 
     ResultEntity deleteDoc(String docId, String userId, String directoryId);
 
     ResultEntity getDirectoryList(String userId);
-
-    ResultEntity isDirExist(String userId, String directory);
 
     ResultEntity createDir(DirectoryEntity directoryEntity);
 

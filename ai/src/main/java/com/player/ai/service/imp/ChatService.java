@@ -330,8 +330,8 @@ public class ChatService implements IChatService {
      * @date: 2025-07-24 21:23
      */
     @Override
-    public ResultEntity getDocList(String userId,String directoryId) {
-        return ResultUtil.success(chatMapper.getDocList(userId,directoryId));
+    public ResultEntity getDocList(String userId) {
+        return ResultUtil.success(chatMapper.getDocList(userId));
     }
 
     /**
@@ -349,19 +349,6 @@ public class ChatService implements IChatService {
 
     /**
      * @author: wuwenqiang
-     * @methodsName: isDirExist
-     * @description: 判断目录是否已存在 使用@Cacheable缓存结果，key为"directory:exist:{userId}:{directory}"
-     * @date: 2025-07-24 21:23
-     */
-    @Cacheable(value = "directory", key = "'exist:' + #userId + ':' + #directory")
-    @Override
-    public ResultEntity isDirExist(String userId, String directory) {
-        long result = chatMapper.isDirExist(userId, directory);
-        return ResultUtil.success(result);
-    }
-
-    /**
-     * @author: wuwenqiang
      * @methodsName: createDir
      * @description: 创建目录，使用@CacheEvict清除目录列表缓存
      * @date: 2025-07-24 21:23
@@ -369,9 +356,10 @@ public class ChatService implements IChatService {
     @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId")
     @Override
     public ResultEntity createDir(DirectoryEntity directoryEntity) {
+        directoryEntity.setId( UUID.randomUUID().toString().replace("-", ""));
         long result = chatMapper.createDir(directoryEntity);
         if (result > 0) {
-            return ResultUtil.success(result);
+            return ResultUtil.success(directoryEntity);
         }
         return ResultUtil.fail("创建目录失败");
     }

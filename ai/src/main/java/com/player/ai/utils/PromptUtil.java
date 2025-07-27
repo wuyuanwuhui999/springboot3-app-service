@@ -1,6 +1,5 @@
 package com.player.ai.utils;
 
-import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -9,30 +8,26 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import dev.langchain4j.store.embedding.filter.Filter;
-import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
-import dev.langchain4j.store.embedding.filter.comparison.IsIn;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
+import opennlp.tools.util.StringUtil;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PromptUtil {
     public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId,String directoryId) {
         // 创建过滤条件
         Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
-        IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
         IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
-        Filter andFilter = Filter.and(directoryFilter, userIdFilter);
+        Filter filter;
+        if(!StringUtil.isEmpty(directoryId)){
+            IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
+            filter = Filter.and(directoryFilter, userIdFilter);
+        }else{
+            filter = userIdFilter;
+        }
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()
                         .queryEmbedding(queryEmbedding)
-                        .filter(andFilter)
+                        .filter(filter)
                         .build());
         if (relevant.matches().isEmpty()) {
             return "";
@@ -51,40 +46,6 @@ public class PromptUtil {
         }
 
         return contextBuilder.toString();
-    }
-
-    public static String buildPrompt(String query, String context) {
-        return String.format("""
-            基于以下参考内容回答问题。如果参考内容不足以回答问题，请如实告知。
-            
-            %s
-            
-            问题：%s
-            
-            请给出专业、准确的回答：
-            """, context, query);
-    }
-
-    public static List<Document> convertToDocument(MultipartFile file) throws IOException {
-        List<Document> documents = new ArrayList<>();
-        if (file.getContentType().equals("application/pdf")) {
-            // PDF文件处理
-            try ( PDDocument pdfDocument = Loader.loadPDF(file.getBytes())) {
-                PDFTextStripper stripper = new PDFTextStripper();
-                for (int page = 1; page <= pdfDocument.getNumberOfPages(); page++) {
-                    stripper.setStartPage(page);
-                    stripper.setEndPage(page);
-                    String text = stripper.getText(pdfDocument);
-
-
-                }
-            }
-        } else {
-            // 文本文件处理
-            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-
-        }
-        return documents;
     }
 
     public static String getFileExtension(MultipartFile file) {
