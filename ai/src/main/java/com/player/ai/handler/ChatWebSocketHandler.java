@@ -56,11 +56,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatParamsEntity.setType((String) payload.get("type"));
             chatParamsEntity.setLanguage((String) payload.get("language"));
             String directoryId = (String) payload.get("directoryId");
-            if(StringUtil.isEmpty(directoryId)){
-                directoryId = "public";
+            if("document".equals(chatParamsEntity.getType())){
+                if(directoryId == null || StringUtil.isEmpty(directoryId)){
+                    chatParamsEntity.setDirectoryId("default");
+                }
+                chatParamsEntity.setDirectoryId(directoryId);
             }
-            chatParamsEntity.setDirectoryId(directoryId);
-
             ChatEntity chatEntity = new ChatEntity();
             chatEntity.setChatId(chatId);
             chatEntity.setUserId(userId);

@@ -18,7 +18,7 @@ public class PromptUtil {
         Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
         IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
         Filter filter;
-        if(!StringUtil.isEmpty(directoryId)){
+        if(directoryId != null && !StringUtil.isEmpty(directoryId)){
             IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
             filter = Filter.and(directoryFilter, userIdFilter);
         }else{

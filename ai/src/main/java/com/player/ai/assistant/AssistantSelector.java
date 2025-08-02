@@ -10,19 +10,20 @@ public class AssistantSelector {
             QwenAssistant qwenAssistant,
             DeepSeekAssistant deepSeekAssistant
     ) {
+        String language =  "zh".equals(chatParamsEntity.getLanguage()) ? "请用中文回答" : "Please respond in English";
+        String prompt = chatParamsEntity.getShowThink() ? chatParamsEntity.getPrompt() : chatParamsEntity.getPrompt() + " /no_think";
+        String chatId = chatParamsEntity.getChatId();
         if ("qwen3:8b".equals(chatParamsEntity.getModelName())) {
             return qwenAssistant.chat(
-                    chatParamsEntity.getChatId(),
-                    chatParamsEntity.getPrompt(),
-                    chatParamsEntity.getShowThink(),
-                    chatParamsEntity.getLanguage()
+                    chatId,
+                    prompt,
+                    language
             );
         } else if ("deepseek-r1:8b".equals(chatParamsEntity.getModelName())) {
             return deepSeekAssistant.chat(
-                    chatParamsEntity.getChatId(),
-                    chatParamsEntity.getPrompt(),
-                    chatParamsEntity.getShowThink(),
-                    chatParamsEntity.getLanguage()
+                    chatId,
+                    prompt,
+                    language
             );
         }
         return Flux.empty();

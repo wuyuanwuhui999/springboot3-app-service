@@ -117,7 +117,7 @@ public class ChatService implements IChatService {
         if ("document".equals(chatParamsEntity.getType())) {
             String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity.getPrompt(), userId,chatParamsEntity.getDirectoryId());
             if (context == null || context.isEmpty()) {
-                return Flux.just("对不起，没有查询到相关文档");
+                return Flux.just("对不起，没有查询到相关文档").doOnNext(responseHandler);
             }
             chatParamsEntity.setPrompt(context);
         }

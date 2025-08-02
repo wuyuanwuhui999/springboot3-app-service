@@ -42,7 +42,7 @@ public class ChatUtils {
                           },
                           "filter": [
                             {"term": {"metadata.user_id": "%s"}},
-                            {"term": {"metadata.directory_id": "public"}}
+                            {"term": {"metadata.directory_id": "default"}}
                           ]
                         }
                       }
@@ -51,7 +51,7 @@ public class ChatUtils {
 
             List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
             if (relevantDocs.isEmpty()) {
-                return Flux.just("没有查询到相关文档");
+                return Flux.just("没有查询到相关文档").doOnNext(document -> {});
             }
             // 2. 构建上下文提示
             String context = PromptUtil.buildContext(relevantDocs);

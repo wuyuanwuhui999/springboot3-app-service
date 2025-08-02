@@ -54,7 +54,7 @@ public class PromptUtil {
                             text,
                             Map.of(
                                     "doc_id", docId,
-                                    "app_id", "com.player.music",
+                                    "directory_id", "default",
                                     "user_id", userId,
                                     "type", "pdf",
                                     "page", page,
@@ -71,7 +71,7 @@ public class PromptUtil {
                     content,
                     Map.of(
                             "doc_id", docId,
-                            "app_id", "com.player.music",
+                            "directoryId", "default",
                             "user_id", userId,
                             "type", "text",
                             "filename", file.getOriginalFilename()
