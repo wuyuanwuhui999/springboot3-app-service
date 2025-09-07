@@ -22,13 +22,22 @@ public class TenantController {
         return tenantService.getUserTenantList(JwtToken.getId(token,secret));
     }
 
-    // 查询用户信息
-    @GetMapping("/getTenantUsers")
-    public ResultEntity getTenantUsers(
+    // 查询当前租户下的用户列表
+    @GetMapping("/getTenantUserList")
+    public ResultEntity getTenantUserList(
             @RequestHeader(required = false,value = "Authorization") String token,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return tenantService.getTenantUsers(JwtToken.getId(token,secret),pageNum,pageSize);
+        return tenantService.getTenantUserList(JwtToken.getId(token,secret),pageNum,pageSize);
+    }
+
+    // 查询当前租户的用户信息
+    @GetMapping("/getTenantUser")
+    public ResultEntity getTenantUser(
+            @RequestHeader(required = false,value = "Authorization") String token,
+            @RequestParam(defaultValue = "1") String tenantId
+    ) {
+        return tenantService.getTenantUser(tenantId,JwtToken.getId(token,secret));
     }
 }

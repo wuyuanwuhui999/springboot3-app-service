@@ -3,12 +3,12 @@
 <mapper namespace="com.player.tenant.mapper.TenantMapper">
     <select id="getUserTenantList" resultType="TenantEntity">
         SELECT * FROM tenant
-        WHERE id IN (SELECT tenant_id FROM user_tenant WHERE user_id = #{userId})
+        WHERE id IN (SELECT tenant_id FROM tenant_user WHERE user_id = #{userId})
         ORDER BY create_date DESC
     </select>
 
     <!-- 分页查询租户用户（关联用户表查询用户信息） -->
-    <select id="getTenantUsers" resultType="TenantUserEntity">
+    <select id="getTenantUserList" resultType="TenantUserEntity">
         SELECT
             tu.*,
             u.username,
@@ -22,8 +22,21 @@
     </select>
 
     <!-- 查询租户用户总数 -->
-    <select id="getTenantUsersCount" resultType="int">
+    <select id="getTenantUserListCount" resultType="int">
         SELECT COUNT(*) FROM tenant_user
         WHERE tenant_id = #{tenantId}
+    </select>
+
+    <!-- 查询租户用户总数 -->
+    <select id="getTenantUser" resultType="TenantUserEntity">
+        SELECT
+            tu.*,
+            u.username,
+            u.avater,
+            u.email
+        FROM tenant_user tu
+                 LEFT JOIN user u ON tu.user_id = u.id
+        WHERE tu.tenant_id = #{tenantId}
+          AND tu.user_id = #{userId}
     </select>
 </mapper>

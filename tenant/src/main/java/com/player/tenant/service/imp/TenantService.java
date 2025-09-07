@@ -21,15 +21,20 @@ public class TenantService implements ITenantService {
     }
 
     @Override
-    public ResultEntity getTenantUsers(String tenantId, int pageNum, int pageSize) {
+    public ResultEntity getTenantUserList(String tenantId, int pageNum, int pageSize) {
         // 计算分页参数
         int offset = (pageNum - 1) * pageSize;
 
         // 查询数据
-        List<TenantUserEntity> users = tenantMapper.getTenantUsers(tenantId, offset, pageSize);
-        Long total = tenantMapper.getTenantUsersCount(tenantId);
+        List<TenantUserEntity> users = tenantMapper.getTenantUserList(tenantId, offset, pageSize);
+        Long total = tenantMapper.getTenantUserListCount(tenantId);
         ResultEntity resultEntity = ResultUtil.success(users);
         resultEntity.setTotal(total);
         return resultEntity;
+    }
+
+    @Override
+    public ResultEntity getTenantUser(String tenantId, String userId) {
+        return ResultUtil.success(tenantMapper.getTenantUser(tenantId,userId));
     }
 }

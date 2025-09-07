@@ -5,5 +5,8 @@ import com.player.common.entity.ResultEntity;
 public interface ITenantService {
     ResultEntity getUserTenantList(String userId);
 
-    ResultEntity getTenantUsers(String tenantId, int pageNum, int pageSize);
+    ResultEntity getTenantUserList(String tenantId, int pageNum, int pageSize);
+
+    ResultEntity getTenantUser(String tenantId, String userId);
 }
+
