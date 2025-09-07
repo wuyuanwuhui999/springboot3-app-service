@@ -83,4 +83,40 @@
     <select id="loginByEmail" parameterType="String" resultType="com.player.common.entity.UserEntity">
         <include refid="userData"></include> WHERE email = #{email}
     </select>
+
+    <select id="searchUsers" resultType="com.player.user.entity.SearchUserEntity">
+        SELECT
+            user.id,
+            user.user_account,
+            user.create_date,
+            user.update_date,
+            user.username,
+            user.telephone,
+            user.email,
+            user.avater,
+            user.birthday,
+            user.sex,
+            user.role,
+            user.sign,
+            user.region,
+            user.disabled,
+            user.permission,
+            COALESCE(tu.checked, 0) as checked
+        FROM user
+                 LEFT JOIN (
+            SELECT user_id, 1 as checked
+            FROM tenant_user
+            WHERE tenant_id = #{tenantId} AND disabled = 0
+        ) tu ON user.id = tu.user_id
+        WHERE user.disabled = 0
+          AND (
+            user.user_account LIKE CONCAT('%', #{keyword}, '%')
+                OR user.username LIKE CONCAT('%', #{keyword}, '%')
+                OR user.telephone LIKE CONCAT('%', #{keyword}, '%')
+                OR user.email LIKE CONCAT('%', #{keyword}, '%')
+                OR user.id LIKE CONCAT('%', #{keyword}, '%')
+            )
+        ORDER BY user.create_date DESC
+            LIMIT 50
+    </select>
 </mapper>

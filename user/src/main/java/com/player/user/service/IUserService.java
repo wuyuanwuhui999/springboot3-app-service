@@ -28,4 +28,6 @@ public interface IUserService {
     ResultEntity sendEmailVertifyCode(MailEntity mailEntity);
 
     ResultEntity loginByEmail(MailEntity mailEntity);
+
+    ResultEntity searchUsers(String keyword,String tenantId);
 }

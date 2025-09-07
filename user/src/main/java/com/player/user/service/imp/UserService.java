@@ -9,6 +9,7 @@ import com.player.common.utils.ResultCode;
 import com.player.user.entity.MailEntity;
 import com.player.user.entity.PasswordEntity;
 import com.player.user.entity.ResetPasswordEntity;
+import com.player.user.entity.SearchUserEntity;
 import com.player.user.mapper.UserMapper;
 import com.player.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -272,5 +275,17 @@ public class UserService implements IUserService {
                 return ResultUtil.fail(null, "登录失败，邮箱不存在", ResultCode.FAIL);
             }
         }
+    }
+
+    @Override
+    public ResultEntity searchUsers(String keyword, String tenantId) {
+        // 如果关键词为空，返回空列表
+        if (StringUtils.isEmpty(keyword)) {
+            return ResultUtil.success(new ArrayList<>());
+        }
+
+        // 调用Mapper搜索用户
+        List<SearchUserEntity> users = userMapper.searchUsers(keyword, tenantId);
+        return ResultUtil.success(users);
     }
 }

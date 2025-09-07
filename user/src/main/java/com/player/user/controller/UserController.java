@@ -84,4 +84,13 @@ public class UserController {
     public ResultEntity loginByEmail(@RequestBody MailEntity mailEntity ) {
         return userService.loginByEmail(mailEntity);
     }
+
+    // 搜索用户
+    @GetMapping("/user-getway/searchUsers")
+    public ResultEntity searchUsers(
+            @RequestParam(value = "keyword") String keyword,
+            @RequestParam(value = "tenantId") String tenantId
+    ) {
+        return userService.searchUsers(keyword,tenantId);
+    }
 }
