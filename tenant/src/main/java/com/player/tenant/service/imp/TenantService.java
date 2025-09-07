@@ -1,0 +1,35 @@
+package com.player.tenant.service.imp;
+
+import com.player.common.entity.ResultEntity;
+import com.player.common.entity.ResultUtil;
+import com.player.tenant.entity.TenantUserEntity;
+import com.player.tenant.mapper.TenantMapper;
+import com.player.tenant.service.ITenantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class TenantService implements ITenantService {
+    @Autowired
+    private TenantMapper tenantMapper;
+
+    @Override
+    public ResultEntity getUserTenantList(String userId) {
+        return ResultUtil.success(tenantMapper.getUserTenantList(userId));
+    }
+
+    @Override
+    public ResultEntity getTenantUsers(String tenantId, int pageNum, int pageSize) {
+        // 计算分页参数
+        int offset = (pageNum - 1) * pageSize;
+
+        // 查询数据
+        List<TenantUserEntity> users = tenantMapper.getTenantUsers(tenantId, offset, pageSize);
+        Long total = tenantMapper.getTenantUsersCount(tenantId);
+        ResultEntity resultEntity = ResultUtil.success(users);
+        resultEntity.setTotal(total);
+        return resultEntity;
+    }
+}

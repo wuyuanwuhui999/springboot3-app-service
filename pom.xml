@@ -18,6 +18,7 @@
         <module>circle</module>
         <module>social</module>
         <module>ai</module>
+        <module>tenant</module>
     </modules>
 
     <!-- 统一属性配置 -->

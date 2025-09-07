@@ -14,6 +14,7 @@
         <module name="ai" />
         <module name="circle" />
         <module name="user" />
+        <module name="tenant" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -28,6 +29,7 @@
       <module name="movie" options="-parameters" />
       <module name="music" options="-parameters" />
       <module name="social" options="-parameters" />
+      <module name="tenant" options="-parameters" />
       <module name="user" options="-parameters" />
     </option>
   </component>
