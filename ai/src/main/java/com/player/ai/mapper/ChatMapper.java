@@ -27,7 +27,7 @@ public interface ChatMapper {
 
     long deleteDoc(String docId, String userId, String directoryId);
 
-    List<DirectoryEntity> getDirectoryList(String userId);
+    List<DirectoryEntity> getDirectoryList(String userId,String tenantId);
 
     long isDirExist(String userId, String directory);
 

@@ -14,6 +14,9 @@ public class DirectoryEntity {
     @Schema(description = "目录名称")
     private String directory;
 
+    @Schema(description = "租户id")
+    private String tenantId;
+
     @Schema(description = "修改时间")
     private String updateTime;
 

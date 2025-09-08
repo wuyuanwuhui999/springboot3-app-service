@@ -71,10 +71,11 @@ public class ChatController {
     }
 
     @GetMapping("/getDirectoryList")
-    public ResultEntity getDirectory(
+    public ResultEntity getDirectoryList(
+            @RequestParam("tenantId") String tenantId,
             @RequestHeader("Authorization") String token
     ) {
-        return chatService.getDirectoryList(JwtToken.getId(token, secret));
+        return chatService.getDirectoryList(JwtToken.getId(token, secret),tenantId);
     }
 
     @PostMapping("/createDir")

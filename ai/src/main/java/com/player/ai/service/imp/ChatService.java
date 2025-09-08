@@ -340,10 +340,10 @@ public class ChatService implements IChatService {
      * @description: 获取目录列表，使用@Cacheable缓存结果，key为"directory:list:{userId}"
      * @date: 2025-07-24 21:23
      */
-    @Cacheable(value = "directory", key = "'list:' + #userId")
+    @Cacheable(value = "directory", key = "'list:' + #userId +':' + #tenantId")
     @Override
-    public ResultEntity getDirectoryList(String userId) {
-        List<DirectoryEntity> directoryList = chatMapper.getDirectoryList(userId);
+    public ResultEntity getDirectoryList(String userId,String tenantId) {
+        List<DirectoryEntity> directoryList = chatMapper.getDirectoryList(userId,tenantId);
         return ResultUtil.success(directoryList);
     }
 
@@ -353,7 +353,7 @@ public class ChatService implements IChatService {
      * @description: 创建目录，使用@CacheEvict清除目录列表缓存
      * @date: 2025-07-24 21:23
      */
-    @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId")
+    @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId + ':' + #directoryEntity.tenantId")
     @Override
     public ResultEntity createDir(DirectoryEntity directoryEntity) {
         directoryEntity.setId( UUID.randomUUID().toString().replace("-", ""));
@@ -372,7 +372,7 @@ public class ChatService implements IChatService {
      */
     @Caching(
             evict = {
-                    @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId"),
+                    @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId + ':' + #directoryEntity.directory"),
                     @CacheEvict(value = "directory", key = "'exist:' + #directoryEntity.userId + ':' + #directoryEntity.directory")
             }
     )
