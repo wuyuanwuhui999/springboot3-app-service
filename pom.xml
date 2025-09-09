@@ -49,6 +49,7 @@
         <spring-ai-starter-model-ollama>1.0.0</spring-ai-starter-model-ollama>
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
+        <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -256,6 +257,11 @@
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-nomic</artifactId>
                 <version>${langchain4j-elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-logging</artifactId>
+                <version>${spring-boot-starter-logging.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

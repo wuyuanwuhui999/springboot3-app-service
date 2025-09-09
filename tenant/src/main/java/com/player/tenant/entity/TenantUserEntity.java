@@ -14,6 +14,9 @@ public class TenantUserEntity {
     @Schema(description = "租户ID")
     private String tenantId;
 
+    @Schema(description = "租户名称")
+    private String tenantName;
+
     @Schema(description = "用户ID")
     private String userId;
 

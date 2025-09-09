@@ -31,12 +31,15 @@
     <select id="getTenantUser" resultType="TenantUserEntity">
         SELECT
             tu.*,
+            t.name as tenant_name,
             u.username,
             u.avater,
             u.email
         FROM tenant_user tu
-                 LEFT JOIN user u ON tu.user_id = u.id
+            LEFT JOIN user u ON tu.user_id = u.id
+            LEFT JOIN tenant t ON tu.tenant_id = t.id
         WHERE tu.tenant_id = #{tenantId}
-          AND tu.user_id = #{userId}
+            AND tu.user_id = #{userId}
+            AND tu.disabled = 0
     </select>
 </mapper>

@@ -36,7 +36,7 @@ public class TenantController {
     @GetMapping("/getTenantUser")
     public ResultEntity getTenantUser(
             @RequestHeader(required = false,value = "Authorization") String token,
-            @RequestParam(defaultValue = "1") String tenantId
+            @RequestParam(defaultValue = "") String tenantId
     ) {
         return tenantService.getTenantUser(tenantId,JwtToken.getId(token,secret));
     }
