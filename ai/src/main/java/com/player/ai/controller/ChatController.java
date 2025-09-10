@@ -56,9 +56,10 @@ public class ChatController {
 
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
-            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token,
+            @RequestParam("tenantId") String tenantId
     ) {
-        return chatService.getDocList(JwtToken.getId(token, secret));
+        return chatService.getDocList(JwtToken.getId(token, secret),tenantId);
     }
 
     @DeleteMapping("/deleteDoc/{docId}")

@@ -19,7 +19,7 @@ public interface IChatService {
 
     ResultEntity uploadDoc(MultipartFile file,String userId,String appId) throws IOException;
 
-    ResultEntity getDocList(String userId);
+    ResultEntity getDocList(String userId,String tenantId);
 
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 

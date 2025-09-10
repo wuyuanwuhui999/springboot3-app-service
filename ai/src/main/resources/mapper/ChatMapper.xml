@@ -43,16 +43,18 @@
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
         SELECT
             cd.*,
-            CASE
-                WHEN cd.directory_id = 'default' THEN '默认文件夹'
-                ELSE cdd.directory
-                END AS directory_name
+        CASE
+                WHEN cd.directory_id = 'default' THEN
+                '默认文件夹' ELSE cdd.DIRECTORY
+            END AS directory_name
         FROM
             chat_doc cd
-                LEFT JOIN
-            chat_doc_directory cdd ON cd.directory_id = cdd.id AND cd.directory_id != 'default'
+            LEFT JOIN chat_doc_directory cdd ON cd.directory_id = cdd.id
+            AND cd.directory_id != 'default'
         WHERE
             cd.user_id = #{userId}
+            AND cd.tenant_id = #{tenantId}
+            AND EXISTS ( SELECT 1 FROM tenant_user tu WHERE tu.tenant_id = #{tenantId} AND tu.user_id = #{userId} AND tu.disabled = 0 )
     </select>
 
     <!-- 获取目录列表 -->

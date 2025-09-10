@@ -330,8 +330,8 @@ public class ChatService implements IChatService {
      * @date: 2025-07-24 21:23
      */
     @Override
-    public ResultEntity getDocList(String userId) {
-        return ResultUtil.success(chatMapper.getDocList(userId));
+    public ResultEntity getDocList(String userId,String tenantId) {
+        return ResultUtil.success(chatMapper.getDocList(userId,tenantId));
     }
 
     /**
