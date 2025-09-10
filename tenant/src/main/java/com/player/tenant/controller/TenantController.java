@@ -26,10 +26,11 @@ public class TenantController {
     @GetMapping("/getTenantUserList")
     public ResultEntity getTenantUserList(
             @RequestHeader(required = false,value = "Authorization") String token,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            @RequestParam("tenantId") String tenantId,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("pageSize") int pageSize
     ) {
-        return tenantService.getTenantUserList(JwtToken.getId(token,secret),pageNum,pageSize);
+        return tenantService.getTenantUserList(tenantId,JwtToken.getId(token,secret),pageNum,pageSize);
     }
 
     // 查询当前租户的用户信息

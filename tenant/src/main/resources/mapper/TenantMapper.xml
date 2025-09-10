@@ -15,14 +15,20 @@
             u.avater,
             u.email
         FROM tenant_user tu
-                 LEFT JOIN user u ON tu.user_id = u.id
+            LEFT JOIN user u ON tu.user_id = u.id
         WHERE tu.tenant_id = #{tenantId}
+            AND EXISTS (
+                SELECT 1 FROM tenant_user admin_tu
+                WHERE admin_tu.tenant_id = #{tenantId}
+                AND admin_tu.user_id = #{userId}
+                AND admin_tu.role_type IN (1, 2)  -- 1-租户管理员，2-超级管理员
+            )
         ORDER BY tu.join_date DESC
-            LIMIT #{offset}, #{pageSize}
+        LIMIT #{offset}, #{pageSize}
     </select>
 
     <!-- 查询租户用户总数 -->
-    <select id="getTenantUserListCount" resultType="int">
+    <select id="getTenantUserListCount" resultType="Long">
         SELECT COUNT(*) FROM tenant_user
         WHERE tenant_id = #{tenantId}
     </select>
