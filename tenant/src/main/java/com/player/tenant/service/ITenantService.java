@@ -8,5 +8,7 @@ public interface ITenantService {
     ResultEntity getTenantUserList(String tenantId,String userId, int pageNum, int pageSize);
 
     ResultEntity getTenantUser(String tenantId, String userId);
+
+    ResultEntity setAdmin(String tenantId, String userId,String adminUserId,int roleType);
 }
 

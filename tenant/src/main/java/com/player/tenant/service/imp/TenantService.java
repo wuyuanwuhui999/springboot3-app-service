@@ -37,4 +37,9 @@ public class TenantService implements ITenantService {
     public ResultEntity getTenantUser(String tenantId, String userId) {
         return ResultUtil.success(tenantMapper.getTenantUser(tenantId,userId));
     }
+
+    @Override
+    public ResultEntity setAdmin(String tenantId, String userId, String adminUserId, int roleType) {
+        return ResultUtil.success(tenantMapper.setAdmin(tenantId,userId,adminUserId,roleType));
+    }
 }

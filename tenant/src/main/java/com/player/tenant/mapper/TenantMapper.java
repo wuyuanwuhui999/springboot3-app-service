@@ -15,4 +15,6 @@ public interface TenantMapper {
     Long getTenantUserListCount(String tenantId);
 
     TenantUserEntity getTenantUser(String tenantId, String userId);
+
+    int setAdmin(String tenantId,String userId,String adminUserId,int roleType);
 }

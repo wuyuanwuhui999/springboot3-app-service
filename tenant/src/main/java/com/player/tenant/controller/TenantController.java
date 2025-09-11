@@ -37,8 +37,28 @@ public class TenantController {
     @GetMapping("/getTenantUser")
     public ResultEntity getTenantUser(
             @RequestHeader(required = false,value = "Authorization") String token,
-            @RequestParam(defaultValue = "") String tenantId
+            @RequestParam("tenantId") String tenantId
     ) {
         return tenantService.getTenantUser(tenantId,JwtToken.getId(token,secret));
+    }
+
+    // 添加用户为管理员
+    @PutMapping("/addAdmin/{tenantId}/{userId}")
+    public ResultEntity addAdmin(
+            @RequestHeader(required = false,value = "Authorization") String token,
+            @PathVariable("tenantId") String tenantId,
+            @PathVariable("userId") String userId
+    ) {
+        return tenantService.setAdmin(tenantId,userId,JwtToken.getId(token,secret),1);
+    }
+
+    // 取消用户为管理员
+    @PutMapping("/cancelAdmin/{tenantId}/{userId}")
+    public ResultEntity cancelAdmin(
+            @RequestHeader(required = false,value = "Authorization") String token,
+            @PathVariable("tenantId") String tenantId,
+            @PathVariable("userId") String userId
+    ) {
+        return tenantService.setAdmin(tenantId,userId,JwtToken.getId(token,secret),0);
     }
 }
