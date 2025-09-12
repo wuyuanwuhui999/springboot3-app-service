@@ -48,4 +48,18 @@
             AND tu.user_id = #{userId}
             AND tu.disabled = 0
     </select>
+
+    <update id="setAdmin">
+        UPDATE tenant_user tu
+        JOIN tenant_user admin ON admin.tenant_id = #{tenantId}
+            AND admin.user_id = #{adminUserId}
+            AND admin.role_type = 2
+            AND admin.disabled = 0
+        SET tu.role_type = #{roleType},
+            tu.create_by = #{adminUserId}
+        WHERE tu.tenant_id = #{tenantId}
+            AND tu.user_id = #{userId}
+            AND tu.disabled = 0
+    </update>
+
 </mapper>
