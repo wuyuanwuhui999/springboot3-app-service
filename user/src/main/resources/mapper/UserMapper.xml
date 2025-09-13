@@ -84,7 +84,7 @@
         <include refid="userData"></include> WHERE email = #{email}
     </select>
 
-    <select id="searchUsers" resultType="com.player.user.entity.SearchUserEntity">
+    <select id="searchUsers" resultType="SearchUserEntity">
         SELECT
             user.id,
             user.user_account,

@@ -62,4 +62,41 @@
             AND tu.disabled = 0
     </update>
 
+    <!-- 检查用户是否有管理员权限 -->
+    <select id="checkAdminPermission" resultType="int">
+        SELECT COUNT(*)
+        FROM tenant_user
+        WHERE tenant_id = #{tenantId, jdbcType=VARCHAR}
+        AND user_id = #{userId, jdbcType=VARCHAR}
+        AND role_type IN (1, 2) <!-- 1-租户管理员，2-超级管理员 -->
+        AND disabled = 0
+    </select>
+
+    <!-- 添加租户用户 -->
+    <insert id="addTenantUser" parameterType="map">
+        INSERT INTO tenant_user (
+            id,
+            tenant_id,
+            user_id,
+            role_type,
+            join_date,
+            create_by,
+            disabled
+        ) VALUES (
+            #{id},
+            #{tenantId},
+            #{userId},
+            0,
+            NOW(),
+            #{adminUserId},
+            0
+        )
+    </insert>
+
+    <!-- 删除租户用户 -->
+    <delete id="deleteTenantUser" parameterType="map">
+        DELETE FROM tenant_user
+        WHERE tenant_id = #{tenantId, jdbcType=VARCHAR}
+        AND user_id = #{userId, jdbcType=VARCHAR}
+    </delete>
 </mapper>

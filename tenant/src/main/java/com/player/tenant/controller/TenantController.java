@@ -61,4 +61,24 @@ public class TenantController {
     ) {
         return tenantService.setAdmin(tenantId,userId,JwtToken.getId(token,secret),0);
     }
+
+    // 取消用户为管理员
+    @PostMapping("/addTenantUser/{tenantId}/{userId}")
+    public ResultEntity addTenantUser(
+            @RequestHeader(required = false,value = "Authorization") String token,
+            @PathVariable("tenantId") String tenantId,
+            @PathVariable("userId") String userId
+    ) {
+        return tenantService.addTenantUser(tenantId,userId,JwtToken.getId(token,secret));
+    }
+
+    // 取消用户为管理员
+    @DeleteMapping("/deleteTenantUser/{tenantId}/{userId}")
+    public ResultEntity deleteTenantUser(
+            @RequestHeader(required = false,value = "Authorization") String token,
+            @PathVariable("tenantId") String tenantId,
+            @PathVariable("userId") String userId
+    ) {
+        return tenantService.deleteTenantUser(tenantId,userId,JwtToken.getId(token,secret));
+    }
 }

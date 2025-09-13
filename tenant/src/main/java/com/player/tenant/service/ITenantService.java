@@ -10,5 +10,9 @@ public interface ITenantService {
     ResultEntity getTenantUser(String tenantId, String userId);
 
     ResultEntity setAdmin(String tenantId, String userId,String adminUserId,int roleType);
+
+    ResultEntity addTenantUser(String tenantId, String userId,String adminUserId);
+
+    ResultEntity deleteTenantUser(String tenantId, String userId,String adminUserId);
 }
 
