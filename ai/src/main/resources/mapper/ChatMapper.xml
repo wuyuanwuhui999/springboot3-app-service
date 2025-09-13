@@ -37,7 +37,7 @@
     </select>
 
     <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
-        insert into chat_doc(id,name,ext,user_id,app_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{appId},now(),now())
+        insert into chat_doc(id,name,ext,user_id,directory_id,tenant_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{directoryId},#{tenantId},now(),now())
     </insert>
 
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">

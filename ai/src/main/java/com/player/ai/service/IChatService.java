@@ -17,7 +17,7 @@ public interface IChatService {
 
     ResultEntity getModelList();
 
-    ResultEntity uploadDoc(MultipartFile file,String userId,String appId) throws IOException;
+    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId) throws IOException;
 
     ResultEntity getDocList(String userId,String tenantId);
 

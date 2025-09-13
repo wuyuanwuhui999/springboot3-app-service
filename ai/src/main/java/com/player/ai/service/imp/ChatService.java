@@ -180,7 +180,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file, String userId,String directoryId) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId) throws IOException {
         // 1. 基础验证
         if (file.isEmpty()) {
             return ResultUtil.fail(null, "文件不能为空");
@@ -221,7 +221,8 @@ public class ChatService implements IChatService {
                                 docId,
                                 page,
                                 endPage,
-                                directoryId, // app_id
+                                directoryId,
+                                tenantId,
                                 totalPages,         // total pages
                                 fileExtension       // file type
                         );
@@ -240,7 +241,8 @@ public class ChatService implements IChatService {
                             docId,
                             1,
                             1,
-                            directoryId, // app_id
+                            directoryId,
+                            tenantId,
                             1,                 // total pages (1 for txt)
                             fileExtension      // file type
                     );
@@ -261,6 +263,8 @@ public class ChatService implements IChatService {
             chatDocEntity.setUserId(userId);
             chatDocEntity.setExt(fileExtension);
             chatDocEntity.setId(docId);
+            chatDocEntity.setTenantId(tenantId);
+            chatDocEntity.setDirectoryId(directoryId);
 
             chatMapper.saveDoc(chatDocEntity);
 
@@ -286,6 +290,7 @@ public class ChatService implements IChatService {
             int startPage,
             int endPage,
             String directoryId,
+            String tenantId,
             int totalPages,
             String fileType
     ) {
@@ -304,7 +309,7 @@ public class ChatService implements IChatService {
             metadata.put("app_id", directoryId);
             metadata.put("page", String.valueOf(totalPages)); // 总页数
             metadata.put("type", fileType);
-
+            metadata.put("tenantId", tenantId);
             // 带重试机制的存储
             int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {

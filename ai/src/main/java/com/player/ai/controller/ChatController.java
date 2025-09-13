@@ -45,13 +45,14 @@ public class ChatController {
         return chatService.getModelList();
     }
 
-    @PostMapping("/uploadDoc")
+    @PostMapping("/uploadDoc/{tenantId}/{directoryId}")
     public ResultEntity uploadDoc(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String token,
-            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId
+            @PathVariable("tenantId") String tenantId,
+            @PathVariable("directoryId") String directoryId
     ) throws IOException {
-        return chatService.uploadDoc(file,JwtToken.getId(token, secret),directoryId);
+        return chatService.uploadDoc(file,JwtToken.getId(token, secret),tenantId,directoryId);
     }
 
     @GetMapping("/getDocList")
