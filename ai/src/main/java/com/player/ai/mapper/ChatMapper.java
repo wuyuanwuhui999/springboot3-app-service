@@ -31,7 +31,7 @@ public interface ChatMapper {
 
     long isDirExist(String userId, String directory);
 
-    long createDir(DirectoryEntity directoryEntity);
+    DirectoryEntity  createDir(DirectoryEntity directoryEntity);
 
     long renameDir(DirectoryEntity directoryEntity);
 

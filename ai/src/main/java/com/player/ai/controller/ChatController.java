@@ -14,6 +14,8 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+
 @RequestMapping(value="/service/ai")
 @RestController
 public class ChatController {
@@ -85,7 +87,8 @@ public class ChatController {
             @RequestBody DirectoryEntity directoryEntity,
             @RequestHeader("Authorization") String token
     ) {
-        directoryEntity.setUserId(JwtToken.getId(token, secret));
+        String userId = JwtToken.getId(token, secret);
+        directoryEntity.setUserId(userId);
         return chatService.createDir(directoryEntity);
     }
 

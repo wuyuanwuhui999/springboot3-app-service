@@ -358,13 +358,23 @@ public class ChatService implements IChatService {
      * @description: 创建目录，使用@CacheEvict清除目录列表缓存
      * @date: 2025-07-24 21:23
      */
+    /**
+     * @author: wuwenqiang
+     * @methodsName: createDir
+     * @description: 创建目录，使用@CacheEvict清除目录列表缓存
+     * @date: 2025-07-24 21:23
+     */
     @CacheEvict(value = "directory", key = "'list:' + #directoryEntity.userId + ':' + #directoryEntity.tenantId")
     @Override
     public ResultEntity createDir(DirectoryEntity directoryEntity) {
-        directoryEntity.setId( UUID.randomUUID().toString().replace("-", ""));
-        long result = chatMapper.createDir(directoryEntity);
-        if (result > 0) {
-            return ResultUtil.success(directoryEntity);
+        directoryEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+
+        // 执行插入操作，返回插入的实体对象
+        DirectoryEntity insertedDir = chatMapper.createDir(directoryEntity);
+
+        if (insertedDir != null) {
+            // 可以在这里设置创建时间等字段（如果数据库自动生成的话）
+            return ResultUtil.success(insertedDir);
         }
         return ResultUtil.fail("创建目录失败");
     }

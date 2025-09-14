@@ -74,11 +74,11 @@
     </select>
 
 
-    <!-- 创建目录 -->
-    <insert id="createDir" parameterType="DirectoryEntity">
+    <insert id="createDir" parameterType="DirectoryEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO chat_doc_directory(
             id,
             user_id,
+            tenant_id,
             directory,
             create_time,
             update_time
@@ -86,6 +86,7 @@
         SELECT
             #{id},
             #{userId},
+            #{tenantId},
             #{directory},
             NOW(),
             NOW()
@@ -93,7 +94,20 @@
         WHERE NOT EXISTS (
             SELECT 1 FROM chat_doc_directory
             WHERE directory = #{directory}
-              AND user_id = #{userId}
+            AND user_id = #{userId}
+        )
+        AND (
+            #{userId} = #{tenantId}
+        OR EXISTS (
+            SELECT 1 FROM tenant_user tu
+            INNER JOIN tenant t ON tu.tenant_id = t.id
+            INNER JOIN user u ON tu.user_id = u.id
+            WHERE tu.tenant_id = #{tenantId}
+                AND tu.user_id = #{userId}
+                AND tu.disabled = 0
+                AND t.status = 1
+                AND u.disabled = 0
+            )
         )
     </insert>
 
