@@ -73,6 +73,13 @@ logging:
     com.player.ai: DEBUG  # 你的应用包路径
     dev.langchain4j: DEBUG  # LangChain4J相关日志
     org.springframework.web: DEBUG
+    # 添加MyBatis相关日志配置
+    org.apache.ibatis: DEBUG
+    java.sql: DEBUG
+    java.sql.Connection: DEBUG
+    java.sql.Statement: DEBUG
+    java.sql.PreparedStatement: DEBUG
+    java.sql.ResultSet: DEBUG
 
 langchain4j:
   ollama:

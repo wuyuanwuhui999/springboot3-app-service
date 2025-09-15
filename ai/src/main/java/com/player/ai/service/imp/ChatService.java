@@ -369,11 +369,11 @@ public class ChatService implements IChatService {
     public ResultEntity createDir(DirectoryEntity directoryEntity) {
         directoryEntity.setId(UUID.randomUUID().toString().replace("-", ""));
 
-        // 执行插入操作，返回插入的实体对象
-        DirectoryEntity insertedDir = chatMapper.createDir(directoryEntity);
+        long result = chatMapper.createDir(directoryEntity);
 
-        if (insertedDir != null) {
-            // 可以在这里设置创建时间等字段（如果数据库自动生成的话）
+        if (result > 0) {
+            // 插入成功后，查询完整的目录数据
+            DirectoryEntity insertedDir = chatMapper.getDirectoryById(directoryEntity.getId(), directoryEntity.getUserId());
             return ResultUtil.success(insertedDir);
         }
         return ResultUtil.fail("创建目录失败");
