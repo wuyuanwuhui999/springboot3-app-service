@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.player.chat.mapper.ChatMapper">
+    <insert id="saveChat"  useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+        insert into chat_history(user_id,files,chat_id,prompt,content,think_content,response_content,model_name,create_time) VALUES (#{userId},#{files},#{chatId},#{prompt},#{content},#{thinkContent},#{responseContent},#{modelName},now())
+    </insert>
+
+    <select id="getChatHistory" resultType="com.player.common.entity.ChatEntity">
+        SELECT
+            id,
+            user_id,
+            files,
+            chat_id,
+            prompt,
+            content,
+            model_name,
+            create_time
+        FROM
+            chat_history
+        WHERE
+            user_id = #{userId}
+        ORDER BY
+            create_time DESC
+            LIMIT
+            #{start}, #{limit}
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="getChatHistoryTotal" resultType="Long">
+        SELECT COUNT(*)
+        FROM chat_history
+        WHERE user_id = #{userId} order by create_time desc
+    </select>
+
+    <select id="getModelList" resultType="com.player.common.entity.ChatModelEntity">
+        select * from chat_model
+    </select>
+
+    <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
+        insert into chat_doc(id,name,ext,user_id,directory_id,tenant_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{directoryId},#{tenantId},now(),now())
+    </insert>
+
+    <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
+        SELECT
+            cd.*,
+        CASE
+                WHEN cd.directory_id = 'default' THEN
+                '默认文件夹' ELSE cdd.DIRECTORY
+            END AS directory_name
+        FROM
+            chat_doc cd
+            LEFT JOIN chat_doc_directory cdd ON cd.directory_id = cdd.id
+            AND cd.directory_id != 'default'
+        WHERE
+            cd.user_id = #{userId}
+            AND cd.tenant_id = #{tenantId}
+            AND EXISTS ( SELECT 1 FROM tenant_user tu WHERE tu.tenant_id = #{tenantId} AND tu.user_id = #{userId} AND tu.disabled = 0 )
+    </select>
+
+    <!-- 获取目录列表 -->
+    <select id="getDirectoryList" resultType="DirectoryEntity">
+        SELECT
+            id,
+            user_id,
+            tenant_id,
+            directory,
+            create_time,
+            update_time
+        FROM
+            chat_doc_directory
+        WHERE
+            user_id = #{userId}
+            AND tenant_id = #{tenantId}
+        ORDER BY
+            create_time DESC
+    </select>
+
+
+    <insert id="createDir" parameterType="DirectoryEntity">
+        INSERT INTO chat_doc_directory(
+            id,
+            user_id,
+            tenant_id,
+            directory,
+            create_time,
+            update_time
+        )
+        SELECT
+            #{id},
+            #{userId},
+            #{tenantId},
+            #{directory},
+            NOW(),
+            NOW()
+        FROM dual
+        WHERE NOT EXISTS (
+            SELECT 1 FROM chat_doc_directory
+            WHERE directory = #{directory}
+            AND user_id = #{userId}
+        )
+        AND (
+            #{userId} = #{tenantId}
+        OR EXISTS (
+            SELECT 1 FROM tenant_user tu
+            INNER JOIN tenant t ON tu.tenant_id = t.id
+            INNER JOIN user u ON tu.user_id = u.id
+            WHERE tu.tenant_id = #{tenantId}
+                AND tu.user_id = #{userId}
+                AND tu.disabled = 0
+                AND t.status = 1
+                AND u.disabled = 0
+            )
+        )
+    </insert>
+
+    <!-- ChatMapper.xml -->
+    <select id="getDirectoryById" resultType="DirectoryEntity">
+        SELECT
+            id,
+            user_id as userId,
+            tenant_id as tenantId,
+            directory,
+            create_time as createTime,
+            update_time as updateTime
+        FROM chat_doc_directory
+        WHERE id = #{id}
+            AND user_id = #{userId}
+    </select>
+
+    <!-- 重命名目录 -->
+    <update id="renameDir" parameterType="DirectoryEntity">
+        UPDATE
+            chat_doc_directory
+        SET
+            directory = #{directory},
+            update_time = NOW()
+        WHERE
+            id = #{id}
+          AND user_id = #{userId}
+    </update>
+
+    <!-- 删除目录 -->
+    <delete id="deleteDir">
+        DELETE FROM
+            chat_doc_directory
+        WHERE
+            id = #{directoryId}
+          AND user_id = #{userId}
+    </delete>
+
+</mapper>
+

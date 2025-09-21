@@ -17,7 +17,7 @@
         <module>user</module>
         <module>circle</module>
         <module>social</module>
-        <module>ai</module>
+        <module>chat</module>
         <module>tenant</module>
     </modules>
 

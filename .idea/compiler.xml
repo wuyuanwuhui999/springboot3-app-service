@@ -11,7 +11,7 @@
         <module name="common" />
         <module name="movie" />
         <module name="social" />
-        <module name="ai" />
+        <module name="chat" />
         <module name="circle" />
         <module name="user" />
         <module name="tenant" />
@@ -23,7 +23,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="ai" options="-parameters" />
+      <module name="chat" options="-parameters" />
       <module name="circle" options="-parameters" />
       <module name="common" options="" />
       <module name="movie" options="-parameters" />

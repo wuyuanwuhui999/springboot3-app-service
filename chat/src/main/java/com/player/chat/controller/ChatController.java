@@ -1,0 +1,108 @@
+package com.player.chat.controller;
+
+import com.player.chat.entity.ChatParamsEntity;
+import com.player.chat.entity.DirectoryEntity;
+import com.player.chat.service.IChatService;
+import com.player.common.entity.ResultEntity;
+import com.player.common.utils.JwtToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+
+import java.io.IOException;
+
+@RequestMapping(value="/service/chat")
+@RestController
+public class ChatController {
+    @Value("${token.secret}")
+    private String secret;
+
+    @Autowired
+    private IChatService chatService;
+
+    @PostMapping(value = "/chat",produces = "text/html;charset=utf-8")
+    public Flux<String> chat(
+            @RequestHeader("Authorization") String token,
+            @RequestBody ChatParamsEntity chatParamsEntity
+    ){
+        return chatService.chat(JwtToken.getId(token, secret), chatParamsEntity);
+    }
+
+    @GetMapping("/getChatHistory")
+    public ResultEntity getChatHistory(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("pageSize") int pageSize
+    ){
+        return chatService.getChatHistory(JwtToken.getId(token, secret), pageNum, pageSize);
+    }
+
+    @GetMapping("/getModelList")
+    public ResultEntity getModelList( ){
+        return chatService.getModelList();
+    }
+
+    @PostMapping("/uploadDoc/{tenantId}/{directoryId}")
+    public ResultEntity uploadDoc(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader("Authorization") String token,
+            @PathVariable("tenantId") String tenantId,
+            @PathVariable("directoryId") String directoryId
+    ) throws IOException {
+        return chatService.uploadDoc(file,JwtToken.getId(token, secret),tenantId,directoryId);
+    }
+
+    @GetMapping("/getDocList")
+    public ResultEntity getDocList(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("tenantId") String tenantId
+    ) {
+        return chatService.getDocList(JwtToken.getId(token, secret),tenantId);
+    }
+
+    @DeleteMapping("/deleteDoc/{docId}")
+    public ResultEntity deleteDoc(
+            @PathVariable("docId") String docId,
+            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.deleteDoc(docId,JwtToken.getId(token, secret),directoryId);
+    }
+
+    @GetMapping("/getDirectoryList")
+    public ResultEntity getDirectoryList(
+            @RequestParam("tenantId") String tenantId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.getDirectoryList(JwtToken.getId(token, secret),tenantId);
+    }
+
+    @PostMapping("/createDir")
+    public ResultEntity createDir(
+            @RequestBody DirectoryEntity directoryEntity,
+            @RequestHeader("Authorization") String token
+    ) {
+        String userId = JwtToken.getId(token, secret);
+        directoryEntity.setUserId(userId);
+        return chatService.createDir(directoryEntity);
+    }
+
+    @PutMapping("/renameDir")
+    public ResultEntity renameDir(
+            @RequestBody DirectoryEntity directoryEntity,
+            @RequestHeader("Authorization") String token
+    ) {
+        directoryEntity.setUserId(JwtToken.getId(token, secret));
+        return chatService.renameDir(directoryEntity);
+    }
+
+    @PutMapping("/deleteDir/{directoryId}")
+    public ResultEntity renameDir(
+            @RequestParam("id") long directoryId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return chatService.deleteDir(JwtToken.getId(token, secret),directoryId);
+    }
+}

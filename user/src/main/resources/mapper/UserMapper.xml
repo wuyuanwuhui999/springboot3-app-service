@@ -109,6 +109,7 @@
             WHERE tenant_id = #{tenantId} AND disabled = 0
         ) tu ON user.id = tu.user_id
         WHERE user.disabled = 0
+          AND user.role != 'system'
           AND (
             user.user_account LIKE CONCAT('%', #{keyword}, '%')
                 OR user.username LIKE CONCAT('%', #{keyword}, '%')
