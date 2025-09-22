@@ -8,7 +8,7 @@ cookie:
   name: token #cookie名称
   expiry: 2592000 #tcookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
 app:
-  appId: com.play.ai
+  appId: com.play.chat
   appName: ai
   avater-img: /static/user/avater/
   avater-path: E:${app.avater-img}

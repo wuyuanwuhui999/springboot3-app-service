@@ -11,8 +11,8 @@
     <groupId>com.player.chat</groupId>
     <artifactId>chat</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ai</name>
-    <description>ai</description>
+    <name>chat</name>
+    <description>chat</description>
     <url/>
     <licenses>
         <license/>

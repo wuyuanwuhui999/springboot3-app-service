@@ -76,26 +76,26 @@ public class TenantService implements ITenantService {
         // 检查操作者是否有管理员权限
         int hasPermission = tenantMapper.checkAdminPermission(tenantId, adminUserId);
         if (hasPermission == 0) {
-            return ResultUtil.fail("无权限操作，需要管理员或超级管理员权限");
+            return ResultUtil.fail(false,"无权限操作，需要管理员或超级管理员权限");
         }
 
         // 检查要删除的用户是否存在
         TenantUserEntity existingUser = tenantMapper.getTenantUser(tenantId, userId);
         if (existingUser == null) {
-            return ResultUtil.fail("用户不在该租户中");
+            return ResultUtil.fail(false,"用户不在该租户中");
         }
 
         // 不能删除自己
         if (userId.equals(adminUserId)) {
-            return ResultUtil.fail("不能删除自己");
+            return ResultUtil.fail(false,"不能删除自己");
         }
 
         int result = tenantMapper.deleteTenantUser(tenantId, userId, adminUserId);
 
         if (result > 0) {
-            return ResultUtil.success("删除用户成功");
+            return ResultUtil.success(true,"删除用户成功");
         } else {
-            return ResultUtil.fail("删除用户失败");
+            return ResultUtil.fail(false,"删除用户失败");
         }
     }
 }
