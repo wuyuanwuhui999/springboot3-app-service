@@ -38,12 +38,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String userId = JwtToken.getId(token, secret);
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
-            String modelName = (String) payload.get("modelName");
+            String modelId = (String) payload.get("modelId");
             Boolean showThink = (Boolean) payload.get("showThink");
 
             ChatParamsEntity chatParamsEntity = new ChatParamsEntity();
             chatParamsEntity.setChatId(chatId);
-            chatParamsEntity.setModelName(modelName);
+            chatParamsEntity.setModelId(modelId);
             chatParamsEntity.setPrompt(prompt);
             chatParamsEntity.setShowThink(showThink);
             chatParamsEntity.setType((String) payload.get("type"));
@@ -60,7 +60,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
-            chatEntity.setModelName(modelName);
+            chatEntity.setModelId(modelId);
 
             // Use the new service method
             chatService.chatWithWebSocketHandling(
