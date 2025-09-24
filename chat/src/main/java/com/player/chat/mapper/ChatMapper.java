@@ -21,6 +21,9 @@ public interface ChatMapper {
     // 新增方法：根据模型ID查询模型配置
     ChatModelEntity getModelById(String modelId);
 
+    // 在ChatMapper.java中添加以下方法
+    ChatModelEntity getModelByType(String modelType);
+
     void saveDoc(ChatDocEntity chatDocEntity);
 
     List<ChatDocEntity> getDocList(String userId,String tenantId);

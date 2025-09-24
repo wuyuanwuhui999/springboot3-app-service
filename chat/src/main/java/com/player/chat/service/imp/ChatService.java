@@ -1,8 +1,6 @@
 package com.player.chat.service.imp;
 
-import com.player.chat.assistant.AssistantSelector;
-import com.player.chat.assistant.DeepSeekAssistant;
-import com.player.chat.assistant.QwenAssistant;
+import com.player.chat.assistant.*;
 import com.player.chat.entity.ChatEntity;
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.entity.DirectoryEntity;
@@ -60,16 +58,26 @@ public class ChatService implements IChatService {
     @Autowired
     private DeepSeekAssistant deepSeekAssistant;
 
+    @Autowired
+    private DeepSeekOnlineAssistant deepSeekOnlineAssistant;
+
+    @Autowired
+    private QwenOnlineAssistant qwenOnlineAssistant;
+
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
+
 
     @Autowired
     private ElasticsearchEmbeddingStore elasticsearchEmbeddingStore;
 
     private final EmbeddingModel nomicEmbeddingModel;
 
-    public ChatService(EmbeddingModel nomicEmbeddingModel) {
+    private final AssistantSelector assistantSelector;
+
+    public ChatService(EmbeddingModel nomicEmbeddingModel,AssistantSelector assistantSelector) {
         this.nomicEmbeddingModel = nomicEmbeddingModel;
+        this.assistantSelector = assistantSelector;
     }
 
 
@@ -79,7 +87,7 @@ public class ChatService implements IChatService {
         chatEntity.setUserId(userId);
         chatEntity.setChatId(chatParamsEntity.getChatId());
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
-        chatEntity.setModelName(chatParamsEntity.getModelName());
+        chatEntity.setModelId(chatParamsEntity.getModelId());
         chatEntity.setContent(""); // Initialize empty content
 
         StringBuilder responseCollector = new StringBuilder();
@@ -109,7 +117,7 @@ public class ChatService implements IChatService {
         chatEntity.setUserId(userId);
         chatEntity.setChatId(chatParamsEntity.getChatId());
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
-        chatEntity.setModelName(chatParamsEntity.getModelName());
+        chatEntity.setModelId(chatParamsEntity.getModelId());
 
         if ("document".equals(chatParamsEntity.getType())) {
             String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity.getPrompt(), userId,chatParamsEntity.getDirectoryId());
@@ -119,7 +127,13 @@ public class ChatService implements IChatService {
             chatParamsEntity.setPrompt(context);
         }
 
-        return AssistantSelector.selectAssistant(chatParamsEntity, qwenAssistant, deepSeekAssistant)
+        return assistantSelector.selectAssistant(
+                    chatParamsEntity,
+                    qwenAssistant,
+                    deepSeekAssistant,
+                    deepSeekOnlineAssistant,
+                    qwenOnlineAssistant
+                )
                 .doOnNext(responseHandler)
                 .doOnComplete(() -> {
                     chatMapper.saveChat(chatEntity);
