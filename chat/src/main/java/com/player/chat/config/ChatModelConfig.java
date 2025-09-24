@@ -23,17 +23,18 @@ public class ChatModelConfig {
     }
 
     /**
-     * 获取模型配置
+     * 获取可用的模型配置（未被禁用）
      */
-    private ChatModelEntity getModelConfig(String modelType) {
-        return chatMapper.getModelByType(modelType);
+    private ChatModelEntity getAvailableModelConfig(String modelType) {
+        ChatModelEntity model = chatMapper.getModelByType(modelType);
+        return (model != null && model.getDisabled() != null && model.getDisabled() == 0) ? model : null;
     }
 
     @Bean(name = "qwenStreamingChatModel")
     public OllamaStreamingChatModel qwenStreamingChatModel() {
-        ChatModelEntity model = getModelConfig("qwen_ollama");
+        ChatModelEntity model = getAvailableModelConfig("qwen_ollama");
         if (model == null) {
-            throw new RuntimeException("Qwen Ollama模型配置未找到");
+            return null; // 不创建 Bean
         }
 
         Map<String, String> map = new HashMap<>();
@@ -51,9 +52,9 @@ public class ChatModelConfig {
 
     @Bean(name = "deepSeekStreamingChatModel")
     public OllamaStreamingChatModel deepSeekStreamingChatModel() {
-        ChatModelEntity model = getModelConfig("deepseek_ollama");
+        ChatModelEntity model = getAvailableModelConfig("deepseek_ollama");
         if (model == null) {
-            throw new RuntimeException("DeepSeek Ollama模型配置未找到");
+            return null;
         }
 
         Map<String, String> map = new HashMap<>();
@@ -71,9 +72,9 @@ public class ChatModelConfig {
 
     @Bean(name = "deepseekOnlineChatModel")
     public OpenAiStreamingChatModel deepseekOnlineChatModel() {
-        ChatModelEntity model = getModelConfig("deepseek_online");
+        ChatModelEntity model = getAvailableModelConfig("deepseek_online");
         if (model == null) {
-            throw new RuntimeException("DeepSeek在线模型配置未找到");
+            return null;
         }
 
         return OpenAiStreamingChatModel.builder()
@@ -87,9 +88,9 @@ public class ChatModelConfig {
 
     @Bean(name = "qwenOnlineChatModel")
     public OpenAiStreamingChatModel qwenOnlineChatModel() {
-        ChatModelEntity model = getModelConfig("qwen_online");
+        ChatModelEntity model = getAvailableModelConfig("qwen_online");
         if (model == null) {
-            throw new RuntimeException("Qwen在线模型配置未找到");
+            return null;
         }
         return OpenAiStreamingChatModel.builder()
                 .baseUrl(model.getBaseUrl())
