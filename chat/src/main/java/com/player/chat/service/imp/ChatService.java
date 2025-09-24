@@ -53,10 +53,10 @@ public class ChatService implements IChatService {
     private ChatMapper chatMapper;
 
     @Autowired
-    private QwenAssistant qwenAssistant;
+    private QwenOllamaAssistant qwenAssistant;
 
     @Autowired
-    private DeepSeekAssistant deepSeekAssistant;
+    private DeepSeekOllamaAssistant deepSeekAssistant;
 
     @Autowired
     private DeepSeekOnlineAssistant deepSeekOnlineAssistant;

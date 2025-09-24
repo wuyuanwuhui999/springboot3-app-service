@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 
 @AiService(
         wiringMode = AiServiceWiringMode.EXPLICIT,
-        streamingChatModel="deepseekOnlineChatModel",
+        streamingChatModel="deepseekOnlineStreamingChatModel",
         chatMemoryProvider="chatMemoryProvider"
 )
 public interface DeepSeekOnlineAssistant {

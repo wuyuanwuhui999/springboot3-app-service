@@ -18,8 +18,8 @@ public class AssistantSelector {
 
     public Flux<String> selectAssistant(
             ChatParamsEntity chatParamsEntity,
-            QwenAssistant qwenAssistant,
-            DeepSeekAssistant deepSeekAssistant,
+            QwenOllamaAssistant qwenOllamaAssistant,
+            DeepSeekOllamaAssistant deepSeekOllamaAssistant,
             DeepSeekOnlineAssistant deepSeekOnlineAssistant,
             QwenOnlineAssistant qwenOnlineAssistant
     ) {
@@ -28,13 +28,13 @@ public class AssistantSelector {
         String chatId = chatParamsEntity.getChatId();
         ChatModelEntity chatModel = chatMapper.getModelById(chatParamsEntity.getModelId());
         if(chatModel.getType().equals("qwen_ollama")) {
-            return qwenAssistant.chat(
+            return qwenOllamaAssistant.chat(
                     chatId,
                     prompt,
                     language
             );
         } else if (chatModel.getType().equals("deepseek_ollama")) {
-            return deepSeekAssistant.chat(
+            return deepSeekOllamaAssistant.chat(
                     chatId,
                     prompt,
                     language

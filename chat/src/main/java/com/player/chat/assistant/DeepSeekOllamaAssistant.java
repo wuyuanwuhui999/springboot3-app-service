@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
         streamingChatModel="deepSeekStreamingChatModel",
         chatMemoryProvider="chatMemoryProvider"
 )
-public interface DeepSeekAssistant {
+public interface DeepSeekOllamaAssistant {
     @SystemMessage("""
         你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。
         {{language}}
