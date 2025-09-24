@@ -50,7 +50,6 @@
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
-        <langchain4j-open-ai.version>1.5.0</langchain4j-open-ai.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -267,7 +266,7 @@
             <dependency>
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-open-ai</artifactId>
-                <version>${langchain4j-open-ai.version}</version>
+                <version>${langchain4j-core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

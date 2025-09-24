@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 
 @AiService(
         wiringMode = AiServiceWiringMode.EXPLICIT,
-        streamingChatModel="qwenOnlineStreamingChatModel",
+        streamingChatModel="qwenOnlineChatModel",
         chatMemoryProvider="chatMemoryProvider"
 )
 public interface QwenOnlineAssistant {
