@@ -1,9 +1,11 @@
 package com.player.prompt.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Date;
 
+@ToString
 @Data
 @Schema(description = "AI智能体提示词实体")
 public class PromptEntity {
@@ -12,9 +14,6 @@ public class PromptEntity {
 
     @Schema(description = "租户ID")
     private String tenantId;
-
-    @Schema(description = "用户ID")
-    private String userId;
 
     @Schema(description = "提示词标题")
     private String title;
@@ -42,23 +41,4 @@ public class PromptEntity {
 
     @Schema(description = "更新人ID")
     private String updatedBy;
-
-
-    @Override
-    public String toString() {
-        return "PromptEntity{" +
-                "id='" + id + '\'' +
-                ", tenantId='" + tenantId + '\'' +
-                ", userId='" + userId + '\'' +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", disabled=" + disabled +
-                ", industry='" + industry + '\'' +
-                ", tags='" + tags + '\'' +
-                ", createDate=" + createDate +
-                ", updateDate=" + updateDate +
-                ", createdBy='" + createdBy + '\'' +
-                ", updatedBy='" + updatedBy + '\'' +
-                '}';
-    }
 }

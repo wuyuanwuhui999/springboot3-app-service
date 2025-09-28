@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.player.prompt.mapper.PromptMapper">
+
+    <insert id="insertPrompt" parameterType="PromptEntity">
+        INSERT INTO prompt (
+        id, tenant_id, title, content, disabled,
+        industry, tags, create_date, update_date, created_by, updated_by
+        ) VALUES (
+        #{id}, #{tenantId}, #{title}, #{content}, #{disabled},
+        #{industry}, #{tags}, #{createDate}, #{updateDate}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <delete id="deletePrompt">
+        DELETE FROM prompt
+        WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
+    </delete>
+
+    <update id="updatePrompt" parameterType="PromptEntity">
+        UPDATE prompt
+        SET title = #{title},
+        content = #{content},
+        disabled = #{disabled},
+        industry = #{industry},
+        tags = #{tags},
+        update_date = #{updateDate},
+        updated_by = #{updatedBy}
+        WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{updatedBy}
+    </update>
+
+    <select id="getPromptById" resultType="PromptEntity">
+        SELECT * FROM prompt
+        WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
+    </select>
+
+    <select id="getPromptList" resultType="PromptEntity">
+        SELECT * FROM prompt
+        WHERE tenant_id = #{tenantId} AND created_by = #{createdBy}
+        <if test="content != null and content != ''">
+            AND content LIKE CONCAT('%', #{content}, '%')
+        </if>
+        <if test="industry != null and industry != ''">
+            AND industry LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="tags != null and tags != ''">
+            AND tags LIKE CONCAT('%', #{tags}, '%')
+        </if>
+        ORDER BY create_date DESC
+    </select>
+
+</mapper>

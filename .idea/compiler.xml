@@ -7,7 +7,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="tenant (1)" />
         <module name="music" />
         <module name="common" />
         <module name="movie" />
@@ -15,6 +14,7 @@
         <module name="chat" />
         <module name="circle" />
         <module name="user" />
+        <module name="prompt" />
         <module name="tenant" />
       </profile>
     </annotationProcessing>
@@ -29,9 +29,9 @@
       <module name="common" options="" />
       <module name="movie" options="-parameters" />
       <module name="music" options="-parameters" />
+      <module name="prompt" options="-parameters" />
       <module name="social" options="-parameters" />
       <module name="tenant" options="-parameters" />
-      <module name="tenant (1)" options="-parameters" />
       <module name="user" options="-parameters" />
     </option>
   </component>
