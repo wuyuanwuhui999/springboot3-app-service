@@ -19,6 +19,7 @@
         <module>social</module>
         <module>chat</module>
         <module>tenant</module>
+        <module>prompt</module>
     </modules>
 
     <!-- 统一属性配置 -->

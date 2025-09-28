@@ -14,6 +14,7 @@
         <option value="$PROJECT_DIR$/ai/pom.xml" />
         <option value="$PROJECT_DIR$/tenant/pom.xml" />
         <option value="$PROJECT_DIR$/chat/pom.xml" />
+        <option value="$PROJECT_DIR$/prompt/pom.xml" />
       </list>
     </option>
   </component>
