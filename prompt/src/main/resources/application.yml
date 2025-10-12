@@ -5,7 +5,7 @@ token:
   secret: ${SECRET} #token秘钥
 app:
   appId: com.player.prompt
-  appName: 租户中心
+  appName: 提示词工程
   avater-path: G:${app.avater-img}
 loggin:
   config: /src/main/resources/logback-spring.xml

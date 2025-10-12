@@ -2,7 +2,6 @@ package com.player.prompt.service.imp;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
-import com.player.common.utils.JwtToken;
 import com.player.prompt.entity.PromptEntity;
 import com.player.prompt.mapper.PromptMapper;
 import com.player.prompt.service.IPromptService;
@@ -94,5 +93,9 @@ public class PromptService implements IPromptService {
         } catch (Exception e) {
             return ResultUtil.fail("查询提示词列表异常：" + e.getMessage());
         }
+    }
+    @Override
+    public ResultEntity getPromptCategoryList(){
+        return  ResultUtil.success(promptMapper.getPromptCategoryList());
     }
 }

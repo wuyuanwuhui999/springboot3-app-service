@@ -13,7 +13,7 @@
             chat_id,
             prompt,
             content,
-            model_name,
+            model_id,
             create_time
         FROM
             chat_history

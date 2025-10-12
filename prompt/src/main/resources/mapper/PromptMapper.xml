@@ -5,10 +5,10 @@
     <insert id="insertPrompt" parameterType="PromptEntity">
         INSERT INTO prompt (
         id, tenant_id, title, content, disabled,
-        industry, tags, create_date, update_date, created_by, updated_by
+        categoryId, tags, create_date, update_date, created_by, updated_by
         ) VALUES (
         #{id}, #{tenantId}, #{title}, #{content}, #{disabled},
-        #{industry}, #{tags}, #{createDate}, #{updateDate}, #{createdBy}, #{updatedBy}
+        #{categoryId}, #{tags}, #{createDate}, #{updateDate}, #{createdBy}, #{updatedBy}
         )
     </insert>
 
@@ -22,7 +22,7 @@
         SET title = #{title},
         content = #{content},
         disabled = #{disabled},
-        industry = #{industry},
+        categoryId = #{categoryId},
         tags = #{tags},
         update_date = #{updateDate},
         updated_by = #{updatedBy}
@@ -40,8 +40,8 @@
         <if test="content != null and content != ''">
             AND content LIKE CONCAT('%', #{content}, '%')
         </if>
-        <if test="industry != null and industry != ''">
-            AND industry LIKE CONCAT('%', #{industry}, '%')
+        <if test="categoryId != null and categoryId != ''">
+            AND categoryId = #{categoryId}
         </if>
         <if test="tags != null and tags != ''">
             AND tags LIKE CONCAT('%', #{tags}, '%')
@@ -49,4 +49,7 @@
         ORDER BY create_date DESC
     </select>
 
+    <select id="getPromptCategoryList" resultType="PromptCategoryEntity">
+        select id,category,create_time,update_time from prompt_category order by update_time desc
+    </select>
 </mapper>

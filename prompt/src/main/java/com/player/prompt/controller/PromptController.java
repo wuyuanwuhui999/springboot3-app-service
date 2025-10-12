@@ -43,12 +43,17 @@ public class PromptController {
         return promptService.getPromptById(id, JwtToken.getId(token,secret),tenantId);
     }
 
-    @GetMapping("/prompts")
+    @GetMapping("/getPromptList")
     public ResultEntity getPromptList(@RequestHeader(value = "Authorization", required = false) String token,
                                       @RequestParam(value = "tenantId",required = true) String tenantId,
                                       @RequestParam(value = "content", required = false) String content,
                                       @RequestParam(value = "industry", required = false) String industry,
                                       @RequestParam(value = "tags", required = false) String tags) {
         return promptService.getPromptList(JwtToken.getId(token,secret),tenantId, content, industry, tags);
+    }
+
+    @GetMapping("/getPromptCategoryList")
+    public ResultEntity getPromptCategoryList() {
+        return promptService.getPromptCategoryList();
     }
 }

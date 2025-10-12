@@ -24,8 +24,8 @@ public class PromptEntity {
     @Schema(description = "是否禁用：0-启用，1-禁用")
     private Integer disabled;
 
-    @Schema(description = "适用行业")
-    private String industry;
+    @Schema(description = "分类id")
+    private String categoryId;
 
     @Schema(description = "提示词标签")
     private String tags;

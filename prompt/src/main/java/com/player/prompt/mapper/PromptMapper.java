@@ -1,5 +1,6 @@
 package com.player.prompt.mapper;
 
+import com.player.prompt.entity.PromptCategoryEntity;
 import com.player.prompt.entity.PromptEntity;
 import org.springframework.stereotype.Repository;
 
@@ -21,5 +22,7 @@ public interface PromptMapper {
     PromptEntity getPromptById(String id, String tenantId,String createdBy);
 
     // 查询提示词列表（支持模糊查询，按创建时间降序排序）
-    List<PromptEntity> getPromptList(String tenantId, String createdBy, String content, String industry, String tags);
+    List<PromptEntity> getPromptList(String tenantId, String createdBy, String content, String categoryId, String tags);
+
+    List<PromptCategoryEntity>getPromptCategoryList();
 }
