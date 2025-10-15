@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.prompt.mapper.PromptMapper">
 
-    <insert id="insertPrompt" parameterType="PromptEntity">
-        INSERT INTO prompt (
+    <insert id="insertPrompt" parameterType="UserPromptEntity">
+        INSERT INTO user_prompt (
         id, tenant_id, title, content, disabled,
         categoryId, tags, create_date, update_date, created_by, updated_by
         ) VALUES (
@@ -13,12 +13,12 @@
     </insert>
 
     <delete id="deletePrompt">
-        DELETE FROM prompt
+        DELETE FROM user_prompt
         WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
     </delete>
 
-    <update id="updatePrompt" parameterType="PromptEntity">
-        UPDATE prompt
+    <update id="updatePrompt" parameterType="UserPromptEntity">
+        UPDATE user_prompt
         SET title = #{title},
         content = #{content},
         disabled = #{disabled},
@@ -29,13 +29,13 @@
         WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{updatedBy}
     </update>
 
-    <select id="getPromptById" resultType="PromptEntity">
-        SELECT * FROM prompt
+    <select id="getPromptById" resultType="UserPromptEntity">
+        SELECT * FROM user_prompt
         WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
     </select>
 
-    <select id="getPromptList" resultType="PromptEntity">
-        SELECT * FROM prompt
+    <select id="getPromptList" resultType="UserPromptEntity">
+        SELECT * FROM user_prompt
         WHERE tenant_id = #{tenantId} AND created_by = #{createdBy}
         <if test="content != null and content != ''">
             AND content LIKE CONCAT('%', #{content}, '%')
@@ -52,4 +52,14 @@
     <select id="getPromptCategoryList" resultType="PromptCategoryEntity">
         select id,category,create_time,update_time from prompt_category order by update_time desc
     </select>
+
+    <select id="getSystemPromptListByCategory" resultType="SystemPromptEntity">
+        select * from system_prompt where category = #{category}
+        <if test="keyword != null and keyword != ''">
+            and prompt like concat('%',keyword,'%')
+        </if>
+        order by update_time
+        limit #{start},#{pageSize}
+    </select>
+
 </mapper>

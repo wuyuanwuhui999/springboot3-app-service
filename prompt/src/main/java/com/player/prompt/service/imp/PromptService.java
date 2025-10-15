@@ -2,7 +2,7 @@ package com.player.prompt.service.imp;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
-import com.player.prompt.entity.PromptEntity;
+import com.player.prompt.entity.UserPromptEntity;
 import com.player.prompt.mapper.PromptMapper;
 import com.player.prompt.service.IPromptService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +18,16 @@ public class PromptService implements IPromptService {
     private PromptMapper promptMapper;
 
     @Override
-    public ResultEntity insertPrompt(PromptEntity promptEntity, String userId) {
+    public ResultEntity insertPrompt(UserPromptEntity userPromptEntity, String userId) {
         try {
 
-            promptEntity.setId(UUID.randomUUID().toString());
-            promptEntity.setCreatedBy(userId);
-            promptEntity.setUpdatedBy(userId);
-            promptEntity.setCreateDate(new Date());
-            promptEntity.setUpdateDate(new Date());
+            userPromptEntity.setId(UUID.randomUUID().toString());
+            userPromptEntity.setCreatedBy(userId);
+            userPromptEntity.setUpdatedBy(userId);
+            userPromptEntity.setCreateDate(new Date());
+            userPromptEntity.setUpdateDate(new Date());
 
-            int result = promptMapper.insertPrompt(promptEntity);
+            int result = promptMapper.insertPrompt(userPromptEntity);
             if (result > 0) {
                 return ResultUtil.success("新增提示词成功");
             } else {
@@ -54,13 +54,13 @@ public class PromptService implements IPromptService {
     }
 
     @Override
-    public ResultEntity updatePrompt(PromptEntity promptEntity, String userId) {
+    public ResultEntity updatePrompt(UserPromptEntity userPromptEntity, String userId) {
         try {
 
-            promptEntity.setUpdatedBy(userId);
-            promptEntity.setUpdateDate(new Date());
+            userPromptEntity.setUpdatedBy(userId);
+            userPromptEntity.setUpdateDate(new Date());
 
-            int result = promptMapper.updatePrompt(promptEntity);
+            int result = promptMapper.updatePrompt(userPromptEntity);
             if (result > 0) {
                 return ResultUtil.success("更新提示词成功");
             } else {
@@ -74,7 +74,7 @@ public class PromptService implements IPromptService {
     @Override
     public ResultEntity getPromptById(String id, String userId,String tenantId) {
         try {
-            PromptEntity prompt = promptMapper.getPromptById(id, tenantId, userId);
+            UserPromptEntity prompt = promptMapper.getPromptById(id, tenantId, userId);
             if (prompt != null) {
                 return ResultUtil.success(prompt, "查询提示词成功");
             } else {
@@ -88,7 +88,7 @@ public class PromptService implements IPromptService {
     @Override
     public ResultEntity getPromptList(String userId,String tenantId, String content, String industry, String tags) {
         try {
-            List<PromptEntity> promptList = promptMapper.getPromptList(tenantId, userId, content, industry, tags);
+            List<UserPromptEntity> promptList = promptMapper.getPromptList(tenantId, userId, content, industry, tags);
             return ResultUtil.success(promptList, "查询提示词列表成功");
         } catch (Exception e) {
             return ResultUtil.fail("查询提示词列表异常：" + e.getMessage());
@@ -97,5 +97,11 @@ public class PromptService implements IPromptService {
     @Override
     public ResultEntity getPromptCategoryList(){
         return  ResultUtil.success(promptMapper.getPromptCategoryList());
+    }
+
+    @Override
+    public ResultEntity getSystemPromptListByCategory(String categoryId,String keyword,int pageNum,int pageSize){
+        int start = (pageNum-1)*pageSize;
+        return  ResultUtil.success(promptMapper.getSystemPromptListByCategory(categoryId,keyword,start,pageSize));
     }
 }

@@ -2,7 +2,7 @@ package com.player.prompt.controller;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.utils.JwtToken;
-import com.player.prompt.entity.PromptEntity;
+import com.player.prompt.entity.UserPromptEntity;
 import com.player.prompt.service.IPromptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +18,9 @@ public class PromptController {
     private IPromptService promptService;
 
     @PostMapping("/insertPrompt")
-    public ResultEntity insertPrompt(@RequestBody PromptEntity promptEntity,
+    public ResultEntity insertPrompt(@RequestBody UserPromptEntity userPromptEntity,
                                      @RequestHeader(value = "Authorization", required = false) String token) {
-        return promptService.insertPrompt(promptEntity, JwtToken.getId(token,secret));
+        return promptService.insertPrompt(userPromptEntity, JwtToken.getId(token,secret));
     }
 
     @DeleteMapping("/deletePrompt/{tenantId}/{id}")
@@ -31,9 +31,9 @@ public class PromptController {
     }
 
     @PutMapping("/updatePrompt")
-    public ResultEntity updatePrompt(@RequestBody PromptEntity promptEntity,
+    public ResultEntity updatePrompt(@RequestBody UserPromptEntity userPromptEntity,
                                      @RequestHeader(value = "Authorization", required = false) String token) {
-        return promptService.updatePrompt(promptEntity, JwtToken.getId(token,secret));
+        return promptService.updatePrompt(userPromptEntity, JwtToken.getId(token,secret));
     }
 
     @GetMapping("/getPromptById/{tenantId}/{id}")
@@ -56,4 +56,16 @@ public class PromptController {
     public ResultEntity getPromptCategoryList() {
         return promptService.getPromptCategoryList();
     }
+
+    @GetMapping("/getSystemPromptListByCategory")
+    public ResultEntity getSystemPromptListByCategory(
+            @RequestParam(value = "categoryId") String categoryId,
+            @RequestParam(value = "pageNum") int pageNum,
+            @RequestParam(value = "pageNum") int pageSize,
+            @RequestParam(value = "keyword",required = false)String  keyword
+            ) {
+        return promptService.getSystemPromptListByCategory(categoryId,keyword,pageNum,pageSize);
+    }
+
+
 }

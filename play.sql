@@ -11,7 +11,7 @@
  Target Server Version : 80024
  File Encoding         : 65001
 
- Date: 05/07/2025 20:31:51
+ Date: 15/10/2025 20:36:01
 */
 
 SET NAMES utf8mb4;
@@ -23,13 +23,30 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `chat_doc`;
 CREATE TABLE `chat_doc`  (
   `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文档id',
+  `tenant_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '租户ID',
+  `directory_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文档原标题',
   `ext` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文档格式',
   `user_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户id',
   `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `update_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_tenant`(`tenant_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户上传的RAG文档' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for chat_doc_directory
+-- ----------------------------
+DROP TABLE IF EXISTS `chat_doc_directory`;
+CREATE TABLE `chat_doc_directory`  (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '租户id',
+  `user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户id',
+  `directory` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '按照目录查询文档' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for chat_history
@@ -38,7 +55,7 @@ DROP TABLE IF EXISTS `chat_history`;
 CREATE TABLE `chat_history`  (
   `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户id',
-  `model_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '模型名称',
+  `model_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '模型名称',
   `files` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件',
   `chat_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '会话id',
   `prompt` varchar(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '问题',
@@ -47,19 +64,23 @@ CREATE TABLE `chat_history`  (
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '回复内容',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 152 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'ai会话记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 190 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'ai会话记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for chat_model
 -- ----------------------------
 DROP TABLE IF EXISTS `chat_model`;
 CREATE TABLE `chat_model`  (
-  `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
+  `type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '大模型类型，ollama本地大模型/deepseek/tongyi在线大模型',
+  `api_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '在线大模型的api_key,ollama本地大模型则为空',
   `model_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '模型名称',
+  `base_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '大模型api路径',
+  `disabled` int(0) NULL DEFAULT NULL COMMENT '是否禁用，0/1',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for circle
@@ -791,7 +812,7 @@ CREATE TABLE `movie_vip`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `music`;
 CREATE TABLE `music`  (
-  `id` int(0) NOT NULL AUTO_INCREMENT,
+  `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `album_id` int(0) NULL DEFAULT NULL COMMENT '歌曲id',
   `song_name` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '歌曲名称',
   `author_id` int(0) NULL DEFAULT NULL COMMENT '歌手id',
@@ -800,10 +821,10 @@ CREATE TABLE `music`  (
   `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '版本',
   `language` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '语言',
   `publish_date` datetime(6) NULL DEFAULT NULL COMMENT '发布日期',
-  `wide_audio_id` int(0) NULL DEFAULT NULL,
-  `is_publish` int(0) NULL DEFAULT NULL,
-  `big_pack_id` int(0) NULL DEFAULT NULL,
-  `final_id` int(0) NULL DEFAULT NULL,
+  `wide_audio_id` int(0) NULL DEFAULT NULL COMMENT '宽度音频id',
+  `is_publish` int(0) NULL DEFAULT NULL COMMENT '是否发布',
+  `big_pack_id` int(0) NULL DEFAULT NULL COMMENT '大型集合id',
+  `final_id` int(0) NULL DEFAULT NULL COMMENT '最终id',
   `audio_id` int(0) NULL DEFAULT NULL COMMENT '音频id',
   `similar_audio_id` int(0) NULL DEFAULT NULL COMMENT '相似的音乐id',
   `is_hot` int(0) NULL DEFAULT NULL COMMENT '是否热门',
@@ -820,7 +841,7 @@ CREATE TABLE `music`  (
   `lyrics` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '歌词',
   `permission` int(0) NULL DEFAULT NULL COMMENT '播放权限',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100002 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100001 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '音乐主表id' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_author_category
@@ -834,7 +855,7 @@ CREATE TABLE `music_author_category`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   `disabled` int(0) NULL DEFAULT NULL COMMENT '是否禁用 0:启用，1禁用',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '音乐歌手分类' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_author_like
@@ -842,12 +863,12 @@ CREATE TABLE `music_author_category`  (
 DROP TABLE IF EXISTS `music_author_like`;
 CREATE TABLE `music_author_like`  (
   `id` int(0) NOT NULL AUTO_INCREMENT COMMENT ' 主键',
-  `author_id` int(0) NOT NULL,
+  `author_id` int(0) NOT NULL COMMENT '歌手id',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   `user_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 233 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 232 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户喜欢的歌手' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for music_authors
@@ -868,7 +889,7 @@ CREATE TABLE `music_authors`  (
   `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4967 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '歌手表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_category
@@ -882,7 +903,7 @@ CREATE TABLE `music_category`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新书剑',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '歌曲分类名称表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_category_relation
@@ -895,7 +916,7 @@ CREATE TABLE `music_category_relation`  (
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '歌曲分类表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_circle
@@ -923,7 +944,7 @@ CREATE TABLE `music_classify`  (
   `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2173 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2172 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_classify_relation
@@ -939,7 +960,7 @@ CREATE TABLE `music_classify_relation`  (
   `create_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1024 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for music_directory
@@ -1033,7 +1054,7 @@ CREATE TABLE `music_like`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   `user_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 273 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 272 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for music_record
@@ -1050,6 +1071,18 @@ CREATE TABLE `music_record`  (
   `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'app版本',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 988 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for prompt_category
+-- ----------------------------
+DROP TABLE IF EXISTS `prompt_category`;
+CREATE TABLE `prompt_category`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '组件',
+  `category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '提示词类别',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for search_history
@@ -1095,6 +1128,70 @@ CREATE TABLE `social_like`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 72 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '点赞的影片' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for system_prompt
+-- ----------------------------
+DROP TABLE IF EXISTS `system_prompt`;
+CREATE TABLE `system_prompt`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `categoryId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类id',
+  `prompt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '提示词内容',
+  `disabled` tinyint(0) NOT NULL DEFAULT 0 COMMENT '是否禁用：0-启用，1-禁用',
+  `create_date` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_date` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI智能体提示词表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for tenant
+-- ----------------------------
+DROP TABLE IF EXISTS `tenant`;
+CREATE TABLE `tenant`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户ID',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户名称',
+  `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户编码',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '租户描述',
+  `status` tinyint(0) NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+  `create_date` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_date` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `created_by` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人ID',
+  `updated_by` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人ID',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '租户表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for tenant_user
+-- ----------------------------
+DROP TABLE IF EXISTS `tenant_user`;
+CREATE TABLE `tenant_user`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `tenant_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户ID',
+  `user_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户ID',
+  `role_type` tinyint(0) NOT NULL COMMENT '角色类型：0-普通用户，1-租户管理员，2-超级管理员',
+  `join_date` datetime(0) NOT NULL COMMENT '加入时间',
+  `create_by` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人ID',
+  `disabled` int(1) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT '是否禁用',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_tenant_user`(`tenant_id`, `user_id`) USING BTREE,
+  INDEX `idx_user`(`user_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '租户用户关联表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for tenant_user_role
+-- ----------------------------
+DROP TABLE IF EXISTS `tenant_user_role`;
+CREATE TABLE `tenant_user_role`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `tenant_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `user_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `role_type` int(0) NOT NULL COMMENT '0-普通用户 1-管理员 2-超级管理员',
+  `is_disabled` tinyint(1) NULL DEFAULT NULL COMMENT '是否禁用',
+  `create_time` datetime(0) NULL DEFAULT 'now()',
+  `update_time` datetime(0) NULL DEFAULT 'now()',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '租户用户角色表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for toutiao_all_channel
@@ -1352,6 +1449,32 @@ CREATE TABLE `user`  (
   PRIMARY KEY (`id`, `user_account`) USING BTREE,
   INDEX `id`(`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for user_prompt
+-- ----------------------------
+DROP TABLE IF EXISTS `user_prompt`;
+CREATE TABLE `user_prompt`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `tenant_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户ID',
+  `user_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户ID',
+  `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '提示词标题',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '提示词内容',
+  `disabled` tinyint(0) NOT NULL DEFAULT 0 COMMENT '是否禁用：0-启用，1-禁用',
+  `industry` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '适用行业',
+  `tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '提示词标签',
+  `create_date` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_date` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `created_by` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '创建人ID',
+  `updated_by` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '更新人ID',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_tenant_id`(`tenant_id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_industry`(`industry`) USING BTREE,
+  FULLTEXT INDEX `ft_tags`(`tags`) COMMENT '全文索引用于标签搜索',
+  CONSTRAINT `fk_prompt_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_prompt_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI智能体提示词表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for video

@@ -8,7 +8,7 @@ import java.util.Date;
 @ToString
 @Data
 @Schema(description = "AI智能体提示词实体")
-public class PromptEntity {
+public class UserPromptEntity {
     @Schema(description = "主键ID")
     private String id;
 
