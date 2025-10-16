@@ -27,5 +27,8 @@ public interface PromptMapper {
 
     List<PromptCategoryEntity>getPromptCategoryList();
 
-    List<SystemPromptEntity>getSystemPromptListByCategory(String categoryId, String keyword, int start, int pageSize);
+    List<SystemPromptEntity>getSystemPromptListByCategory(String categoryId, String keyword,String userId, int start, int pageSize);
+
+    Long getSystemPromptCountByCategory(String categoryId, String keyword);
+
 }

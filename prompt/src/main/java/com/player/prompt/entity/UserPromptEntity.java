@@ -31,10 +31,10 @@ public class UserPromptEntity {
     private String tags;
 
     @Schema(description = "创建时间")
-    private Date createDate;
+    private Date createTime;
 
     @Schema(description = "更新时间")
-    private Date updateDate;
+    private Date updateTime;
 
     @Schema(description = "创建人ID")
     private String createdBy;

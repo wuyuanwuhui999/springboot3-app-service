@@ -1,4 +1,4 @@
-package com.player.prompt.service;
+package com.player.tenant.service;
 
 import com.player.common.entity.ResultEntity;
 

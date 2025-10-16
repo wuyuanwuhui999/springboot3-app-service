@@ -3,9 +3,9 @@
 <mapper namespace="com.player.prompt.mapper.PromptMapper">
 
     <insert id="insertPrompt" parameterType="UserPromptEntity">
-        INSERT INTO user_prompt (
+        INSERT INTO prompt_user (
         id, tenant_id, title, content, disabled,
-        categoryId, tags, create_date, update_date, created_by, updated_by
+        categoryId, tags, create_time, update_time, created_by, updated_by
         ) VALUES (
         #{id}, #{tenantId}, #{title}, #{content}, #{disabled},
         #{categoryId}, #{tags}, #{createDate}, #{updateDate}, #{createdBy}, #{updatedBy}
@@ -13,12 +13,12 @@
     </insert>
 
     <delete id="deletePrompt">
-        DELETE FROM user_prompt
+        DELETE FROM prompt_user
         WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
     </delete>
 
     <update id="updatePrompt" parameterType="UserPromptEntity">
-        UPDATE user_prompt
+        UPDATE prompt_user
         SET title = #{title},
         content = #{content},
         disabled = #{disabled},
@@ -30,12 +30,12 @@
     </update>
 
     <select id="getPromptById" resultType="UserPromptEntity">
-        SELECT * FROM user_prompt
+        SELECT * FROM prompt_user
         WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
     </select>
 
     <select id="getPromptList" resultType="UserPromptEntity">
-        SELECT * FROM user_prompt
+        SELECT * FROM prompt_user
         WHERE tenant_id = #{tenantId} AND created_by = #{createdBy}
         <if test="content != null and content != ''">
             AND content LIKE CONCAT('%', #{content}, '%')
@@ -46,20 +46,45 @@
         <if test="tags != null and tags != ''">
             AND tags LIKE CONCAT('%', #{tags}, '%')
         </if>
-        ORDER BY create_date DESC
+        ORDER BY create_time DESC
     </select>
 
     <select id="getPromptCategoryList" resultType="PromptCategoryEntity">
         select id,category,create_time,update_time from prompt_category order by update_time desc
     </select>
 
-    <select id="getSystemPromptListByCategory" resultType="SystemPromptEntity">
-        select * from system_prompt where category = #{category}
+    <select id="getSystemPromptCountByCategory" resultType="Long">
+        select count(*) from prompt_system where disabled=0
+        <if test="categoryId != null and categoryId != ''">
+            and categoryId = #{categoryId}
+        </if>
         <if test="keyword != null and keyword != ''">
             and prompt like concat('%',keyword,'%')
         </if>
-        order by update_time
-        limit #{start},#{pageSize}
     </select>
 
+    <select id="getSystemPromptListByCategory" resultType="SystemPromptEntity">
+        SELECT
+            ps.id,
+            ps.categoryId,
+            ps.prompt,
+            ps.disabled,
+            ps.create_time,
+            ps.update_time,
+            IF(pc.id IS NOT NULL, 1, 0) as is_collect,
+            pc.create_time
+        FROM
+            prompt_system ps
+        LEFT JOIN
+            prompt_collect pc ON ps.id = pc.prompt_id COLLATE utf8mb4_0900_ai_ci AND pc.user_id = #{userId}
+        WHERE
+            ps.disabled = 0
+        <if test="categoryId != null and categoryId != ''">
+            and ps.categoryId = #{categoryId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            and ps.prompt like concat('%',#{keyword},'%')
+        </if>
+        ORDER BY ps.create_time DESC;
+    </select>
 </mapper>

@@ -1,7 +1,7 @@
-package com.player.prompt.mapper;
+package com.player.tenant.mapper;
 
-import com.player.prompt.entity.TenantEntity;
-import com.player.prompt.entity.TenantUserEntity;
+import com.player.tenant.entity.TenantEntity;
+import com.player.tenant.entity.TenantUserEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

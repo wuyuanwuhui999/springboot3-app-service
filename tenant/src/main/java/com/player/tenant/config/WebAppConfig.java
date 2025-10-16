@@ -1,4 +1,4 @@
-package com.player.prompt.config;
+package com.player.tenant.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

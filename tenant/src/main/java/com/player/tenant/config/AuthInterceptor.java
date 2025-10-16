@@ -1,4 +1,4 @@
-package com.player.prompt.config;
+package com.player.tenant.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.player.common.entity.ResultEntity;

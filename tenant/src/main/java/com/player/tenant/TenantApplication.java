@@ -1,4 +1,4 @@
-package com.player.prompt;
+package com.player.tenant;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;

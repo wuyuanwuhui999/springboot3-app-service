@@ -1,8 +1,8 @@
-package com.player.prompt.controller;
+package com.player.tenant.controller;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.utils.JwtToken;
-import com.player.prompt.service.ITenantService;
+import com.player.tenant.service.ITenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;

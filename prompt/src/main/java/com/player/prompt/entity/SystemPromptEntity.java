@@ -18,6 +18,9 @@ public class SystemPromptEntity {
     @Schema(description = "提示词标题")
     private String categoryId;
 
+    @Schema(description = "是否收藏")
+    private int isCollect;
+
     @Schema(description = "是否禁用：0-启用，1-禁用")
     private Integer disabled;
 

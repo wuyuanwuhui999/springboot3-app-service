@@ -61,10 +61,11 @@ public class PromptController {
     public ResultEntity getSystemPromptListByCategory(
             @RequestParam(value = "categoryId") String categoryId,
             @RequestParam(value = "pageNum") int pageNum,
-            @RequestParam(value = "pageNum") int pageSize,
-            @RequestParam(value = "keyword",required = false)String  keyword
+            @RequestParam(value = "pageSize") int pageSize,
+            @RequestParam(value = "keyword",required = false)String  keyword,
+            @RequestHeader(value = "Authorization", required = false)String token
             ) {
-        return promptService.getSystemPromptListByCategory(categoryId,keyword,pageNum,pageSize);
+        return promptService.getSystemPromptListByCategory(categoryId,keyword,JwtToken.getId(token,secret),pageNum,pageSize);
     }
 
 

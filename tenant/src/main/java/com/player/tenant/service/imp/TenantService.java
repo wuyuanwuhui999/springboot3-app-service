@@ -1,10 +1,10 @@
-package com.player.prompt.service.imp;
+package com.player.tenant.service.imp;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
-import com.player.prompt.entity.TenantUserEntity;
-import com.player.prompt.mapper.TenantMapper;
-import com.player.prompt.service.ITenantService;
+import com.player.tenant.entity.TenantUserEntity;
+import com.player.tenant.mapper.TenantMapper;
+import com.player.tenant.service.ITenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

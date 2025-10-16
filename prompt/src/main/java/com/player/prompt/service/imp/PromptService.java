@@ -24,8 +24,8 @@ public class PromptService implements IPromptService {
             userPromptEntity.setId(UUID.randomUUID().toString());
             userPromptEntity.setCreatedBy(userId);
             userPromptEntity.setUpdatedBy(userId);
-            userPromptEntity.setCreateDate(new Date());
-            userPromptEntity.setUpdateDate(new Date());
+            userPromptEntity.setCreateTime(new Date());
+            userPromptEntity.setUpdateTime(new Date());
 
             int result = promptMapper.insertPrompt(userPromptEntity);
             if (result > 0) {
@@ -58,7 +58,7 @@ public class PromptService implements IPromptService {
         try {
 
             userPromptEntity.setUpdatedBy(userId);
-            userPromptEntity.setUpdateDate(new Date());
+            userPromptEntity.setUpdateTime(new Date());
 
             int result = promptMapper.updatePrompt(userPromptEntity);
             if (result > 0) {
@@ -100,8 +100,8 @@ public class PromptService implements IPromptService {
     }
 
     @Override
-    public ResultEntity getSystemPromptListByCategory(String categoryId,String keyword,int pageNum,int pageSize){
+    public ResultEntity getSystemPromptListByCategory(String categoryId,String keyword,String userId,int pageNum,int pageSize){
         int start = (pageNum-1)*pageSize;
-        return  ResultUtil.success(promptMapper.getSystemPromptListByCategory(categoryId,keyword,start,pageSize));
+        return  ResultUtil.success(promptMapper.getSystemPromptListByCategory(categoryId,keyword,userId,start,pageSize),promptMapper.getSystemPromptCountByCategory(categoryId, keyword));
     }
 }
