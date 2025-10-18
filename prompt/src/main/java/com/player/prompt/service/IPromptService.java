@@ -23,4 +23,10 @@ public interface IPromptService {
     ResultEntity getPromptCategoryList();
 
     ResultEntity getSystemPromptListByCategory(String categoryId,String keyword,String userId,int pageNum,int pageSize);
+
+    ResultEntity insertCollectPrompt(String prompt,String userId);
+
+    ResultEntity deleteCollectPrompt(String prompt,String userId);
+
+
 }

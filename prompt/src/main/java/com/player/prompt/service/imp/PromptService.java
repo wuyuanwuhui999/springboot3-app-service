@@ -104,4 +104,14 @@ public class PromptService implements IPromptService {
         int start = (pageNum-1)*pageSize;
         return  ResultUtil.success(promptMapper.getSystemPromptListByCategory(categoryId,keyword,userId,start,pageSize),promptMapper.getSystemPromptCountByCategory(categoryId, keyword));
     }
+
+    @Override
+    public ResultEntity insertCollectPrompt(String promptId,String userId){
+        return  ResultUtil.success(promptMapper.insertCollectPrompt(promptId,userId));
+    }
+
+    @Override
+    public ResultEntity deleteCollectPrompt(String promptId,String userId){
+        return  ResultUtil.success(promptMapper.deleteCollectPrompt(promptId,userId));
+    }
 }

@@ -31,4 +31,7 @@ public interface PromptMapper {
 
     Long getSystemPromptCountByCategory(String categoryId, String keyword);
 
+    Long insertCollectPrompt(String promptId, String userId);
+
+    Long deleteCollectPrompt(String promptId, String userId);
 }

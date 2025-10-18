@@ -87,4 +87,24 @@
         </if>
         ORDER BY ps.create_time DESC;
     </select>
+
+    <insert id="insertCollectPrompt">
+        INSERT INTO prompt_collect (id, prompt_id, user_id, create_time, update_time)
+        SELECT
+            REPLACE(UUID(), '-', ''),
+            #{promptId},
+            #{userId},
+            NOW(),
+            NOW()
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT 1 FROM prompt_collect
+            WHERE prompt_id = #{promptId} AND user_id = #{userId}
+        )
+    </insert>
+
+    <delete id="deleteCollectPrompt">
+        DELETE FROM prompt_collect
+        WHERE prompt_id = #{promptId} AND user_id = #{userId}
+    </delete>
 </mapper>

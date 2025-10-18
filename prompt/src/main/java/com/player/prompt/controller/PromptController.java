@@ -63,10 +63,25 @@ public class PromptController {
             @RequestParam(value = "pageNum") int pageNum,
             @RequestParam(value = "pageSize") int pageSize,
             @RequestParam(value = "keyword",required = false)String  keyword,
-            @RequestHeader(value = "Authorization", required = false)String token
+            @RequestHeader(value = "Authorization")String token
             ) {
         return promptService.getSystemPromptListByCategory(categoryId,keyword,JwtToken.getId(token,secret),pageNum,pageSize);
     }
 
+    @PostMapping("/insertCollectPrompt/{promptId}")
+    public ResultEntity insertCollectPrompt(
+            @PathVariable("promptId") String promptId,
+            @RequestHeader(value = "Authorization")String token)
+    {
+        return promptService.insertCollectPrompt(promptId,JwtToken.getId(token,secret));
+    }
 
+    @DeleteMapping("/deleteCollectPrompt/{promptId}")
+    public ResultEntity deleteCollectPrompt(
+            @PathVariable("promptId") String promptId,
+            @RequestHeader(value = "Authorization")String token)
+    {
+        return promptService.deleteCollectPrompt(promptId,JwtToken.getId(token,secret));
+
+    }
 }
