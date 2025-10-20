@@ -1,6 +1,7 @@
 package com.player.prompt.service;
 
 import com.player.common.entity.ResultEntity;
+import com.player.common.utils.JwtToken;
 import com.player.prompt.entity.UserPromptEntity;
 
 public interface IPromptService {
@@ -24,9 +25,11 @@ public interface IPromptService {
 
     ResultEntity getSystemPromptListByCategory(String categoryId,String keyword,String userId,int pageNum,int pageSize);
 
-    ResultEntity insertCollectPrompt(String prompt,String userId);
+    ResultEntity insertCollectPrompt(String tenantId,String prompt,String userId);
 
-    ResultEntity deleteCollectPrompt(String prompt,String userId);
+    ResultEntity deleteCollectPrompt(String tenantId,String prompt,String userId);
 
+    ResultEntity getMyCollectPromptCategory(String tenantId,String userId);
 
+    ResultEntity getMyCollectPromptList(String tenantId,String categoryId,String userId, int pageNUm,int pageSize);
 }

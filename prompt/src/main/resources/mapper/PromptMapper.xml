@@ -41,7 +41,7 @@
             AND content LIKE CONCAT('%', #{content}, '%')
         </if>
         <if test="categoryId != null and categoryId != ''">
-            AND categoryId = #{categoryId}
+            AND category_id = #{categoryId}
         </if>
         <if test="tags != null and tags != ''">
             AND tags LIKE CONCAT('%', #{tags}, '%')
@@ -66,7 +66,7 @@
     <select id="getSystemPromptListByCategory" resultType="SystemPromptEntity">
         SELECT
             ps.id,
-            ps.categoryId,
+            ps.category_id,
             ps.prompt,
             ps.disabled,
             ps.create_time,
@@ -80,7 +80,7 @@
         WHERE
             ps.disabled = 0
         <if test="categoryId != null and categoryId != ''">
-            and ps.categoryId = #{categoryId}
+            and ps.category_id = #{categoryId}
         </if>
         <if test="keyword != null and keyword != ''">
             and ps.prompt like concat('%',#{keyword},'%')
@@ -89,22 +89,100 @@
     </select>
 
     <insert id="insertCollectPrompt">
-        INSERT INTO prompt_collect (id, prompt_id, user_id, create_time, update_time)
+        INSERT INTO prompt_collect (id, prompt_id, user_id, category_id, tenant_id, create_time, update_time)
         SELECT
             REPLACE(UUID(), '-', ''),
             #{promptId},
             #{userId},
+            ps.category_id,
+            #{tenantId},
             NOW(),
             NOW()
-        FROM DUAL
-        WHERE NOT EXISTS (
+        FROM DUAL,
+             (SELECT categoryId FROM prompt_system WHERE id = #{promptId}) ps
+        WHERE EXISTS (
+            SELECT 1 FROM tenant_user tu
+            WHERE tu.tenant_id = #{tenantId}
+              AND tu.user_id = #{userId}
+              AND tu.disabled = 0  -- 用户启用状态
+        )
+          AND NOT EXISTS (
             SELECT 1 FROM prompt_collect
             WHERE prompt_id = #{promptId} AND user_id = #{userId}
         )
     </insert>
 
     <delete id="deleteCollectPrompt">
-        DELETE FROM prompt_collect
-        WHERE prompt_id = #{promptId} AND user_id = #{userId}
+        DELETE pc FROM prompt_collect pc
+        WHERE pc.prompt_id = #{promptId}
+            AND pc.user_id = #{userId}
+            AND pc.tenant_id = #{tenantId}
+        AND EXISTS (
+            SELECT 1 FROM tenant_user tu
+            WHERE tu.tenant_id = #{tenantId}
+            AND tu.user_id = #{userId}
+            AND tu.disabled = 0  -- 用户启用状态
+        )
     </delete>
+    <select id="getMyCollectPromptCategory" resultType="PromptCategoryEntity">
+        SELECT DISTINCT
+            pc.id,
+            pc.category,
+            pc.create_time,
+            pc.update_time
+        FROM prompt_collect pcol
+                 INNER JOIN prompt_category pc ON pcol.category_id = pc.id
+        WHERE pcol.user_id = #{userId}
+            AND pcol.tenant_id = #{tenantId}
+          AND EXISTS (
+            SELECT 1 FROM tenant_user tu
+            WHERE tu.tenant_id = #{tenantId}
+              AND tu.user_id = #{userId}
+              AND tu.disabled = 0  -- 用户启用状态
+        )
+        ORDER BY pc.create_time DESC
+    </select>
+
+    <select id="getMyCollectPromptList" resultType="SystemPromptEntity">
+        SELECT
+        pc.id,
+        pc.prompt_id,
+        pc.user_id,
+        pc.category_id,
+        pc.create_time,
+        pc.update_time,
+        ps.prompt,
+        ps.disabled
+        FROM prompt_collect pc
+        INNER JOIN prompt_system ps ON pc.prompt_id = ps.id COLLATE utf8mb4_general_ci
+        WHERE pc.user_id = #{userId}
+        AND pc.tenant_id = #{tenantId}
+        <if test="categoryId != null and categoryId != ''">
+            AND pc.category_id = #{categoryId}
+        </if>
+        AND EXISTS (
+        SELECT 1 FROM tenant_user tu
+        WHERE tu.tenant_id = #{tenantId} COLLATE utf8mb4_general_ci
+        AND tu.user_id = #{userId} COLLATE utf8mb4_general_ci
+        AND tu.disabled = 0
+        )
+        ORDER BY pc.create_time DESC
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+    <select id="getMyCollectPromptCount" resultType="Long">
+        SELECT
+            count(id)
+        FROM prompt_collect
+        WHERE
+            category_id = #{categoryId}
+          AND user_id = #{userId}
+          AND tenant_id = #{tenantId}
+          AND EXISTS (
+            SELECT 1 FROM tenant_user tu
+            WHERE tu.tenant_id = #{tenantId}
+              AND tu.user_id = #{userId}
+              AND tu.disabled = 0  -- 用户启用状态
+        )
+    </select>
 </mapper>

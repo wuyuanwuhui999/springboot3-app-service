@@ -106,12 +106,34 @@ public class PromptService implements IPromptService {
     }
 
     @Override
-    public ResultEntity insertCollectPrompt(String promptId,String userId){
+    public ResultEntity insertCollectPrompt(String tenantId,String promptId,String userId){
         return  ResultUtil.success(promptMapper.insertCollectPrompt(promptId,userId));
     }
 
     @Override
-    public ResultEntity deleteCollectPrompt(String promptId,String userId){
+    public ResultEntity deleteCollectPrompt(String tenantId,String promptId,String userId){
         return  ResultUtil.success(promptMapper.deleteCollectPrompt(promptId,userId));
     }
+
+    @Override
+    public ResultEntity getMyCollectPromptCategory(String tenantId,String userId) {
+        return ResultUtil.success(promptMapper.getMyCollectPromptCategory(tenantId,userId));
+    }
+
+    @Override
+    public ResultEntity getMyCollectPromptList(String tenantId,String categoryId, String userId, int pageNUm, int pageSize) {
+        int start = (pageNUm-1)*pageSize;
+        return ResultUtil.success(promptMapper.getMyCollectPromptList(tenantId,categoryId, userId, start, pageSize),promptMapper.getMyCollectPromptCount(tenantId,categoryId,userId));
+    }
+
+
+
+
+
+
+
+
+
+
+    
 }

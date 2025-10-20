@@ -15,7 +15,7 @@ public class SystemPromptEntity {
     @Schema(description = "提示词")
     private String prompt;
 
-    @Schema(description = "提示词标题")
+    @Schema(description = "提示词类型id")
     private String categoryId;
 
     @Schema(description = "是否收藏")

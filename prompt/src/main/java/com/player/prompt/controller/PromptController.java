@@ -68,20 +68,42 @@ public class PromptController {
         return promptService.getSystemPromptListByCategory(categoryId,keyword,JwtToken.getId(token,secret),pageNum,pageSize);
     }
 
-    @PostMapping("/insertCollectPrompt/{promptId}")
+    @PostMapping("/insertCollectPrompt/{tenantId}/{promptId}")
     public ResultEntity insertCollectPrompt(
+            @PathVariable("tenantId") String tenantId,
             @PathVariable("promptId") String promptId,
             @RequestHeader(value = "Authorization")String token)
     {
-        return promptService.insertCollectPrompt(promptId,JwtToken.getId(token,secret));
+        return promptService.insertCollectPrompt(tenantId,promptId,JwtToken.getId(token,secret));
     }
 
-    @DeleteMapping("/deleteCollectPrompt/{promptId}")
+    @DeleteMapping("/deleteCollectPrompt/{tenantId}/{promptId}")
     public ResultEntity deleteCollectPrompt(
+            @PathVariable("tenantId") String tenantId,
             @PathVariable("promptId") String promptId,
             @RequestHeader(value = "Authorization")String token)
     {
-        return promptService.deleteCollectPrompt(promptId,JwtToken.getId(token,secret));
+        return promptService.deleteCollectPrompt(tenantId,promptId,JwtToken.getId(token,secret));
+    }
 
+    @GetMapping("/getMyCollectPromptCategory")
+    public ResultEntity getMyCollectPromptCategory(
+            @RequestParam("tenantId") String tenantId,
+            @RequestHeader(value = "Authorization")String token
+    )
+    {
+        return promptService.getMyCollectPromptCategory(tenantId,JwtToken.getId(token,secret));
+    }
+
+    @GetMapping("/getMyCollectPromptList")
+    public ResultEntity getMyCollectPromptList(
+            @RequestParam(value = "tenantId") String tenantId,
+            @RequestParam(value = "categoryId", required = false) String categoryId,
+            @RequestHeader(value = "Authorization")String token,
+            @RequestParam(value = "pageNum")int pageNum,
+            @RequestParam(value = "pageSize")int pageSize
+    )
+    {
+        return promptService.getMyCollectPromptList(tenantId,categoryId,JwtToken.getId(token,secret),pageNum,pageSize);
     }
 }
