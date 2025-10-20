@@ -11,6 +11,9 @@ public class ChatParamsEntity {
     @Schema(description = "目录id，默认为public")
     private String directoryId;
 
+    @Schema(description = "系统提示词")
+    private String systemPrompt;
+
     @Schema(description = "会话id")
     private String chatId;
 

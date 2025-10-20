@@ -48,6 +48,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatParamsEntity.setShowThink(showThink);
             chatParamsEntity.setType((String) payload.get("type"));
             chatParamsEntity.setLanguage((String) payload.get("language"));
+            chatParamsEntity.setSystemPrompt((String) payload.get("systemPrompt"));
             String directoryId = (String) payload.get("directoryId");
             if("document".equals(chatParamsEntity.getType())){
                 if(directoryId == null || StringUtil.isEmpty(directoryId)){

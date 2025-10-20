@@ -13,12 +13,13 @@ import reactor.core.publisher.Flux;
 )
 public interface QwenOllamaAssistant {
     @SystemMessage("""
-        你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。
+        {{systemPrompt}}
         {{language}}
         """)
     Flux<String> chat(
             @MemoryId String memoryId,
             @UserMessage String userMessage,
-            @V("language") String language
+            @V("language") String language,
+            @V("systemPrompt") String systemPrompt
     );
 }
