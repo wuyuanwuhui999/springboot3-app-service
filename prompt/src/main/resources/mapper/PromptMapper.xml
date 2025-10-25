@@ -133,7 +133,7 @@
         FROM prompt_collect pcol
                  INNER JOIN prompt_category pc ON pcol.category_id = pc.id
         WHERE pcol.user_id = #{userId}
-            AND pcol.tenant_id = #{tenantId}
+          AND pcol.tenant_id = #{tenantId}
           AND EXISTS (
             SELECT 1 FROM tenant_user tu
             WHERE tu.tenant_id = #{tenantId}

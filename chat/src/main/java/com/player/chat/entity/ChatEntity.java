@@ -9,6 +9,8 @@ public class ChatEntity {
     private Long id;
     @Schema(description = "用户id")
     private String userId;
+    @Schema(description = "租户id")
+    private String tenantId;
     @Schema(description = "文件")
     private String files;
     @Schema(description = "会话id")

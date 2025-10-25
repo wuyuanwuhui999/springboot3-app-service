@@ -13,16 +13,15 @@ import opennlp.tools.util.StringUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 public class PromptUtil {
-    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId,String directoryId) {
+    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId,String tenantId,String directoryId) {
         // 创建过滤条件
         Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
-        IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
-        Filter filter;
+        IsEqualTo userIdFilter = new IsEqualTo("user_id", userId);
+        IsEqualTo tenantIdFilter = new IsEqualTo("tenant_id", tenantId);
+        Filter filter = Filter.and(userIdFilter, tenantIdFilter);
         if(directoryId != null && !StringUtil.isEmpty(directoryId)){
-            IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
-            filter = Filter.and(directoryFilter, userIdFilter);
-        }else{
-            filter = userIdFilter;
+            IsEqualTo directoryFilter = new IsEqualTo("directory_id", directoryId);
+            filter = Filter.and(directoryFilter, filter);
         }
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()

@@ -118,9 +118,9 @@ public class ChatService implements IChatService {
         chatEntity.setChatId(chatParamsEntity.getChatId());
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
         chatEntity.setModelId(chatParamsEntity.getModelId());
-
+        chatEntity.setTenantId(chatParamsEntity.getTenantId());
         if ("document".equals(chatParamsEntity.getType())) {
-            String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity.getPrompt(), userId,chatParamsEntity.getDirectoryId());
+            String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity.getPrompt(),userId,chatParamsEntity.getTenantId(),chatParamsEntity.getDirectoryId());
             if (context == null || context.isEmpty()) {
                 return Flux.just("对不起，没有查询到相关文档").doOnNext(responseHandler);
             }
@@ -317,10 +317,10 @@ public class ChatService implements IChatService {
             metadata.put("page_range", startPage + "-" + endPage);
 
             // 添加新的元数据
-            metadata.put("app_id", directoryId);
+            metadata.put("directory_id", directoryId);
             metadata.put("page", String.valueOf(totalPages)); // 总页数
             metadata.put("type", fileType);
-            metadata.put("tenantId", tenantId);
+            metadata.put("tenant_id", tenantId);
             // 带重试机制的存储
             int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {

@@ -17,6 +17,9 @@ public class ChatParamsEntity {
     @Schema(description = "会话id")
     private String chatId;
 
+    @Schema(description = "租户id")
+    private String tenantId;
+
     @Schema(description = "模型id")
     private String modelId;
 

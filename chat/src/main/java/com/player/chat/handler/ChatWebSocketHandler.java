@@ -39,6 +39,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
             String modelId = (String) payload.get("modelId");
+            String tenantId = (String) payload.get("tenantId");
             Boolean showThink = (Boolean) payload.get("showThink");
 
             ChatParamsEntity chatParamsEntity = new ChatParamsEntity();
@@ -46,6 +47,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatParamsEntity.setModelId(modelId);
             chatParamsEntity.setPrompt(prompt);
             chatParamsEntity.setShowThink(showThink);
+            chatParamsEntity.setTenantId(tenantId);
             chatParamsEntity.setType((String) payload.get("type"));
             chatParamsEntity.setLanguage((String) payload.get("language"));
             chatParamsEntity.setSystemPrompt((String) payload.get("systemPrompt"));
@@ -60,6 +62,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setChatId(chatId);
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
+            chatEntity.setTenantId(tenantId);
             chatEntity.setContent("");
             chatEntity.setModelId(modelId);
 
