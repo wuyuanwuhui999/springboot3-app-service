@@ -54,6 +54,15 @@ public class ChatController {
         return chatService.uploadDoc(file,JwtToken.getId(token, secret),tenantId,directoryId);
     }
 
+    @GetMapping("/getDocListByDirId")
+    public ResultEntity getDocListByDirId(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("tenantId") String tenantId,
+            @RequestParam("directoryId") String directoryId
+    ) {
+        return chatService.getDocListByDirId(JwtToken.getId(token, secret),tenantId,directoryId);
+    }
+
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
             @RequestHeader("Authorization") String token,

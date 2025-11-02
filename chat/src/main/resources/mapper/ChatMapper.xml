@@ -173,5 +173,9 @@
         WHERE type = #{modelType} AND disabled = 0
         LIMIT 1
     </select>
+
+    <select id="getDocListByDirId" resultType="com.player.common.entity.ChatDocEntity">
+        SELECT * FROM chat_doc WHERE user_id = #{userId} and tenant_id = #{tenantId} and directory_id = #{directoryId}
+    </select>
 </mapper>
 

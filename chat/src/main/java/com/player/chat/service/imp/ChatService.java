@@ -120,7 +120,7 @@ public class ChatService implements IChatService {
         chatEntity.setModelId(chatParamsEntity.getModelId());
         chatEntity.setTenantId(chatParamsEntity.getTenantId());
         if ("document".equals(chatParamsEntity.getType())) {
-            String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity.getPrompt(),userId,chatParamsEntity.getTenantId(),chatParamsEntity.getDirectoryId());
+            String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity);
             if (context == null || context.isEmpty()) {
                 return Flux.just("对不起，没有查询到相关文档").doOnNext(responseHandler);
             }
@@ -426,4 +426,18 @@ public class ChatService implements IChatService {
         }
         return ResultUtil.fail("删除目录失败");
     }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: getDocListByDirId
+     * @description: 根据目录id文档
+     * @date: 2025-11-01 12:07
+     */
+    @Cacheable(value = "getDocListByDirId", key = "'list:' + #userId +':' + #tenantId + ':' + #directoryId")
+    @Override
+    public ResultEntity getDocListByDirId(String userId, String tenantId,String directoryId) {
+        List<ChatDocEntity> docListByDirId = chatMapper.getDocListByDirId(userId, tenantId, directoryId);
+        return ResultUtil.success(docListByDirId);
+    }
+
 }

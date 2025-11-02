@@ -8,8 +8,11 @@ public class ChatParamsEntity {
     @Schema(description = "提示词")
     private String prompt;
 
-    @Schema(description = "目录id，默认为public")
-    private String directoryId;
+    @Schema(description = "文档id")
+    private String [] docIds;
+
+    @Schema(description = "用户id")
+    private String userId;
 
     @Schema(description = "系统提示词")
     private String systemPrompt;

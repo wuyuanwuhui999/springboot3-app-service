@@ -1,5 +1,6 @@
 package com.player.chat.utils;
 
+import com.player.chat.entity.ChatParamsEntity;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -9,19 +10,23 @@ import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
+import dev.langchain4j.store.embedding.filter.comparison.IsIn;
 import opennlp.tools.util.StringUtil;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+
 public class PromptUtil {
-    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, String query,String userId,String tenantId,String directoryId) {
+    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, ChatParamsEntity chatParamsEntity) {
         // 创建过滤条件
-        Embedding queryEmbedding = nomicEmbeddingModel.embed(query).content();
-        IsEqualTo userIdFilter = new IsEqualTo("user_id", userId);
-        IsEqualTo tenantIdFilter = new IsEqualTo("tenant_id", tenantId);
+        Embedding queryEmbedding = nomicEmbeddingModel.embed(chatParamsEntity.getPrompt()).content();
+        IsEqualTo userIdFilter = new IsEqualTo("user_id", chatParamsEntity.getUserId());
+        IsEqualTo tenantIdFilter = new IsEqualTo("tenant_id", chatParamsEntity.getTenantId());
         Filter filter = Filter.and(userIdFilter, tenantIdFilter);
-        if(directoryId != null && !StringUtil.isEmpty(directoryId)){
-            IsEqualTo directoryFilter = new IsEqualTo("directory_id", directoryId);
-            filter = Filter.and(directoryFilter, filter);
+        String [] docIds = chatParamsEntity.getDocIds();
+        if(docIds != null && docIds.length != 0){
+            IsIn isIn = new IsIn("doc_id", Arrays.asList(docIds));
+            filter = Filter.and(isIn, filter);
         }
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()

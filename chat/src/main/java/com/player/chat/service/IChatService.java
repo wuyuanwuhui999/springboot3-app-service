@@ -31,4 +31,6 @@ public interface IChatService {
     ResultEntity renameDir(DirectoryEntity directoryEntity);
 
     ResultEntity deleteDir(String userId, long directoryId);
+
+    ResultEntity getDocListByDirId(String userId,String tenantId,String directoryId);
 }

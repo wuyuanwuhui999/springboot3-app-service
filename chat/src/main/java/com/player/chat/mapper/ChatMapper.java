@@ -43,4 +43,6 @@ public interface ChatMapper {
     long renameDir(DirectoryEntity directoryEntity);
 
     long deleteDir(String userId, long directoryId);
+
+    List<ChatDocEntity>getDocListByDirId(String userId,String tenantId,String directoryId);
 }
