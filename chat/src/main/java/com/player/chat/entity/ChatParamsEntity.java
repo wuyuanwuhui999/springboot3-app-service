@@ -3,13 +3,15 @@ package com.player.chat.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.ArrayList;
+
 @Data
 public class ChatParamsEntity {
     @Schema(description = "提示词")
     private String prompt;
 
     @Schema(description = "文档id")
-    private String [] docIds;
+    private ArrayList<String> docIds;
 
     @Schema(description = "用户id")
     private String userId;

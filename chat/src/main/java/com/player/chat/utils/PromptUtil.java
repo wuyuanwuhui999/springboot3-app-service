@@ -14,6 +14,7 @@ import dev.langchain4j.store.embedding.filter.comparison.IsIn;
 import opennlp.tools.util.StringUtil;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class PromptUtil {
@@ -23,9 +24,9 @@ public class PromptUtil {
         IsEqualTo userIdFilter = new IsEqualTo("user_id", chatParamsEntity.getUserId());
         IsEqualTo tenantIdFilter = new IsEqualTo("tenant_id", chatParamsEntity.getTenantId());
         Filter filter = Filter.and(userIdFilter, tenantIdFilter);
-        String [] docIds = chatParamsEntity.getDocIds();
-        if(docIds != null && docIds.length != 0){
-            IsIn isIn = new IsIn("doc_id", Arrays.asList(docIds));
+        ArrayList<String> docIds = chatParamsEntity.getDocIds();
+        if(docIds != null && docIds.size() != 0){
+            IsIn isIn = new IsIn("doc_id", docIds);
             filter = Filter.and(isIn, filter);
         }
         EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
