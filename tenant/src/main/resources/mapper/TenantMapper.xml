@@ -42,11 +42,11 @@
             u.avater,
             u.email
         FROM tenant_user tu
-            LEFT JOIN user u ON tu.user_id = u.id
-            LEFT JOIN tenant t ON tu.tenant_id = t.id
+                 LEFT JOIN user u ON tu.user_id = u.id COLLATE utf8mb4_unicode_ci
+                 LEFT JOIN tenant t ON tu.tenant_id = t.id COLLATE utf8mb4_unicode_ci
         WHERE tu.tenant_id = #{tenantId}
-            AND tu.user_id = #{userId}
-            AND tu.disabled = 0
+          AND tu.user_id = #{userId}
+          AND tu.disabled = 0
     </select>
 
     <update id="setAdmin">

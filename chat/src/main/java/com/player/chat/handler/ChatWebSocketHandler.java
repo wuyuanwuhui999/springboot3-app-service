@@ -86,6 +86,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                             session.sendMessage(new TextMessage("[completed]"));
                         } catch (IOException e) {
                             log.error("Failed to send completion message", e);
+                            try {
+                                session.sendMessage(new TextMessage("[completed]"));
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        } finally {
+
                         }
                     }
             );
