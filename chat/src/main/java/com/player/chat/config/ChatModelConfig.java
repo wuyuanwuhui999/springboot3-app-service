@@ -8,12 +8,14 @@ import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@Lazy
 public class ChatModelConfig {
 
     private final ChatMapper chatMapper;
