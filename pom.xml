@@ -20,6 +20,7 @@
         <module>chat</module>
         <module>tenant</module>
         <module>prompt</module>
+        <module>gateway</module>
     </modules>
 
     <!-- 统一属性配置 -->
@@ -51,6 +52,8 @@
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
+        <spring-cloud-starter-bootstrap.version>5.0.0</spring-cloud-starter-bootstrap.version>
+        <spring-boot-starter-actuator.version>4.0.0</spring-boot-starter-actuator.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -268,6 +271,20 @@
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-open-ai</artifactId>
                 <version>${langchain4j-core.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-bootstrap -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                <version>${spring-cloud-starter-bootstrap.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${spring-boot-starter-actuator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.player.chat.mapper.MusicMapper">
+<mapper namespace="com.player.gateway.chat.mapper.MusicMapper">
 
     <select id="selectMusicListByAuthor" resultType="MusicEntity">
         select t1.* from music t1 INNER JOIN music_authors t2 ON t1.author_id = t1.author_id where t1.author_name like  concat('%',#{authorName},'%')

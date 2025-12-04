@@ -19,6 +19,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="gateway" target="17" />
       <module name="getway" target="17" />
     </bytecodeTargetLevel>
   </component>

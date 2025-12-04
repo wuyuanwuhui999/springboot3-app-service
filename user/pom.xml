@@ -98,7 +98,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.player.user.UserApplication</mainClass>
+                    <mainClass>com.player.gateway.user.UserApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

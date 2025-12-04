@@ -99,7 +99,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.player.movie.MovieApplication</mainClass>
+                    <mainClass>com.player.gateway.movie.MovieApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

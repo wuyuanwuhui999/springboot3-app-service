@@ -84,7 +84,7 @@ mybatis:
 logging:
   level:
     # 添加以下AI模型调用相关日志配置
-    com.player.music.config.ChatClientConfig: DEBUG
+    com.player.music.config.com.player.gateway.music.config.ChatClientConfig: DEBUG
     org.springframework.ai.chat.client: DEBUG
     org.springframework.ai.ollama: INFO
     org.springframework.ai.model: INFO
