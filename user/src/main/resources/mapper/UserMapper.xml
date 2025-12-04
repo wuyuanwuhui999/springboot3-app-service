@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.player.gateway.user.mapper.UserMapper">
+<mapper namespace="com.player.user.mapper.UserMapper">
     <sql id="userData">
         SELECT id,user_account,create_date,update_date,username,telephone,email,avater,birthday,sign,sex,role,region,disabled,permission from  user
     </sql>
 
-    <select id="getUserData"  resultType="com.player.gateway.common.entity.UserEntity">
+    <select id="getUserData"  resultType="com.player.common.entity.UserEntity">
         <include refid="userData"></include> WHERE role ='public' and disabled = 0  order by rand() LIMIT 1
     </select>
 
-    <select id="getMyUserData"  resultType="com.player.gateway.common.entity.UserEntity">
+    <select id="getMyUserData"  resultType="com.player.common.entity.UserEntity">
         <include refid="userData"></include> WHERE user_account = #{userAccount} and disabled = 0
     </select>
 
-    <select id="login" resultType="com.player.gateway.common.entity.UserEntity" parameterType="com.player.gateway.common.entity.UserEntity">
+    <select id="login" resultType="com.player.common.entity.UserEntity" parameterType="com.player.common.entity.UserEntity">
         <include refid="userData"></include> WHERE (user_account=#{userAccount} or email = #{userAccount}) and password=#{password}
     </select>
 
-    <insert id="register" parameterType="com.player.gateway.common.entity.UserEntity">
+    <insert id="register" parameterType="com.player.common.entity.UserEntity">
        INSERT INTO user(id,user_account,password,create_date,update_date,username,telephone,email,avater,birthday,sex,sign,region) SELECT #{id},#{userAccount},#{password},now(),now(),#{username},#{telephone},#{email},#{avater},#{birthday},#{sex},#{sign},#{region} FROM dual WHERE NOT EXISTS (SELECT user_account FROM user WHERE user_account = #{userAccount})
     </insert>
 
-    <select id="queryUser" parameterType="com.player.gateway.common.entity.UserEntity" resultType="com.player.gateway.common.entity.UserEntity">
+    <select id="queryUser" parameterType="com.player.common.entity.UserEntity" resultType="com.player.common.entity.UserEntity">
         <include refid="userData"></include>
         <where>
             <choose>
@@ -40,7 +40,7 @@
     limit 0,1
     </select>
 
-    <update id="updateUser" parameterType="com.player.gateway.common.entity.UserEntity">
+    <update id="updateUser" parameterType="com.player.common.entity.UserEntity">
         UPDATE user SET
             update_date = now(),
             username = #{username},
@@ -60,7 +60,7 @@
         WHERE user_account = #{userAccount} AND password = #{oldPassword}
     </update>
 
-    <insert id="log" parameterType="com.player.gateway.common.entity.LogEntity">
+    <insert id="log" parameterType="com.player.common.entity.LogEntity">
        INSERT INTO log(method,url,headers,ip,params,query_string,result,start_time,run_time,description,end_time,type,oparation,user_id)VALUES(#{method},#{url},#{headers},#{ip},#{params},#{queryString},#{result},#{startTime},#{runTime},#{description},#{endTime},#{type},#{oparation},#{id})
     </insert>
 
@@ -72,7 +72,7 @@
          UPDATE user SET password = #{password},update_date = now() WHERE email = #{email}
     </update>
 
-    <select id="vertifyUserByEmail" parameterType="com.player.gateway.common.entity.UserEntity" resultType="com.player.gateway.common.entity.UserEntity">
+    <select id="vertifyUserByEmail" parameterType="com.player.common.entity.UserEntity" resultType="com.player.common.entity.UserEntity">
         <include refid="userData"></include> WHERE email = #{email}
     </select>
 
@@ -80,7 +80,7 @@
         UPDATE user SET password = #{newPassword},update_date = now() WHERE id = #{id} and password=#{oldPassword}
     </update>
 
-    <select id="loginByEmail" parameterType="String" resultType="com.player.gateway.common.entity.UserEntity">
+    <select id="loginByEmail" parameterType="String" resultType="com.player.common.entity.UserEntity">
         <include refid="userData"></include> WHERE email = #{email}
     </select>
 

@@ -143,7 +143,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.player.gateway.music.MusicApplication</mainClass>
+                    <mainClass>com.player.music.MusicApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

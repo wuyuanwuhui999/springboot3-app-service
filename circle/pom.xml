@@ -102,7 +102,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.player.gateway.circle.CircleApplication</mainClass>
+                    <mainClass>com.player.circle.CircleApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

@@ -11,12 +11,11 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.player.gateway</groupId>
     <artifactId>gateway</artifactId>
-
-    <properties>
-        <spring-cloud.version>2024.0.0</spring-cloud.version>
-    </properties>
-
+    <version>0.0.1-SNAPSHOT</version>
+    <name>gateway</name>
+    <description>gateway</description>
     <dependencies>
         <!-- Spring Cloud Gateway -->
         <dependency>
@@ -34,14 +33,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
-            <version>5.0.0</version>
         </dependency>
 
         <!-- 健康检查 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>4.0.0</version>
         </dependency>
     </dependencies>
 </project>

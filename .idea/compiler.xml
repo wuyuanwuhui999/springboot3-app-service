@@ -16,10 +16,10 @@
         <module name="user" />
         <module name="prompt" />
         <module name="tenant" />
+        <module name="gateway" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="gateway" target="17" />
       <module name="getway" target="17" />
     </bytecodeTargetLevel>
   </component>

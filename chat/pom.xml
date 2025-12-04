@@ -126,7 +126,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.player.gateway.chat.ChatApplication</mainClass>
+                    <mainClass>com.player.chat.ChatApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

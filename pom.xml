@@ -54,6 +54,7 @@
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
         <spring-cloud-starter-bootstrap.version>5.0.0</spring-cloud-starter-bootstrap.version>
         <spring-boot-starter-actuator.version>4.0.0</spring-boot-starter-actuator.version>
+        <spring-cloud-starter-gateway.version>4.3.2</spring-cloud-starter-gateway.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -285,6 +286,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-actuator</artifactId>
                 <version>${spring-boot-starter-actuator.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-gateway -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-gateway</artifactId>
+                <version>${spring-cloud-starter-gateway.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

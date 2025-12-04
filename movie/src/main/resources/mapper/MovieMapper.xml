@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.player.gateway.movie.mapper.MovieMapper">
+<mapper namespace="com.player.movie.mapper.MovieMapper">
 
     <sql id="recordSql">
         (
@@ -68,7 +68,7 @@
         SELECT * FROM movie_network WHERE is_recommend = '1' AND classify = #{classify} LIMIT 1
     </select>
 
-    <select id="getMyUserData"  resultType="com.player.gateway.common.entity.UserEntity">
+    <select id="getMyUserData"  resultType="com.player.common.entity.UserEntity">
         SELECT user_id,create_date,update_date,username,telephone,email,avater,birthday,sex,role,sign,region from  user WHERE user_id = #{userId}
     </select>
 
@@ -135,7 +135,7 @@
     </select>
 
 
-    <insert id="log" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.player.gateway.common.entity.LogEntity">
+    <insert id="log" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.player.common.entity.LogEntity">
        INSERT INTO log(method,url,headers,ip,params,query_string,result,start_time,run_time,description,end_time,type,oparation,user_id)VALUES(#{method},#{url},#{headers},#{ip},#{params},#{queryString},#{result},#{startTime},#{runTime},#{description},#{endTime},#{type},#{oparation},#{userId})
     </insert>
 
@@ -205,11 +205,11 @@
         ORDER BY create_time DESC LIMIT 0,10
     </select>
 
-    <select id="getSearchHistory" resultType="com.player.gateway.common.entity.SearchHistory">
+    <select id="getSearchHistory" resultType="com.player.common.entity.SearchHistory">
         SELECT * FROM search_history WHERE user_id = #{userId} and `type` = #{type} order by create_time desc limit LIMIT #{start},#{pageSize}
     </select>
 
-    <select id="getSearchHistoryTotal" resultType="com.player.gateway.common.entity.SearchHistory">
+    <select id="getSearchHistoryTotal" resultType="com.player.common.entity.SearchHistory">
         SELECT count(id) as total FROM search_history WHERE user_id = #{userId} and `type` = #{type}
     </select>
 </mapper>
