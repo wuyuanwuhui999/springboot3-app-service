@@ -1,7 +1,6 @@
 package com.player.music.mapper;
 
 import com.player.common.entity.LogEntity;
-import com.player.gateway.music.entity.*;
 import com.player.music.entity.*;
 import org.springframework.stereotype.Repository;
 

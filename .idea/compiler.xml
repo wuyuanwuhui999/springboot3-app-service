@@ -2,7 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -13,21 +12,17 @@
         <module name="social" />
         <module name="chat" />
         <module name="circle" />
-        <module name="user" />
         <module name="prompt" />
-        <module name="tenant" />
+        <module name="user" />
         <module name="gateway" />
+        <module name="tenant" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="getway" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="chat" options="-parameters" />
       <module name="circle" options="-parameters" />
-      <module name="common" options="" />
       <module name="movie" options="-parameters" />
       <module name="music" options="-parameters" />
       <module name="prompt" options="-parameters" />
