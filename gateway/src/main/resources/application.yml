@@ -1,5 +1,8 @@
 server:
   port: 3009
+app:
+  jwt:
+    secret: your-real-secret-key-here # 至少 256 位（32 字节）
 
 spring:
   application:

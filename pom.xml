@@ -54,7 +54,7 @@
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
         <spring-cloud-starter-bootstrap.version>5.0.0</spring-cloud-starter-bootstrap.version>
         <spring-boot-starter-actuator.version>3.4.5</spring-boot-starter-actuator.version>
-        <spring-cloud-starter-gateway.version>4.1.9</spring-cloud-starter-gateway.version>
+        <spring-cloud-starter-gateway.version>4.2.6</spring-cloud-starter-gateway.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
