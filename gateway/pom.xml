@@ -85,5 +85,9 @@
             <artifactId>jjwt-jackson</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.player.common</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
     </dependencies>
 </project>

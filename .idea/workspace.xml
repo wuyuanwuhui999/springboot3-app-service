@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthGlobalFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +77,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ChatApplication">
+  <component name="RunManager" selected="Spring Boot.GatewayApplication">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="springboot3-app-service" />
       <method v="2">
@@ -91,6 +92,7 @@
     <configuration name="ChatApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="chat" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.chat.ChatApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -98,6 +100,7 @@
     <configuration name="CircleApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="circle" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.circle.CircleApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -105,6 +108,7 @@
     <configuration name="GatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <module name="gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.gateway.GatewayApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM=" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.player.gateway.*" />
@@ -118,6 +122,7 @@
     <configuration name="MovieApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="movie" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.movie.MovieApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -125,6 +130,7 @@
     <configuration name="MusicApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="music" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.music.MusicApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -132,6 +138,7 @@
     <configuration name="PromptApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="prompt" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.prompt.PromptApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -139,6 +146,7 @@
     <configuration name="SocialApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="social" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.social.SocialApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -146,6 +154,7 @@
     <configuration name="TenantApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="tenant" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.tenant.TenantApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -153,10 +162,22 @@
     <configuration name="UserApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="user" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.user.UserApplication" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Spring Boot.ChatApplication" />
+      <item itemvalue="Spring Boot.CircleApplication" />
+      <item itemvalue="Spring Boot.MovieApplication" />
+      <item itemvalue="Spring Boot.MusicApplication" />
+      <item itemvalue="Spring Boot.PromptApplication" />
+      <item itemvalue="Spring Boot.SocialApplication" />
+      <item itemvalue="Spring Boot.TenantApplication" />
+      <item itemvalue="Spring Boot.UserApplication" />
+      <item itemvalue="Spring Boot.GatewayApplication" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Spring Boot.GatewayApplication" />
@@ -178,7 +199,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1764853532177</updated>
-      <workItem from="1764853534118" duration="2869000" />
+      <workItem from="1764853534118" duration="4744000" />
     </task>
     <servers />
   </component>

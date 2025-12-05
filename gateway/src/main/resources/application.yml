@@ -1,13 +1,9 @@
 server:
   port: 3009
-app:
-  jwt:
-    secret: your-real-secret-key-here # 至少 256 位（32 字节）
 
 spring:
   application:
     name: gateway
-
   cloud:
     gateway:
       routes:
@@ -17,56 +13,55 @@ spring:
             - Path=/service/movie/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: music
           uri: http://localhost:3002
           predicates:
             - Path=/service/music/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: user
           uri: http://localhost:3003
           predicates:
             - Path=/service/user/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: circle
           uri: http://localhost:3004
           predicates:
             - Path=/service/circle/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: social
           uri: http://localhost:3005
           predicates:
             - Path=/service/social/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: chat
           uri: http://localhost:3006
           predicates:
             - Path=/service/chat/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: tenant
           uri: http://localhost:3007
           predicates:
             - Path=/service/tenant/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
+
         - id: prompt
           uri: http://localhost:3008
           predicates:
             - Path=/service/prompt/**
           filters:
             - StripPrefix=1
-            - name: JwtAuthFilter
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
@@ -74,12 +69,12 @@ spring:
   redis:
     host: localhost
     port: 6379
-    password:
+    password: ""
     database: 0
 
 jwt:
-  secret: your-jwt-secret-key-should-be-at-least-32-characters-long
-  expiration: 86400000  # 24小时
+  secret: ${SECRET}
+  expiration: 86400000  # 24小时（毫秒）
 
 management:
   endpoints:
