@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class VectorStoreConfig {
@@ -41,6 +42,7 @@ public class VectorStoreConfig {
         return new OllamaApi(ollamaBaseUrl);
     }
 
+    @Lazy
     @Bean
     public EmbeddingModel embeddingModel(OllamaApi ollamaApi) {
         OllamaOptions options = OllamaOptions.builder()
@@ -49,12 +51,14 @@ public class VectorStoreConfig {
         return new OllamaEmbeddingModel(ollamaApi,options,ObservationRegistry.create(), ModelManagementOptions.builder().build());
     }
 
+    @Lazy
     @Bean
     public RestClient restClient() {
         return RestClient.builder(new HttpHost(host, port, "http"))
                 .build();
     }
 
+    @Lazy
     @Bean
     public VectorStore vectorStore(RestClient restClient, EmbeddingModel embeddingModel) {
         ElasticsearchVectorStoreOptions options = new ElasticsearchVectorStoreOptions();

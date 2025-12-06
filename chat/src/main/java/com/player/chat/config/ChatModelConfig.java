@@ -31,6 +31,7 @@ public class ChatModelConfig {
         return (model != null && model.getDisabled() != null && model.getDisabled() == 0) ? model : null;
     }
 
+    @Lazy
     @Bean(name = "qwenStreamingChatModel")
     public OllamaStreamingChatModel qwenStreamingChatModel() {
         ChatModelEntity model = getAvailableModelConfig("qwen_ollama");
@@ -51,6 +52,7 @@ public class ChatModelConfig {
                 .build();
     }
 
+    @Lazy
     @Bean(name = "deepSeekStreamingChatModel")
     public OllamaStreamingChatModel deepSeekStreamingChatModel() {
         ChatModelEntity model = getAvailableModelConfig("deepseek_ollama");
@@ -71,6 +73,7 @@ public class ChatModelConfig {
                 .build();
     }
 
+    @Lazy
     @Bean(name = "deepseekOnlineChatModel")
     public OpenAiStreamingChatModel deepseekOnlineChatModel() {
         ChatModelEntity model = getAvailableModelConfig("deepseek_online");
@@ -87,6 +90,7 @@ public class ChatModelConfig {
                 .build();
     }
 
+    @Lazy
     @Bean(name = "qwenOnlineChatModel")
     public OpenAiStreamingChatModel qwenOnlineChatModel() {
         ChatModelEntity model = getAvailableModelConfig("qwen_online");

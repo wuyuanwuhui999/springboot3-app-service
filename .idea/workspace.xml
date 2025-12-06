@@ -6,9 +6,47 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/ChatModelConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/ChatModelConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/controller/CircleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/controller/CircleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/service/imp/CircleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/service/imp/CircleService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthGlobalFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/controller/MovieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/controller/MovieController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movie/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/movie/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/ChatClientConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/RedisConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/VectorStoreConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/VectorStoreConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/controller/PromptController.java" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/controller/PromptController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prompt/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/controller/SocialController.java" beforeDir="false" afterPath="$PROJECT_DIR$/social/src/main/java/com/player/social/controller/SocialController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/service/imp/SocialService.java" beforeDir="false" afterPath="$PROJECT_DIR$/social/src/main/java/com/player/social/service/imp/SocialService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/controller/TenantController.java" beforeDir="false" afterPath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/controller/TenantController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tenant/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/tenant/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/config/AuthInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/config/WebAppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/IUserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/imp/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/imp/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,10 +63,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="36NifFf6m7lnXHbBWmqm06YPZMU" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -36,6 +74,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.ChatApplication.executor": "Run",
+    "Application.GatewayApplication.executor": "Run",
+    "Application.MovieApplication.executor": "Run",
+    "Application.MusicApplication.executor": "Run",
+    "Application.PromptApplication.executor": "Run",
+    "Application.TenantApplication.executor": "Run",
+    "Application.UserApplication.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -45,6 +90,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.GatewayApplication.executor": "Run",
+    "Spring Boot.UserApplication.executor": "Run",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -65,19 +111,78 @@
         <option value="SpringBootApplicationConfigurationType" />
       </set>
     </option>
-    <option name="configurationStatuses">
-      <map>
-        <entry key="SpringBootApplicationConfigurationType">
-          <value>
-            <map>
-              <entry key="GatewayApplication" value="FAILED" />
-            </map>
-          </value>
-        </entry>
-      </map>
-    </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.GatewayApplication">
+  <component name="RunManager" selected="Application.MusicApplication">
+    <configuration name="ChatApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.chat.ChatApplication" />
+      <module name="chat" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.player.chat.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MovieApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.movie.MovieApplication" />
+      <module name="movie" />
+      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.player.movie.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MusicApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.music.MusicApplication" />
+      <module name="music" />
+      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.player.music.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PromptApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.prompt.PromptApplication" />
+      <module name="prompt" />
+      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.player.prompt.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TenantApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.tenant.TenantApplication" />
+      <module name="tenant" />
+      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.player.tenant.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="springboot3-app-service" />
       <method v="2">
@@ -89,98 +194,20 @@
       <option name="filePath" />
       <method v="2" />
     </configuration>
-    <configuration name="ChatApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="chat" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.chat.ChatApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="CircleApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="circle" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.circle.CircleApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="GatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <module name="gateway" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.gateway.GatewayApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM=" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.player.gateway.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="MovieApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="movie" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.movie.MovieApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="MusicApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="music" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.music.MusicApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PromptApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="prompt" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.prompt.PromptApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="SocialApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="social" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.social.SocialApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="TenantApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="tenant" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.tenant.TenantApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="UserApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="user" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.player.user.UserApplication" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
-      <item itemvalue="Spring Boot.ChatApplication" />
-      <item itemvalue="Spring Boot.CircleApplication" />
-      <item itemvalue="Spring Boot.MovieApplication" />
-      <item itemvalue="Spring Boot.MusicApplication" />
-      <item itemvalue="Spring Boot.PromptApplication" />
-      <item itemvalue="Spring Boot.SocialApplication" />
-      <item itemvalue="Spring Boot.TenantApplication" />
-      <item itemvalue="Spring Boot.UserApplication" />
-      <item itemvalue="Spring Boot.GatewayApplication" />
+      <item itemvalue="Application.MusicApplication" />
+      <item itemvalue="Application.MovieApplication" />
+      <item itemvalue="Application.PromptApplication" />
+      <item itemvalue="Application.TenantApplication" />
+      <item itemvalue="Application.ChatApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.GatewayApplication" />
+        <item itemvalue="Application.MusicApplication" />
+        <item itemvalue="Application.MovieApplication" />
+        <item itemvalue="Application.PromptApplication" />
+        <item itemvalue="Application.TenantApplication" />
+        <item itemvalue="Application.ChatApplication" />
       </list>
     </recent_temporary>
   </component>
@@ -188,7 +215,6 @@
     <attachedChunks>
       <set>
         <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.27397.103" />
       </set>
     </attachedChunks>
   </component>
@@ -199,7 +225,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1764853532177</updated>
-      <workItem from="1764853534118" duration="4744000" />
+      <workItem from="1764853534118" duration="7082000" />
     </task>
     <servers />
   </component>

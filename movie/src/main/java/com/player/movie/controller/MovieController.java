@@ -2,7 +2,6 @@ package com.player.movie.controller;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.utils.HttpUtils;
-import com.player.common.utils.JwtToken;
 import com.player.movie.service.IMovieService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class MovieController {
     @Autowired
     private IMovieService movieService;
-
-    @Value("${token.secret}")
-    private String secret;
 
     // 获取分类信息
     @GetMapping("/movie/findClassify")
@@ -36,8 +32,8 @@ public class MovieController {
 
     // 查询当前用户的使用天数，关注数，观看记录数，浏览记录数
     @GetMapping("/movie/getUserMsg")
-    public ResultEntity getUserMsg(@RequestHeader("Authorization") String token) {
-        return movieService.getUserMsg(token);
+    public ResultEntity getUserMsg(@RequestHeader("X-User-Id") String userId) {
+        return movieService.getUserMsg(userId);
     }
 
     // 按classify大类查询所有catory小类
@@ -115,58 +111,58 @@ public class MovieController {
     // 获取观看记录
     @GetMapping("/movie/getPlayRecord")
     public ResultEntity getPlayRecord(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum")int pageNum,
             @RequestParam("pageSize")int pageSize) {
-        return movieService.getPlayRecord(token,pageNum,pageSize);
+        return movieService.getPlayRecord(userId,pageNum,pageSize);
     }
 
     // 获取播放记录
     @PostMapping("/movie/savePlayRecord/{movieId}")
-    public ResultEntity savePlayRecord(@PathVariable("movieId") int movieId,@RequestHeader("Authorization") String token) {
-        return movieService.savePlayRecord(movieId,JwtToken.getId(token,secret));
+    public ResultEntity savePlayRecord(@PathVariable("movieId") int movieId,@RequestHeader("X-User-Id") String userId) {
+        return movieService.savePlayRecord(movieId,userId);
     }
 
     // 获取观看记录
     @GetMapping("/movie/getViewRecord")
     public ResultEntity getViewRecord(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum")int pageNum,
             @RequestParam("pageSize")int pageSize) {
-        return movieService.getViewRecord(JwtToken.getId(token,secret),pageNum,pageSize);
+        return movieService.getViewRecord(userId,pageNum,pageSize);
     }
 
     // 获取播放记录
     @PostMapping("/movie/saveViewRecord/{movieId}")
-    public ResultEntity saveViewRecord(@PathVariable("movieId")int movieId,@RequestHeader("Authorization") String token) {
-        return movieService.saveViewRecord(movieId,JwtToken.getId(token,secret));
+    public ResultEntity saveViewRecord(@PathVariable("movieId")int movieId,@RequestHeader("X-User-Id") String userId) {
+        return movieService.saveViewRecord(movieId,userId);
     }
 
     // 获取观看记录,请求地地址
     @GetMapping("/movie/getFavoriteList")
     public ResultEntity getFavorite(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum")int pageNum,
             @RequestParam("pageSize")int pageSize) {
-        return movieService.getFavoriteList(JwtToken.getId(token,secret),pageNum,pageSize);
+        return movieService.getFavoriteList(userId,pageNum,pageSize);
     }
 
     // 保存收藏记录
     @PostMapping("/movie/saveFavorite/{movieId}")
-    public ResultEntity saveFavorite(@PathVariable("movieId") int movieId,@RequestHeader("Authorization") String token) {
-        return movieService.saveFavorite(movieId,JwtToken.getId(token,secret));
+    public ResultEntity saveFavorite(@PathVariable("movieId") int movieId,@RequestHeader("X-User-Id") String userId) {
+        return movieService.saveFavorite(movieId,userId);
     }
 
     // 删除收藏
     @DeleteMapping("/movie/deleteFavorite/{movieId}")
-    public ResultEntity deleteFavorite(@PathVariable("movieId") int movieId,@RequestHeader("Authorization") String token) {
-        return movieService.deleteFavorite(movieId,JwtToken.getId(token,secret));
+    public ResultEntity deleteFavorite(@PathVariable("movieId") int movieId,@RequestHeader("X-User-Id") String userId) {
+        return movieService.deleteFavorite(movieId,userId);
     }
 
     // 查询是否已经收藏
     @GetMapping("/movie/isFavorite")
-    public ResultEntity isFavorite(@RequestParam("movieId") Long movieId,@RequestHeader("Authorization") String token) {
-        return movieService.isFavorite(movieId,JwtToken.getId(token,secret));
+    public ResultEntity isFavorite(@RequestParam("movieId") Long movieId,@RequestHeader("X-User-Id") String userId) {
+        return movieService.isFavorite(movieId,userId);
     }
 
     // 获取猜你想看的电影
@@ -204,10 +200,10 @@ public class MovieController {
     // 获取搜索历史
     @GetMapping("/movie/getSearchHistory")
     public ResultEntity getSearchHistory(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize")int pageSize
     ) {
-        return movieService.getSearchHistory(JwtToken.getId(token,secret),pageNum,pageSize);
+        return movieService.getSearchHistory(userId,pageNum,pageSize);
     }
 }

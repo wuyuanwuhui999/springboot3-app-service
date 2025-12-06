@@ -10,6 +10,7 @@ import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Slf4j
 @Configuration
@@ -21,6 +22,7 @@ public class ChatClientConfig {
     @Value("${spring.ai.ollama.chat.deepseek-model}")
     private String deepseekModel;
 
+    @Lazy
     @Bean(name = "qwenChatClient")
     public ChatClient qwenChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory) {
         log.info("创建Qwen聊天客户端，模型: {}", model.getDefaultOptions().getModel());
@@ -36,6 +38,7 @@ public class ChatClientConfig {
                 .build();
     }
 
+    @Lazy
     @Bean(name = "deepseekChatClient")
     public ChatClient deepseekChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory) {
         log.info("创建DeepSeek聊天客户端，模型: {}", model.getDefaultOptions().getModel());

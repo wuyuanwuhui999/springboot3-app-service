@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: gateway
+  main:
+    web-application-type: reactive  # 添加这行
   cloud:
     gateway:
       routes:

@@ -113,33 +113,38 @@ EMAIL_PASSWORD：邮箱授权码（不是登录QQ的密码）
 nginx(nginx.conf文件)配置如下   
 ```
 server{
-    listen       5001;
-    location /service/movie/ {
-        proxy_pass http://127.0.0.1:3001;
-        client_max_body_size  1g;
+    listen       3001;
+     # 新增WebSocket代理配置
+    location /service/circle/ws {
+        proxy_pass http://127.0.0.1:3009;  # 后端WebSocket服务地址
+        proxy_http_version 1.1;           # 强制使用HTTP/1.1协议
+        proxy_set_header Upgrade $http_upgrade;    # 传递协议升级头
+        proxy_set_header Connection $connection_upgrade;  # 保持连接升级
+        proxy_set_header Host $host;      # 传递原始Host头
+        proxy_read_timeout 86400s;        # 长连接超时设置（可选）
     }
-    location /service/music/ {
-        proxy_pass http://127.0.0.1:3002;
-        client_max_body_size  1g;
+
+     # 新增WebSocket代理配置
+    location /service/chat/ws/chat {
+        proxy_pass http://127.0.0.1:3009;  # 后端WebSocket服务地址
+        proxy_http_version 1.1;           # 强制使用HTTP/1.1协议
+        proxy_set_header Upgrade $http_upgrade;    # 传递协议升级头
+        proxy_set_header Connection $connection_upgrade;  # 保持连接升级
+        proxy_set_header Host $host;      # 传递原始Host头
+        proxy_read_timeout 86400s;        # 长连接超时设置（可选）
     }
-    location /service/social/ {
-        proxy_pass http://127.0.0.1:3003;
-        client_max_body_size  1g;
+    # 新增WebSocket代理配置
+    location /service/music/ws/chat {
+        proxy_pass http://127.0.0.1:3009;  # 后端WebSocket服务地址
+        proxy_http_version 1.1;           # 强制使用HTTP/1.1协议
+        proxy_set_header Upgrade $http_upgrade;    # 传递协议升级头
+        proxy_set_header Connection $connection_upgrade;  # 保持连接升级
+        proxy_set_header Host $host;      # 传递原始Host头
+        proxy_read_timeout 86400s;        # 长连接超时设置（可选）
     }
-    location /service/circle/ {
-        proxy_pass http://127.0.0.1:3004;
-        client_max_body_size  1g;
-    }
-    location /service/user/ {
-        proxy_pass http://127.0.0.1:3005;
-        client_max_body_size  1g;
-    }
-    location /service/user-getway/ {
-        proxy_pass http://127.0.0.1:3005;
-        client_max_body_size  1g;
-    }
-     location /service/ai/ {
-        proxy_pass http://127.0.0.1:3006;
+
+     location /service/ {
+        proxy_pass http://127.0.0.1:3009;
         client_max_body_size  1g;
     }
     location /static/ {

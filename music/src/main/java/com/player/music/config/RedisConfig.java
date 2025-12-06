@@ -8,6 +8,7 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -30,6 +31,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.password:#{null}}")
     private String redisPassword;
 
+    @Lazy
     @Bean
     public JedisPooled jedisPooled() {
         if (redisUsername != null && !redisUsername.isEmpty()
@@ -42,6 +44,7 @@ public class RedisConfig {
         }
     }
 
+    @Lazy
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -63,6 +66,7 @@ public class RedisConfig {
     }
 
     // 专门用于 Message 类型的 RedisTemplate
+    @Lazy
     @Bean
     public RedisTemplate<String, Message> messageRedisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Message> template = new RedisTemplate<>();

@@ -6,7 +6,6 @@ import com.player.user.entity.MailEntity;
 import com.player.user.entity.PasswordEntity;
 import com.player.user.entity.ResetPasswordEntity;
 import com.player.user.service.IUserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +18,9 @@ public class UserController {
     private IUserService userService;
 
     // 查询用户信息
-    @GetMapping("/user-getway/getUserData")
-    public ResultEntity getUserData(@RequestHeader(required = false,value = "Authorization") String token) {
-        return userService.getUserData(token);
+    @GetMapping("/user/getUserData")
+    public ResultEntity getUserData(@RequestHeader(value = "X-User-Id", required = false) String userId) {
+        return userService.getUserData(userId);
     }
 
     // 登录校验
@@ -29,13 +28,6 @@ public class UserController {
     public ResultEntity login(@RequestBody UserEntity userEntity) {
         return userService.login(userEntity);
     }
-
-    // 退出登录
-    @PostMapping("/user-getway/logout")
-    public ResultEntity logout(@RequestHeader("Authorization") String token) {
-        return userService.logout(token);
-    }
-
 
     // 注册
     @PostMapping("/user/register")
@@ -50,47 +42,47 @@ public class UserController {
     }
 
     // 更新用户信息
-    @PutMapping("/user-getway/updateUser")
-    public ResultEntity updateUser(@RequestHeader("Authorization") String token,@RequestBody UserEntity userEntity,HttpServletRequest request) {
-        return userService.updateUser(userEntity,token);
+    @PutMapping("/user/updateUser")
+    public ResultEntity updateUser(@RequestHeader("X-User-Id") String userId, @RequestBody UserEntity userEntity) {
+        return userService.updateUser(userEntity, userId);
     }
 
     // 修改密码
-    @PutMapping("/user-getway/updatePassword")
-    public ResultEntity updatePassword(@RequestHeader("Authorization") String token,@RequestBody PasswordEntity passwordEntity,HttpServletRequest request) {
-        return userService.updatePassword(passwordEntity,token);
+    @PutMapping("/user/updatePassword")
+    public ResultEntity updatePassword(@RequestHeader("X-User-Id") String userId, @RequestBody PasswordEntity passwordEntity) {
+        return userService.updatePassword(passwordEntity, userId);
     }
 
     // 头像上传
-    @PutMapping("/user-getway/updateAvater")
-    public ResultEntity updateAvater(@RequestHeader("Authorization") String token, @RequestBody Map map) {
-        return userService.updateAvater(token,map.get("img").toString());
+    @PutMapping("/user/updateAvater")
+    public ResultEntity updateAvater(@RequestHeader("X-User-Id") String userId, @RequestBody Map map) {
+        return userService.updateAvater(userId, map.get("img").toString());
     }
 
     // 找回密码
     @PostMapping("/user/sendEmailVertifyCode")
-    public ResultEntity sendEmailVertifyCode(@RequestBody MailEntity mailRequest ) {
+    public ResultEntity sendEmailVertifyCode(@RequestBody MailEntity mailRequest) {
         return userService.sendEmailVertifyCode(mailRequest);
     }
 
     // 更新密码
     @PostMapping("/user/resetPassword")
-    public ResultEntity resetPassword(@RequestBody ResetPasswordEntity resetPasswordEntity ) {
+    public ResultEntity resetPassword(@RequestBody ResetPasswordEntity resetPasswordEntity) {
         return userService.resetPassword(resetPasswordEntity);
     }
 
     // 邮箱登录
     @PostMapping("/user/loginByEmail")
-    public ResultEntity loginByEmail(@RequestBody MailEntity mailEntity ) {
+    public ResultEntity loginByEmail(@RequestBody MailEntity mailEntity) {
         return userService.loginByEmail(mailEntity);
     }
 
     // 搜索用户
-    @GetMapping("/user-getway/searchUsers")
+    @GetMapping("/user/searchUsers")
     public ResultEntity searchUsers(
             @RequestParam(value = "keyword") String keyword,
             @RequestParam(value = "tenantId") String tenantId
     ) {
-        return userService.searchUsers(keyword,tenantId);
+        return userService.searchUsers(keyword, tenantId);
     }
 }

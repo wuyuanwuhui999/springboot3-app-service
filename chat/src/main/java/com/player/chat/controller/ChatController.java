@@ -16,27 +16,25 @@ import java.io.IOException;
 @RequestMapping(value="/service/chat")
 @RestController
 public class ChatController {
-    @Value("${token.secret}")
-    private String secret;
 
     @Autowired
     private IChatService chatService;
 
     @PostMapping(value = "/chat",produces = "text/html;charset=utf-8")
     public Flux<String> chat(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody ChatParamsEntity chatParamsEntity
     ){
-        return chatService.chat(JwtToken.getId(token, secret), chatParamsEntity);
+        return chatService.chat(userId, chatParamsEntity);
     }
 
     @GetMapping("/getChatHistory")
     public ResultEntity getChatHistory(
-            @RequestHeader(value = "Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize") int pageSize
     ){
-        return chatService.getChatHistory(JwtToken.getId(token, secret), pageNum, pageSize);
+        return chatService.getChatHistory(userId, pageNum, pageSize);
     }
 
     @GetMapping("/getModelList")
@@ -47,53 +45,52 @@ public class ChatController {
     @PostMapping("/uploadDoc/{tenantId}/{directoryId}")
     public ResultEntity uploadDoc(
             @RequestParam("file") MultipartFile file,
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @PathVariable("tenantId") String tenantId,
             @PathVariable("directoryId") String directoryId
     ) throws IOException {
-        return chatService.uploadDoc(file,JwtToken.getId(token, secret),tenantId,directoryId);
+        return chatService.uploadDoc(file,userId,tenantId,directoryId);
     }
 
     @GetMapping("/getDocListByDirId")
     public ResultEntity getDocListByDirId(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("tenantId") String tenantId,
             @RequestParam("directoryId") String directoryId
     ) {
-        return chatService.getDocListByDirId(JwtToken.getId(token, secret),tenantId,directoryId);
+        return chatService.getDocListByDirId(userId,tenantId,directoryId);
     }
 
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("tenantId") String tenantId
     ) {
-        return chatService.getDocList(JwtToken.getId(token, secret),tenantId);
+        return chatService.getDocList(userId,tenantId);
     }
 
     @DeleteMapping("/deleteDoc/{docId}")
     public ResultEntity deleteDoc(
             @PathVariable("docId") String docId,
             @RequestParam(name = "directoryId",value = "public",required = false) String directoryId,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return chatService.deleteDoc(docId,JwtToken.getId(token, secret),directoryId);
+        return chatService.deleteDoc(docId,userId,directoryId);
     }
 
     @GetMapping("/getDirectoryList")
     public ResultEntity getDirectoryList(
             @RequestParam("tenantId") String tenantId,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return chatService.getDirectoryList(JwtToken.getId(token, secret),tenantId);
+        return chatService.getDirectoryList(userId,tenantId);
     }
 
     @PostMapping("/createDir")
     public ResultEntity createDir(
             @RequestBody DirectoryEntity directoryEntity,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        String userId = JwtToken.getId(token, secret);
         directoryEntity.setUserId(userId);
         return chatService.createDir(directoryEntity);
     }
@@ -101,17 +98,17 @@ public class ChatController {
     @PutMapping("/renameDir")
     public ResultEntity renameDir(
             @RequestBody DirectoryEntity directoryEntity,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        directoryEntity.setUserId(JwtToken.getId(token, secret));
+        directoryEntity.setUserId(userId);
         return chatService.renameDir(directoryEntity);
     }
 
     @PutMapping("/deleteDir/{directoryId}")
     public ResultEntity renameDir(
             @RequestParam("id") long directoryId,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return chatService.deleteDir(JwtToken.getId(token, secret),directoryId);
+        return chatService.deleteDir(userId,directoryId);
     }
 }

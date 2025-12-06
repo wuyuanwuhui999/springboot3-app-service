@@ -1,7 +1,7 @@
 package com.player.chat.service.imp;
 
 import com.player.chat.assistant.*;
-import com.player.gateway.chat.assistant.*;
+import com.player.chat.assistant.*;
 import com.player.chat.entity.ChatEntity;
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.entity.DirectoryEntity;

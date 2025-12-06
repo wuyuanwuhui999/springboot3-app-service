@@ -7,21 +7,19 @@ import com.player.user.entity.PasswordEntity;
 import com.player.user.entity.ResetPasswordEntity;
 
 public interface IUserService {
-    ResultEntity getUserData(String token);
+    ResultEntity getUserData(String userId);  // 参数改为userId
 
     ResultEntity login(UserEntity userEntity);
-
-    ResultEntity logout(String token);
 
     ResultEntity register(UserEntity userEntity);
 
     ResultEntity vertifyUser(UserEntity userEntity);
 
-    ResultEntity updateUser(UserEntity userEntity,String token);
+    ResultEntity updateUser(UserEntity userEntity, String userId);  // 参数改为userId
 
-    ResultEntity updatePassword(PasswordEntity passwordEntity, String token);
+    ResultEntity updatePassword(PasswordEntity passwordEntity, String userId);  // 参数改为userId
 
-    ResultEntity updateAvater(String token, String base64);
+    ResultEntity updateAvater(String userId, String base64);  // 参数改为userId
 
     ResultEntity resetPassword(ResetPasswordEntity resetPasswordEntity);
 
@@ -29,5 +27,5 @@ public interface IUserService {
 
     ResultEntity loginByEmail(MailEntity mailEntity);
 
-    ResultEntity searchUsers(String keyword,String tenantId);
+    ResultEntity searchUsers(String keyword, String tenantId);
 }

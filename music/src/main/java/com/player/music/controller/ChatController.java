@@ -23,20 +23,20 @@ public class ChatController {
 
     @PostMapping(value = "/chat",produces = "text/html;charset=utf-8")
     public Flux<String> chat(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody ChatParamsEntity chatParamsEntity
 
             ){
-        return chatService.chat(JwtToken.getId(token, secret), chatParamsEntity);
+        return chatService.chat(userId, chatParamsEntity);
     }
 
     @GetMapping("/getChatHistory")
     public ResultEntity getChatHistory(
-            @RequestHeader(value = "Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize") int pageSize
     ){
-        return chatService.getChatHistory(JwtToken.getId(token, secret), pageNum, pageSize);
+        return chatService.getChatHistory(userId, pageNum, pageSize);
     }
 
     @GetMapping("/getModelList")
@@ -47,23 +47,23 @@ public class ChatController {
     @PostMapping("/uploadDoc")
     public ResultEntity uploadDoc(
             @RequestParam("file") MultipartFile file,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) throws IOException {
-        return chatService.uploadDoc(file,JwtToken.getId(token, secret));
+        return chatService.uploadDoc(file,userId);
     }
 
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return chatService.getDocList(JwtToken.getId(token, secret));
+        return chatService.getDocList(userId);
     }
 
     @DeleteMapping("/deleteDoc/{docId}")
     public ResultEntity deleteDoc(
             @PathVariable("docId") String docId,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return chatService.deleteDoc(docId,JwtToken.getId(token, secret));
+        return chatService.deleteDoc(docId,userId);
     }
 }

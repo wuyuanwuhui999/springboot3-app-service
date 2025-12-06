@@ -2,7 +2,6 @@ server:
   port: 3007
 token:
   expiration-time: 2592000000 #token失效时间一个月 1000 * 60 * 60 * 24 * 30
-  secret: ${SECRET} #token秘钥
 app:
   appId: com.player.tenant
   appName: 租户中心

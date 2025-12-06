@@ -36,19 +36,19 @@ public class SocialController {
     // 新增评论
     @PostMapping("/social/insertComment")
     public ResultEntity insertComment(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody CommentEntity commentEntity
     ) {
-        return socialService.insertComment(token,commentEntity);
+        return socialService.insertComment(userId,commentEntity);
     }
 
     // 删除评论
     @DeleteMapping("/social/deleteComment/{id}")
     public ResultEntity deleteComment(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
             @PathVariable("id") int id
     ) {
-        return socialService.deleteComment(id,token);
+        return socialService.deleteComment(id,userId);
     }
 
     // 获取回复列表
@@ -65,9 +65,9 @@ public class SocialController {
     @PostMapping("/social/saveLike")
     public ResultEntity saveLike(
             @RequestBody LikeEntity likeEntity,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return socialService.saveLike(likeEntity,token);
+        return socialService.saveLike(likeEntity,userId);
     }
 
     // 删除收藏
@@ -75,9 +75,9 @@ public class SocialController {
     public ResultEntity deleteLike(
             @RequestParam("relationId") Long relationId,
             @RequestParam("type") String type,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return socialService.deleteLike(relationId,type,token);
+        return socialService.deleteLike(relationId,type,userId);
     }
 
     // 查询是否已经收藏
@@ -85,9 +85,9 @@ public class SocialController {
     public ResultEntity isLike(
             @RequestParam("relationId") Long relationId,
             @RequestParam("type") String type,
-            @RequestHeader("Authorization") String token
+            @RequestHeader("X-User-Id") String userId
     ) {
-        return socialService.isLike(relationId,type,token);
+        return socialService.isLike(relationId,type,userId);
     }
 
 

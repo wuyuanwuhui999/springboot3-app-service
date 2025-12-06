@@ -4,14 +4,12 @@ import com.alibaba.fastjson2.JSON;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import com.player.common.entity.UserEntity;
-import com.player.common.utils.JwtToken;
 import com.player.music.entity.MusicFavoriteDirectoryEntity;
 import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
 import com.player.music.mapper.MusicMapper;
 import com.player.music.service.IMusicService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class MusiceService implements IMusicService {
-
-    @Value("${token.secret}")
-    private String secret;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -90,18 +85,14 @@ public class MusiceService implements IMusicService {
      * @date: 2023-05-25 21:00
      */
     @Override
-    public ResultEntity getMusicListByClassifyId(String redisKey, int classifyId, int pageNum, int pageSize, boolean isRedis, String token) {
-        String uid = "";
-        if (!StringUtils.isEmpty(token)) {
-            uid = JwtToken.parseToken(token, UserEntity.class,secret).getId();
-        }
+    public ResultEntity getMusicListByClassifyId(String redisKey, int classifyId, int pageNum, int pageSize, boolean isRedis, String userId) {
         if(isRedis){
-            redisKey += "?classifyId=" + classifyId + "&pageNum=" + pageNum + "&pageSize=" + pageNum + "&uid=" + uid;
+            redisKey += "?classifyId=" + classifyId + "&pageNum=" + pageNum + "&pageSize=" + pageNum + "&userId=" + userId;
             String result = (String) redisTemplate.opsForValue().get(redisKey);
             if (!StringUtils.isEmpty(result)) {// 如果缓存中有数据
                 return JSON.parseObject(result, ResultEntity.class);
             } else {// 如果缓存中没有数据，从数据库中查询，并将查询结果写入缓存
-                ResultEntity resultEntity = findMusicListByClassifyId(classifyId, pageNum, pageSize, uid);
+                ResultEntity resultEntity = findMusicListByClassifyId(classifyId, pageNum, pageSize, userId);
                 // 修改后的代码
                 redisTemplate.opsForValue().set(
                         redisKey,
@@ -112,7 +103,7 @@ public class MusiceService implements IMusicService {
                 return resultEntity;
             }
         }else{
-            return findMusicListByClassifyId(classifyId, pageNum, pageSize,uid);
+            return findMusicListByClassifyId(classifyId, pageNum, pageSize,userId);
         }
     }
 
@@ -126,25 +117,17 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicAuthorListByCategoryId(String redisKey,String token,int categoryId, int pageNum, int pageSize) {
-        String uid = "";
-        if (!StringUtils.isEmpty(token)) {
-            uid = JwtToken.parseToken(token, UserEntity.class,secret).getId();
-        }
+    public ResultEntity getMusicAuthorListByCategoryId(String redisKey,String userId,int categoryId, int pageNum, int pageSize) {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicAuthorListByCategoryId(uid,categoryId, start, pageSize));
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicAuthorListByCategoryId(userId,categoryId, start, pageSize));
         Long singerTotal = musicMapper.getMusicAuthorTotal(categoryId);
         resultEntity.setTotal(singerTotal);
         return resultEntity;
     }
 
     @Override
-    public ResultEntity getMusicListByAuthorId(String redisKey,String token,int authorId, int pageNum, int pageSize) {
-        String uid = "";
-        if (!StringUtils.isEmpty(token)) {
-            uid = JwtToken.parseToken(token, UserEntity.class,secret).getId();
-        }
+    public ResultEntity getMusicListByAuthorId(String redisKey,String userId,int authorId, int pageNum, int pageSize) {
         redisKey += "?pageNum=" + pageNum + "&pageSize=" + pageSize + "&authorId=" + authorId;
         String result = (String) redisTemplate.opsForValue().get(redisKey);
         if (!StringUtils.isEmpty(result)) {
@@ -152,7 +135,7 @@ public class MusiceService implements IMusicService {
         } else {
             if (pageSize > 500) pageSize = 500;
             int start = (pageNum - 1) * pageSize;
-            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthorId(uid,authorId, start, pageSize));
+            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthorId(userId,authorId, start, pageSize));
             Long singerTotal = musicMapper.getMusicListByAuthorIdTotal(authorId);
             resultEntity.setTotal(singerTotal);
             return resultEntity;
@@ -161,35 +144,31 @@ public class MusiceService implements IMusicService {
 
 
     @Override
-    public ResultEntity getFavoriteAuthor(String token,int pageNum, int pageSize){
-        UserEntity userEntity = JwtToken.parseToken(token, UserEntity.class,secret);
+    public ResultEntity getFavoriteAuthor(String userId,int pageNum, int pageSize){
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getFavoriteAuthor(userEntity.getId(),start,pageSize));
-        Long mySingerCount = musicMapper.getFavoriteAuthorCount(userEntity.getId());
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getFavoriteAuthor(userId,start,pageSize));
+        Long mySingerCount = musicMapper.getFavoriteAuthorCount(userId);
         resultEntity.setTotal(mySingerCount);
         return resultEntity;
     }
 
     @Override
-    public ResultEntity insertFavoriteAuthor(String token,int authorId){
-        UserEntity userEntity = JwtToken.parseToken(token, UserEntity.class,secret);
-        return ResultUtil.success(musicMapper.insertFavoriteAuthor(userEntity.getId(),authorId));
+    public ResultEntity insertFavoriteAuthor(String userId,int authorId){
+        return ResultUtil.success(musicMapper.insertFavoriteAuthor(userId,authorId));
     }
 
     @Override
-    public ResultEntity deleteFavoriteAuthor(String token,int authorId){
-        UserEntity userEntity = JwtToken.parseToken(token, UserEntity.class,secret);
-        return ResultUtil.success(musicMapper.deleteFavoriteAuthor(userEntity.getId(),authorId));
+    public ResultEntity deleteFavoriteAuthor(String userId,int authorId){
+        return ResultUtil.success(musicMapper.deleteFavoriteAuthor(userId,authorId));
     }
 
     @Override
-    public ResultEntity getMusicRecord(String token, int pageNum, int pageSize){
-        UserEntity userEntity = JwtToken.parseToken(token, UserEntity.class,secret);
+    public ResultEntity getMusicRecord(String userId, int pageNum, int pageSize){
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicRecord(userEntity.getId(),start,pageSize));
-        Long mySingerCount = musicMapper.getMusicRecordCount(userEntity.getId());
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicRecord(userId,start,pageSize));
+        Long mySingerCount = musicMapper.getMusicRecordCount(userId);
         resultEntity.setTotal(mySingerCount);
         return resultEntity;
     }
@@ -202,8 +181,8 @@ public class MusiceService implements IMusicService {
      * @date: 2023-11-20 21:52
      */
     @Override
-    public ResultEntity insertMusicRecord(String token, MusicRecordEntity musicRecordEntity){
-        musicRecordEntity.setUserId(JwtToken.parseToken(token, UserEntity.class,secret).getId());
+    public ResultEntity insertMusicRecord(String userId, MusicRecordEntity musicRecordEntity){
+        musicRecordEntity.setUserId(userId);
         return ResultUtil.success(musicMapper.insertMusicRecord(musicRecordEntity));
     }
 
@@ -215,8 +194,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-01-05 21:50
      */
     @Override
-    public ResultEntity insertMusicLike(String token, int musicId){
-        return ResultUtil.success(musicMapper.insertMusicLike(JwtToken.parseToken(token, UserEntity.class,secret).getId(), musicId));
+    public ResultEntity insertMusicLike(String userId, int musicId){
+        return ResultUtil.success(musicMapper.insertMusicLike(userId, musicId));
     }
 
     /**
@@ -227,8 +206,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-01-05 21:50
      */
     @Override
-    public ResultEntity deleteMusicLike(String token, int id){
-        return ResultUtil.success(musicMapper.deleteMusicLike(JwtToken.parseToken(token, UserEntity.class,secret).getId(),id));
+    public ResultEntity deleteMusicLike(String userId, int id){
+        return ResultUtil.success(musicMapper.deleteMusicLike(userId,id));
     }
 
     /**
@@ -239,11 +218,11 @@ public class MusiceService implements IMusicService {
      * @date: 2024-01-05 21:50
      */
     @Override
-    public ResultEntity getMusicLike(String token, int pageNum, int pageSize){
+    public ResultEntity getMusicLike(String userId, int pageNum, int pageSize){
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicLike(JwtToken.parseToken(token, UserEntity.class,secret).getId(),start,pageSize));
-        Long mySingerCount = musicMapper.getMusicLikeCount(JwtToken.parseToken(token, UserEntity.class,secret).getId());
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicLike(userId,start,pageSize));
+        Long mySingerCount = musicMapper.getMusicLikeCount(userId);
         resultEntity.setTotal(mySingerCount);
         return resultEntity;
     }
@@ -256,17 +235,10 @@ public class MusiceService implements IMusicService {
      * @date: 2024-01-27 16:57
      */
     @Override
-    public ResultEntity searchMusic(String token, String keyword, int pageNum, int pageSize){
-        String uid = null;
-        if(!StringUtils.isEmpty(token)){
-            UserEntity userEntity =  JwtToken.parseToken(token, UserEntity.class,secret);
-            if(userEntity != null){
-                uid = userEntity.getId();
-            }
-        }
+    public ResultEntity searchMusic(String userId, String keyword, int pageNum, int pageSize){
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.searchMusic(uid,keyword,start,pageSize));
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.searchMusic(userId,keyword,start,pageSize));
         Long mySingerCount = musicMapper.searchMusicCount(keyword);
         resultEntity.setTotal(mySingerCount);
         return resultEntity;
@@ -305,8 +277,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-06-2 11:14
      */
     @Override
-    public ResultEntity getFavoriteDirectory(String token,Long musicId) {
-        List<MusicFavoriteDirectoryEntity> favoriteDirectory = musicMapper.getFavoriteDirectory(JwtToken.parseToken(token, UserEntity.class,secret).getId(), musicId);
+    public ResultEntity getFavoriteDirectory(String userId,Long musicId) {
+        List<MusicFavoriteDirectoryEntity> favoriteDirectory = musicMapper.getFavoriteDirectory(userId, musicId);
         return ResultUtil.success(favoriteDirectory);
     }
 
@@ -318,8 +290,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-06-2 11:15
      */
     @Override
-    public ResultEntity getMusicListByFavoriteId(String token,Long favoriteId,int pageNum,int pageSize) {
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByFavoriteId(JwtToken.parseToken(token, UserEntity.class,secret).getId(),favoriteId,(pageNum - 1) * pageSize,pageSize));
+    public ResultEntity getMusicListByFavoriteId(String userId,Long favoriteId,int pageNum,int pageSize) {
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByFavoriteId(userId,favoriteId,(pageNum - 1) * pageSize,pageSize));
         resultEntity.setTotal(musicMapper.getMusicCountByFavoriteId(favoriteId));
         return resultEntity;
     }
@@ -332,8 +304,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-06-2 11:15
      */
     @Override
-    public ResultEntity insertFavoriteDirectory(String token, MusicFavoriteDirectoryEntity favoriteDirectoryEntity) {
-        String uid = JwtToken.parseToken(token, UserEntity.class,secret).getId();
+    public ResultEntity insertFavoriteDirectory(String userId, MusicFavoriteDirectoryEntity favoriteDirectoryEntity) {
+        String uid = userId;
         favoriteDirectoryEntity.setUserId(uid);
         musicMapper.insertFavoriteDirectory(favoriteDirectoryEntity);
         return ResultUtil.success(musicMapper.getFavoriteDirectoryById(favoriteDirectoryEntity.getId()));
@@ -348,10 +320,9 @@ public class MusiceService implements IMusicService {
      */
     @Transactional
     @Override
-    public ResultEntity deleteFavoriteDirectory(String token, Long favoriteId) {
-        String id = JwtToken.parseToken(token, UserEntity.class, secret).getId();
-        musicMapper.deleteMusicFavoriteByFavoriteId(id,favoriteId);
-        return ResultUtil.success(musicMapper.deleteFavoriteDirectory(id,favoriteId));
+    public ResultEntity deleteFavoriteDirectory(String userId, Long favoriteId) {
+        musicMapper.deleteMusicFavoriteByFavoriteId(userId,favoriteId);
+        return ResultUtil.success(musicMapper.deleteFavoriteDirectory(userId,favoriteId));
     }
 
     /**
@@ -362,8 +333,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-06-2 11:16
      */
     @Override
-    public ResultEntity updateFavoriteDirectory(String token, Long favoriteId,String name) {
-        return ResultUtil.success(musicMapper.updateFavoriteDirectory(JwtToken.parseToken(token, UserEntity.class,secret).getId(),favoriteId,name));
+    public ResultEntity updateFavoriteDirectory(String userId, Long favoriteId,String name) {
+        return ResultUtil.success(musicMapper.updateFavoriteDirectory(userId,favoriteId,name));
     }
 
     /**
@@ -374,8 +345,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-06-2 11:17
      */
     @Override
-    public ResultEntity insertMusicFavorite(String token,Long musicId, List<MusicFavoriteEntity> myMusicFavoriteEntityList) {
-        String uid = JwtToken.parseToken(token, UserEntity.class,secret).getId();
+    public ResultEntity insertMusicFavorite(String userId,Long musicId, List<MusicFavoriteEntity> myMusicFavoriteEntityList) {
+        String uid = userId;
         Long deleteLength = musicMapper.deleteMusicFavorite(uid, musicId);
         if(myMusicFavoriteEntityList.size() == 0){
             return ResultUtil.success(deleteLength);
@@ -396,7 +367,7 @@ public class MusiceService implements IMusicService {
      * @date: 2024-06-2 11:17
      */
     @Override
-    public ResultEntity isMusicFavorite(String token,Long musicId) {
-        return ResultUtil.success(musicMapper.isMusicFavorite(JwtToken.parseToken(token, UserEntity.class,secret).getId(),musicId));
+    public ResultEntity isMusicFavorite(String userId,Long musicId) {
+        return ResultUtil.success(musicMapper.isMusicFavorite(userId,musicId));
     }
 }

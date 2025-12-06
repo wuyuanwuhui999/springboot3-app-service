@@ -1,19 +1,14 @@
 package com.player.social.service.imp;
 
 import com.player.common.entity.*;
-import com.player.common.utils.JwtToken;
 import com.player.social.mapper.SocialMapper;
 import com.player.social.service.ISocialService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SocialService implements ISocialService {
 
-    @Value("${token.secret}")
-    private String secret;
-    
     @Autowired
     private SocialMapper socialMapper;
 
@@ -37,8 +32,8 @@ public class SocialService implements ISocialService {
      * @date: 2021-08-21 23:15
      */
     @Override
-    public ResultEntity insertComment(String token, CommentEntity commentEntity){
-        commentEntity.setUserId(JwtToken.getId(token,secret));
+    public ResultEntity insertComment(String userId, CommentEntity commentEntity){
+        commentEntity.setUserId(userId);
         socialMapper.insertComment(commentEntity);
         return ResultUtil.success(socialMapper.getCommentItem(commentEntity.getId(),commentEntity.getType()));
     }
@@ -49,8 +44,8 @@ public class SocialService implements ISocialService {
      * @date: 2021-08-21 23:15
      */
     @Override
-    public ResultEntity deleteComment(int id,String token){
-        return ResultUtil.success(socialMapper.deleteComment(id,JwtToken.getId(token,secret)));
+    public ResultEntity deleteComment(int id,String userId){
+        return ResultUtil.success(socialMapper.deleteComment(id,userId));
     }
 
     /**
@@ -71,8 +66,8 @@ public class SocialService implements ISocialService {
      * @date: 2020-12-25 22:29
      */
     @Override
-    public ResultEntity saveLike(LikeEntity likeEntity, String token) {
-        likeEntity.setUserId(JwtToken.getId(token,secret));
+    public ResultEntity saveLike(LikeEntity likeEntity, String userId) {
+        likeEntity.setUserId(userId);
         socialMapper.saveLike(likeEntity);
         LikeEntity likeById = socialMapper.getLikeById(likeEntity.getId());
         return ResultUtil.success(likeById);
@@ -84,15 +79,13 @@ public class SocialService implements ISocialService {
      * @date: 2021-03-07 16:10
      */
     @Override
-    public ResultEntity deleteLike(Long relationId,String type,String token) {
-        UserEntity userEntity = JwtToken.parseToken(token, UserEntity.class,secret);
-        return ResultUtil.success(socialMapper.deleteLike(relationId,type,userEntity.getId()));
+    public ResultEntity deleteLike(Long relationId,String type,String userId) {
+        return ResultUtil.success(socialMapper.deleteLike(relationId,type,userId));
     }
 
     @Override
-    public ResultEntity isLike(Long relationId,String type,String token) {
-        UserEntity userEntity = JwtToken.parseToken(token, UserEntity.class,secret);
-        return ResultUtil.success(socialMapper.isLike(relationId,type,userEntity.getId()));
+    public ResultEntity isLike(Long relationId,String type,String userId) {
+        return ResultUtil.success(socialMapper.isLike(relationId,type,userId));
     }
 
     /**

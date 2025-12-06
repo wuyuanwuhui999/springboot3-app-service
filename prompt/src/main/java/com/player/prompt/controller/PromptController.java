@@ -11,45 +11,43 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/service/prompt")
 @RestController
 public class PromptController {
-    @Value("${token.secret}")
-    private String secret;
-
+    
     @Autowired
     private IPromptService promptService;
 
     @PostMapping("/insertPrompt")
     public ResultEntity insertPrompt(@RequestBody UserPromptEntity userPromptEntity,
-                                     @RequestHeader(value = "Authorization", required = false) String token) {
-        return promptService.insertPrompt(userPromptEntity, JwtToken.getId(token,secret));
+                                     @RequestHeader("X-User-Id") String userId) {
+        return promptService.insertPrompt(userPromptEntity, userId);
     }
 
     @DeleteMapping("/deletePrompt/{tenantId}/{id}")
     public ResultEntity deletePrompt(@PathVariable String id,
                                      @PathVariable String tenantId,
-                                     @RequestHeader(value = "Authorization", required = false) String token) {
-        return promptService.deletePrompt(id, JwtToken.getId(token,secret),tenantId);
+                                     @RequestHeader("X-User-Id") String userId) {
+        return promptService.deletePrompt(id, userId,tenantId);
     }
 
     @PutMapping("/updatePrompt")
     public ResultEntity updatePrompt(@RequestBody UserPromptEntity userPromptEntity,
-                                     @RequestHeader(value = "Authorization", required = false) String token) {
-        return promptService.updatePrompt(userPromptEntity, JwtToken.getId(token,secret));
+                                     @RequestHeader("X-User-Id") String userId) {
+        return promptService.updatePrompt(userPromptEntity, userId);
     }
 
     @GetMapping("/getPromptById/{tenantId}/{id}")
     public ResultEntity getPromptById(@PathVariable String id,
                                       @PathVariable String tenantId,
-                                      @RequestHeader(value = "Authorization", required = false) String token) {
-        return promptService.getPromptById(id, JwtToken.getId(token,secret),tenantId);
+                                      @RequestHeader("X-User-Id") String userId) {
+        return promptService.getPromptById(id, userId,tenantId);
     }
 
     @GetMapping("/getPromptList")
-    public ResultEntity getPromptList(@RequestHeader(value = "Authorization", required = false) String token,
+    public ResultEntity getPromptList(@RequestHeader("X-User-Id") String userId,
                                       @RequestParam(value = "tenantId",required = true) String tenantId,
                                       @RequestParam(value = "content", required = false) String content,
                                       @RequestParam(value = "industry", required = false) String industry,
                                       @RequestParam(value = "tags", required = false) String tags) {
-        return promptService.getPromptList(JwtToken.getId(token,secret),tenantId, content, industry, tags);
+        return promptService.getPromptList(userId,tenantId, content, industry, tags);
     }
 
     @GetMapping("/getPromptCategoryList")
@@ -63,47 +61,49 @@ public class PromptController {
             @RequestParam(value = "pageNum") int pageNum,
             @RequestParam(value = "pageSize") int pageSize,
             @RequestParam(value = "keyword",required = false)String  keyword,
-            @RequestHeader(value = "Authorization")String token
+            @RequestHeader("X-User-Id") String userId
             ) {
-        return promptService.getSystemPromptListByCategory(categoryId,keyword,JwtToken.getId(token,secret),pageNum,pageSize);
+        return promptService.getSystemPromptListByCategory(categoryId,keyword,userId,pageNum,pageSize);
     }
 
     @PostMapping("/insertCollectPrompt/{tenantId}/{promptId}")
     public ResultEntity insertCollectPrompt(
             @PathVariable("tenantId") String tenantId,
             @PathVariable("promptId") String promptId,
-            @RequestHeader(value = "Authorization")String token)
+            @RequestHeader("X-User-Id") String userId
+    )
     {
-        return promptService.insertCollectPrompt(tenantId,promptId,JwtToken.getId(token,secret));
+        return promptService.insertCollectPrompt(tenantId,promptId,userId);
     }
 
     @DeleteMapping("/deleteCollectPrompt/{tenantId}/{promptId}")
     public ResultEntity deleteCollectPrompt(
             @PathVariable("tenantId") String tenantId,
             @PathVariable("promptId") String promptId,
-            @RequestHeader(value = "Authorization")String token)
+            @RequestHeader("X-User-Id") String userId
+    )
     {
-        return promptService.deleteCollectPrompt(tenantId,promptId,JwtToken.getId(token,secret));
+        return promptService.deleteCollectPrompt(tenantId,promptId,userId);
     }
 
     @GetMapping("/getMyCollectPromptCategory")
     public ResultEntity getMyCollectPromptCategory(
             @RequestParam("tenantId") String tenantId,
-            @RequestHeader(value = "Authorization")String token
+            @RequestHeader("X-User-Id") String userId
     )
     {
-        return promptService.getMyCollectPromptCategory(tenantId,JwtToken.getId(token,secret));
+        return promptService.getMyCollectPromptCategory(tenantId,userId);
     }
 
     @GetMapping("/getMyCollectPromptList")
     public ResultEntity getMyCollectPromptList(
             @RequestParam(value = "tenantId") String tenantId,
             @RequestParam(value = "categoryId", required = false) String categoryId,
-            @RequestHeader(value = "Authorization")String token,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam(value = "pageNum")int pageNum,
             @RequestParam(value = "pageSize")int pageSize
     )
     {
-        return promptService.getMyCollectPromptList(tenantId,categoryId,JwtToken.getId(token,secret),pageNum,pageSize);
+        return promptService.getMyCollectPromptList(tenantId,categoryId,userId,pageNum,pageSize);
     }
 }

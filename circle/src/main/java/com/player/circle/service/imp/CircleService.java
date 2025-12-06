@@ -6,9 +6,7 @@ import com.player.circle.mapper.CircleMapper;
 import com.player.circle.service.ICircleService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
-import com.player.common.entity.UserEntity;
 import com.player.common.utils.Common;
-import com.player.common.utils.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,8 +18,6 @@ import java.util.UUID;
 
 @Service
 public class CircleService implements ICircleService {
-    @Value("${token.secret}")
-    private String secret;
 
     @Value("${static.upload-path}")
     private String uploadPath;
@@ -66,7 +62,7 @@ public class CircleService implements ICircleService {
      * @date: 2022-12-03 16:02
      */
     @Override
-    public ResultEntity insertCircle(CircleEntity circleEntity, String token){
+    public ResultEntity insertCircle(CircleEntity circleEntity, String userId){
         if(!StringUtils.isEmpty(circleEntity.getImgs())){
             String[] base64Imgs = circleEntity.getImgs().split(",");
             String imgs = "";
@@ -83,7 +79,7 @@ public class CircleService implements ICircleService {
             circleEntity.setImgs(imgs);
         }
         webSocketHandler.broadcastMessage("有一条新消息");
-        circleEntity.setUserId(JwtToken.parseToken(token, UserEntity.class,secret).getId());
+        circleEntity.setUserId(userId);
         return ResultUtil.success(circleMapper.insertCircle(circleEntity));
     }
 

@@ -30,8 +30,11 @@ public class CircleController {
 
     // 保存图片和文字
     @PostMapping("/circle/insertCircle")
-    public ResultEntity saveSay(@RequestBody CircleEntity circleEntity, @RequestHeader("Authorization") String token) {
-        return circleService.insertCircle(circleEntity,token);
+    public ResultEntity saveSay(
+            @RequestBody CircleEntity circleEntity,
+            @RequestHeader("X-User-Id") String userId
+    ) {
+        return circleService.insertCircle(circleEntity,userId);
     }
 
     // 保存图片和文字
