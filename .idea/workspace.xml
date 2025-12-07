@@ -6,47 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/ChatModelConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/ChatModelConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/controller/ChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/controller/CircleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/controller/CircleController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/service/imp/CircleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/service/imp/CircleService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/java/com/player/gateway/filter/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/controller/MovieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/controller/MovieController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/movie/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/ChatClientConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/RedisConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/VectorStoreConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/VectorStoreConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/ChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/controller/PromptController.java" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/controller/PromptController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/controller/SocialController.java" beforeDir="false" afterPath="$PROJECT_DIR$/social/src/main/java/com/player/social/controller/SocialController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/service/imp/SocialService.java" beforeDir="false" afterPath="$PROJECT_DIR$/social/src/main/java/com/player/social/service/imp/SocialService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/controller/TenantController.java" beforeDir="false" afterPath="$PROJECT_DIR$/tenant/src/main/java/com/player/tenant/controller/TenantController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenant/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/tenant/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/config/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/config/WebAppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/IUserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/imp/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/service/imp/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,14 +75,14 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Application.MusicApplication">
-    <configuration name="ChatApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.player.chat.ChatApplication" />
-      <module name="chat" />
+  <component name="RunManager" selected="Application.GatewayApplication">
+    <configuration name="GatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.gateway.GatewayApplication" />
+      <module name="gateway" />
       <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.player.chat.*" />
+          <option name="PATTERN" value="com.player.gateway.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -144,7 +107,7 @@
     <configuration name="MusicApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.player.music.MusicApplication" />
       <module name="music" />
-      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.player.music.*" />
@@ -169,13 +132,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TenantApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.player.tenant.TenantApplication" />
-      <module name="tenant" />
-      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+    <configuration name="UserApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.user.UserApplication" />
+      <module name="user" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.player.tenant.*" />
+          <option name="PATTERN" value="com.player.user.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -195,19 +158,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Application.UserApplication" />
+      <item itemvalue="Application.GatewayApplication" />
       <item itemvalue="Application.MusicApplication" />
       <item itemvalue="Application.MovieApplication" />
       <item itemvalue="Application.PromptApplication" />
-      <item itemvalue="Application.TenantApplication" />
-      <item itemvalue="Application.ChatApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.GatewayApplication" />
+        <item itemvalue="Application.UserApplication" />
         <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.MovieApplication" />
         <item itemvalue="Application.PromptApplication" />
-        <item itemvalue="Application.TenantApplication" />
-        <item itemvalue="Application.ChatApplication" />
       </list>
     </recent_temporary>
   </component>

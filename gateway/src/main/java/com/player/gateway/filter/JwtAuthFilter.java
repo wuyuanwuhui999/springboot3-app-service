@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class JwtAuthFilter implements GlobalFilter {
 
     @Value("${jwt.secret}")
-    private String jwtSecret; // 注意：这里读取的是 ${jwt.secret}，与 JwtToken 一致
+    private String jwtSecret;
 
     private static final List<String> WHITE_LIST = List.of(
             "/service/user/register",
@@ -35,7 +35,11 @@ public class JwtAuthFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
+        // 调试日志（生产环境请移除）
+        System.out.println("JwtAuthFilter path: " + path);
+
         if (isWhiteListPath(path)) {
+            System.out.println("White list path: " + path + " - skipping auth");
             return chain.filter(exchange);
         }
 
@@ -47,13 +51,11 @@ public class JwtAuthFilter implements GlobalFilter {
         String token = authHeader.substring(7);
 
         try {
-            // ✅ 复用 JwtToken 工具类解析出 UserEntity
             UserEntity user = JwtToken.parseToken(token, UserEntity.class, jwtSecret);
             if (user == null || user.getId() == null) {
                 return unauthorized(exchange, "Invalid token: user not found");
             }
 
-            // 透传用户 ID 到下游
             ServerWebExchange modifiedExchange = exchange.mutate()
                     .request(exchange.getRequest().mutate()
                             .header("X-User-Id", user.getId())

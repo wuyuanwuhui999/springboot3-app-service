@@ -13,57 +13,55 @@ spring:
           uri: http://localhost:3001
           predicates:
             - Path=/service/movie/**
-          filters:
-            - StripPrefix=1
 
         - id: music
           uri: http://localhost:3002
           predicates:
             - Path=/service/music/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: user
-          uri: http://localhost:3003
+          uri: http://localhost:3005
           predicates:
             - Path=/service/user/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: circle
           uri: http://localhost:3004
           predicates:
             - Path=/service/circle/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: social
-          uri: http://localhost:3005
+          uri: http://localhost:3003
           predicates:
             - Path=/service/social/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: chat
           uri: http://localhost:3006
           predicates:
             - Path=/service/chat/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: tenant
           uri: http://localhost:3007
           predicates:
             - Path=/service/tenant/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: prompt
           uri: http://localhost:3008
           predicates:
             - Path=/service/prompt/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
@@ -86,3 +84,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+logging:
+  level:
+    reactor.netty.http.client: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.filter: TRACE
+    org.springframework.cloud.gateway.route: TRACE
