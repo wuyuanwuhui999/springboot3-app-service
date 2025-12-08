@@ -1,9 +1,11 @@
 package com.player.gateway.mapper;
 
-import org.springframework.stereotype.Repository;
 import com.player.gateway.entity.LogEntity;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Mapper
 @Repository
 public interface LogMapper {
 
@@ -15,5 +17,12 @@ public interface LogMapper {
     /**
      * 根据请求ID更新响应信息
      */
-    int updateResponseInfo(String requestId, Integer responseStatus, String responseBody, String responseHeaders, Long executeTime, String errorMessage);
+    int updateResponseInfo(
+            @Param("requestId") String requestId,
+            @Param("responseStatus") Integer responseStatus,
+            @Param("responseBody") String responseBody,
+            @Param("responseHeaders") String responseHeaders,
+            @Param("executeTime") Long executeTime,
+            @Param("errorMessage") String errorMessage
+    );
 }
