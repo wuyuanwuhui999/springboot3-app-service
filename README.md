@@ -110,10 +110,23 @@ MYSQL_PASSWORD：数据库密码
 EMAIL：邮箱地址   
 EMAIL_PASSWORD：邮箱授权码（不是登录QQ的密码）   
 
+nacos common-config.yaml配置如下
+```yaml
+# MySQL配置
+MYSQL_PASSWORD: your_mysql_password_123
+
+# 邮箱配置
+EMAIL: your_email@qq.com
+EMAIL_PASSWORD: your_email_auth_code_123
+
+# Token密钥
+SECRET: WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM=
+```
+
 nginx(nginx.conf文件)配置如下   
 ```
 server{
-    listen       3001;
+    listen       3000;
      # 新增WebSocket代理配置
     location /service/circle/ws {
         proxy_pass http://127.0.0.1:3009;  # 后端WebSocket服务地址
