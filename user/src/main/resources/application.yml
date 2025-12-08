@@ -61,7 +61,28 @@ spring:
     testOnReturn: false #归还连接时检测连接是否有效
     timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
     minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+  config:
+    # Spring Cloud 2021+的新配置方式
+    import:
+      - optional:nacos:common-config.yml?group=DEFAULT_GROUP
+      - optional:nacos:${spring.application.name}.yml?group=DEFAULT_GROUP
 
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    nacos:
+      # 通用配置
+      config:
+        server-addr: localhost:8848
+        file-extension: yml
+        group: DEFAULT_GROUP
+        namespace: public
+        # 添加以下认证配置
+        username: nacos  # Nacos 默认用户名
+        password: nacos  # Nacos 默认密码
+        # 禁用bootstrap检查
+        import-check:
+          enabled: false
 #mybatis:
 #  mapper-locations: classpath:mapper/*Mapper.xml
 

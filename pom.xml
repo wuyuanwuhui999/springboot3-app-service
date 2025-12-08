@@ -55,6 +55,7 @@
         <spring-cloud-starter-bootstrap.version>5.0.0</spring-cloud-starter-bootstrap.version>
         <spring-boot-starter-actuator.version>3.4.5</spring-boot-starter-actuator.version>
         <spring-cloud-starter-gateway.version>4.2.6</spring-cloud-starter-gateway.version>
+        <spring-cloud-starter-alibaba-nacos-config.version>2025.0.0.0</spring-cloud-starter-alibaba-nacos-config.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->
@@ -293,6 +294,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-gateway</artifactId>
                 <version>${spring-cloud-starter-gateway.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.alibaba.cloud/spring-cloud-starter-alibaba-nacos-config -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+                <version>${spring-cloud-starter-alibaba-nacos-config.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

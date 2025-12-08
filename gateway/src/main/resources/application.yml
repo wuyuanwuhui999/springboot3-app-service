@@ -74,6 +74,28 @@ spring:
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
+    compatibility-verifier:
+      enabled: false
+    nacos:
+      # 通用配置
+      config:
+        server-addr: localhost:8848
+        file-extension: yml
+        group: DEFAULT_GROUP
+        namespace: public
+        # 添加以下认证配置
+        username: nacos  # Nacos 默认用户名
+        password: nacos  # Nacos 默认密码
+        # 禁用bootstrap检查
+        import-check:
+          enabled: false
+  config:
+    # Spring Cloud 2021+的新配置方式
+    import:
+      - optional:nacos:common-config.yml?group=DEFAULT_GROUP
+      - optional:nacos:${spring.application.name}.yml?group=DEFAULT_GROUP
+
+
   redis:
     host: localhost
     port: 6379
