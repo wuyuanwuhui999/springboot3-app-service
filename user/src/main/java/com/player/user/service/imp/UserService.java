@@ -58,23 +58,14 @@ public class UserService implements IUserService {
      */
     @Override
     public ResultEntity getUserData(String userId) {
-        UserEntity userEntity;
-        if (StringUtils.isEmpty(userId)) {
-            // 如果用户ID为空，随机从数据库中查询一个公共的账号
-            userEntity = userMapper.getUserData();
-        } else {
-            // 根据用户ID获取用户数据
-            userEntity = userMapper.getMyUserData(userId);
-        }
+        UserEntity userEntity = userMapper.getMyUserData(userId);
 
         // 注意：不再生成新的token，因为网关已经处理了token验证
         // 如果还需要生成token，可以保留这部分逻辑
         String newToken = null; // 如果需要生成token，可以使用原有逻辑
 
-        if (userEntity != null && !StringUtils.isEmpty(userId)) {
-            // 如果需要生成新token并存到Redis
-            // newToken = JwtToken.createToken(userEntity,secret);
-            // redisTemplate.opsForValue().set(newToken, "1",30, TimeUnit.DAYS);
+        if (userEntity != null) {
+             newToken = JwtToken.createToken(userEntity,secret);
         }
 
         return ResultUtil.success(userEntity, null, newToken);

@@ -5,12 +5,8 @@
         SELECT id,user_account,create_date,update_date,username,telephone,email,avater,birthday,sign,sex,role,region,disabled,permission from  user
     </sql>
 
-    <select id="getUserData"  resultType="com.player.common.entity.UserEntity">
-        <include refid="userData"></include> WHERE role ='public' and disabled = 0  order by rand() LIMIT 1
-    </select>
-
     <select id="getMyUserData"  resultType="com.player.common.entity.UserEntity">
-        <include refid="userData"></include> WHERE user_account = #{userAccount} and disabled = 0
+        <include refid="userData"></include> WHERE id = #{userAccount} and disabled = 0
     </select>
 
     <select id="login" resultType="com.player.common.entity.UserEntity" parameterType="com.player.common.entity.UserEntity">

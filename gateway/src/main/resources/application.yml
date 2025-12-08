@@ -49,6 +49,14 @@ spring:
           filters:
             - StripPrefix=0
 
+        # WebSocket 路由（需要特殊处理）
+        - id: chat_websocket
+          uri: ws://localhost:3006
+          predicates:
+            - Path=/service/chat/ws/**
+          filters:
+            - StripPrefix=0
+
         - id: tenant
           uri: http://localhost:3007
           predicates:
