@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -35,17 +36,21 @@ public class JwtAuthFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
-        // 调试日志（生产环境请移除）
-        System.out.println("JwtAuthFilter path: " + path);
+        // 生成请求ID并添加到header
+        String requestId = UUID.randomUUID().toString().replace("-", "");
+        ServerWebExchange modifiedExchange = exchange.mutate()
+                .request(exchange.getRequest().mutate()
+                        .header("X-Request-ID", requestId)
+                        .build())
+                .build();
 
         if (isWhiteListPath(path)) {
-            System.out.println("White list path: " + path + " - skipping auth");
-            return chain.filter(exchange);
+            return chain.filter(modifiedExchange);
         }
 
-        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
+        String authHeader = modifiedExchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return unauthorized(exchange, "Missing or invalid Authorization header");
+            return unauthorized(modifiedExchange, "Missing or invalid Authorization header");
         }
 
         String token = authHeader.substring(7);
@@ -53,19 +58,19 @@ public class JwtAuthFilter implements GlobalFilter {
         try {
             UserEntity user = JwtToken.parseToken(token, UserEntity.class, jwtSecret);
             if (user == null || user.getId() == null) {
-                return unauthorized(exchange, "Invalid token: user not found");
+                return unauthorized(modifiedExchange, "Invalid token: user not found");
             }
 
-            ServerWebExchange modifiedExchange = exchange.mutate()
-                    .request(exchange.getRequest().mutate()
+            ServerWebExchange userExchange = modifiedExchange.mutate()
+                    .request(modifiedExchange.getRequest().mutate()
                             .header("X-User-Id", user.getId())
                             .build())
                     .build();
 
-            return chain.filter(modifiedExchange);
+            return chain.filter(userExchange);
 
         } catch (Exception e) {
-            return unauthorized(exchange, "Invalid or expired token");
+            return unauthorized(modifiedExchange, "Invalid or expired token");
         }
     }
 

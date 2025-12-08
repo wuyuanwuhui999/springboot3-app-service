@@ -72,6 +72,20 @@ spring:
     password: ""
     database: 0
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/play?characterEncoding=utf-8
+    username: root
+    password: ${MYSQL_PASSWORD}
+    driverClassName: com.mysql.jdbc.Driver
+    initialSize: 5  #初始建立连接数量
+    minIdle: 5  #最小连接数量
+    maxActive: 20 #最大连接数量
+    maxWait: 10000  #获取连接最大等待时间，毫秒
+    testOnBorrow: true #申请连接时检测连接是否有效
+    testOnReturn: false #归还连接时检测连接是否有效
+    timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
+    minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+
 jwt:
   secret: ${SECRET}
   expiration: 86400000  # 24小时（毫秒）
@@ -85,9 +99,28 @@ management:
     health:
       show-details: always
 
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: com.player.gateway.entity
+  configuration:
+    use-actual-param-name: true
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 logging:
   level:
     reactor.netty.http.client: DEBUG
     org.springframework.cloud.gateway: DEBUG
     org.springframework.cloud.gateway.filter: TRACE
     org.springframework.cloud.gateway.route: TRACE
+    com.player.gateway: INFO
+
+gateway:
+  log:
+    enabled: true
+    max-request-body-size: 5000  # 最大请求体记录大小
+    max-response-body-size: 5000  # 最大响应体记录大小
+    sensitive-paths:
+      - /service/user/login
+      - /service/user/loginByEmail
+      - /service/user/register
