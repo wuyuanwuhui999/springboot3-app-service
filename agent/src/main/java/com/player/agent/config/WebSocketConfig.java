@@ -1,6 +1,6 @@
-package com.player.music.config;
+package com.player.agent.config;
 
-import com.player.music.handler.ChatWebSocketHandler;
+import com.player.agent.handler.AgentWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -10,15 +10,15 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final ChatWebSocketHandler chatWebSocketHandler;
+    private final AgentWebSocketHandler agentWebSocketHandler;
 
-    public WebSocketConfig(ChatWebSocketHandler chatWebSocketHandler) {
-        this.chatWebSocketHandler = chatWebSocketHandler;
+    public WebSocketConfig(AgentWebSocketHandler agentWebSocketHandler) {
+        this.agentWebSocketHandler = agentWebSocketHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chatWebSocketHandler, "/service/music/ws/chat")
+        registry.addHandler(agentWebSocketHandler, "/service/agent/ws/chat")
                 .setAllowedOrigins("*"); // 允许跨域访问
     }
 }

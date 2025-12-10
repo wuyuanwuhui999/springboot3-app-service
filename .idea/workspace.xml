@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +55,7 @@
     "Spring Boot.UserApplication.executor": "Run",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "F:/java/springboot3-app-service/agent/src/main/resources",
+    "last_opened_file_path": "F:/java/springboot3-app-service/agent/src/main/java/com/player/agent/config",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -71,6 +72,7 @@
       <recent name="com.player.gateway.filter" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\java\springboot3-app-service\agent\src\main\java\com\player\agent\config" />
       <recent name="F:\java\springboot3-app-service\agent\src\main\resources" />
       <recent name="F:\java\springboot3-app-service\agent\src\main\java\com\player\agent" />
       <recent name="F:\java\springboot3-app-service\gateway\src\main\resources" />

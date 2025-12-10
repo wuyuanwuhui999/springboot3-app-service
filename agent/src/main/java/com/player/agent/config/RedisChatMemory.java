@@ -1,4 +1,4 @@
-package com.player.music.config;
+package com.player.agent.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemory;

@@ -1,51 +1,56 @@
 package com.player.agent.config;
 
+import com.player.agent.constants.SystemtConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.ollama.api.OllamaApi;
-import org.springframework.ai.ollama.api.OllamaOptions;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
+@Slf4j
 @Configuration
 public class ChatClientConfig {
 
-    @Bean
-    @Qualifier("deepseekChatClient")
-    public ChatClient deepseekChatClient() {
-        OllamaApi ollamaApi = new OllamaApi("http://localhost:11434");
+    @Value("${spring.ai.ollama.chat.qwen-model}")
+    private String qwenModel;
 
-        OllamaOptions options = OllamaOptions.builder()
-                .model("deepseek-r1:8b")
-                .temperature(0.7)
+    @Value("${spring.ai.ollama.chat.deepseek-model}")
+    private String deepseekModel;
+
+    @Lazy
+    @Bean(name = "qwenChatClient")
+    public ChatClient qwenChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory) {
+        log.info("创建Qwen聊天客户端，模型: {}", model.getDefaultOptions().getModel());
+        return ChatClient.builder(model)
+                .defaultOptions(ChatOptions.builder()
+                        .model(qwenModel)
+                        .build())
+                .defaultSystem(SystemtConstants.MUSIC_SYSTEMT_PROMPT)
+                .defaultAdvisors(
+                        new SimpleLoggerAdvisor(),
+                        new MessageChatMemoryAdvisor(redisChatMemory)
+                )
                 .build();
-
-        // 使用 Builder 模式创建 OllamaChatModel
-        OllamaChatModel chatModel = OllamaChatModel.builder()
-                .ollamaApi(ollamaApi)
-                .defaultOptions(options)
-                .build(); // 使用默认的 toolCallingManager 和 observationRegistry
-
-        return ChatClient.builder(chatModel).build();
     }
 
-    @Bean
-    @Qualifier("qwenChatClient")
-    public ChatClient qwenChatClient() {
-        OllamaApi ollamaApi = new OllamaApi("http://localhost:11434");
-
-        OllamaOptions options = OllamaOptions.builder()
-                .model("qwen3:8b")
-                .temperature(0.7)
+    @Lazy
+    @Bean(name = "deepseekChatClient")
+    public ChatClient deepseekChatClient(OllamaChatModel model, RedisChatMemory redisChatMemory) {
+        log.info("创建DeepSeek聊天客户端，模型: {}", model.getDefaultOptions().getModel());
+        return ChatClient.builder(model)
+                .defaultOptions(ChatOptions.builder()
+                        .model(deepseekModel)
+                        .build())
+                .defaultSystem(SystemtConstants.MUSIC_SYSTEMT_PROMPT)
+                .defaultAdvisors(
+                        new SimpleLoggerAdvisor(),
+                        new MessageChatMemoryAdvisor(redisChatMemory)
+                )
                 .build();
-
-        // 使用 Builder 模式创建 OllamaChatModel
-        OllamaChatModel chatModel = OllamaChatModel.builder()
-                .ollamaApi(ollamaApi)
-                .defaultOptions(options)
-                .build();
-
-        return ChatClient.builder(chatModel).build();
     }
 }
