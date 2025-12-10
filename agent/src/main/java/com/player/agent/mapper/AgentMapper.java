@@ -27,4 +27,6 @@ public interface AgentMapper {
     long deleteDoc(String docId, String userId);
 
     List<MusicEntity>selectMusicList(String auther);
+
+    ChatModelEntity getModelByType(String modelType);
 }

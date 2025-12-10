@@ -33,7 +33,7 @@
     </select>
 
     <select id="getModelList" resultType="com.player.common.entity.ChatModelEntity">
-        select * from chat_model
+        select * from chat_model WHERE disabled = 0  ORDER BY create_time ASC
     </select>
 
     <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
@@ -50,6 +50,16 @@
 
     <select id="getDocById" resultType="com.player.common.entity.ChatDocEntity">
         select * from chat_doc where  id =  #{docId} and user_id = #{userId} and directory_id = 'public'
+    </select>
+
+    <!-- 在对应的Mapper XML文件中添加 -->
+    <select id="getModelByType" resultType="com.player.common.entity.ChatModelEntity">
+        SELECT id, type, api_key as apiKey, model_name as modelName,
+        base_url as baseUrl, disabled, create_time as createTime,
+        update_time as updateTime
+        FROM chat_model
+        WHERE type = #{modelType} AND disabled = 0
+        LIMIT 1
     </select>
 </mapper>
 

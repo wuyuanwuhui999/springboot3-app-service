@@ -303,6 +303,13 @@
                 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
                 <version>${spring-cloud-starter-alibaba-nacos-config.version}</version>
             </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-openai -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-openai</artifactId>
+                <version>${spring-ai.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

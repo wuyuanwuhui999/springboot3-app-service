@@ -41,12 +41,20 @@ public class AgentService implements IAgentService {
 
 
     @Autowired
-    @Qualifier("deepseekChatClient")
-    private ChatClient deepseekChatClient;
+    @Qualifier("deepseekOllamaChatClient")
+    private ChatClient deepseekOllamaChatClient;
 
     @Autowired
-    @Qualifier("qwenChatClient")
-    private ChatClient qwenChatClient;
+    @Qualifier("qwenOllamaChatClient")
+    private ChatClient qwenOllamaChatClient;
+
+    @Autowired
+    @Qualifier("deepseekOnlineChatClient")
+    private ChatClient deepseekOnlineChatClient;
+
+    @Autowired
+    @Qualifier("qwenOnlineChatClient")
+    private ChatClient qwenOnlineChatClient;
 
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
@@ -57,11 +65,15 @@ public class AgentService implements IAgentService {
     @Autowired
     private VectorStore vectorStore;
 
-    private ChatClient getChatClientByModelName(String modelName) {
-        if ("qwen3:8b".equalsIgnoreCase(modelName)) {
-            return qwenChatClient;
-        } else if ("deepseek-r1:8b".equalsIgnoreCase(modelName)) {
-            return deepseekChatClient;
+    private ChatClient getChatClientByModelName(String modelType) {
+        if (modelType.equals("qwen_ollama")) {
+            return qwenOllamaChatClient;
+        } else if (modelType.equals("deepseek_ollama")) {
+            return deepseekOllamaChatClient;
+        } else if (modelType.equals("deepseek_online")) {
+            return deepseekOnlineChatClient;
+        } else if (modelType.equals("qwen_online")) {
+            return qwenOnlineChatClient;
         }
         return null;
     }
