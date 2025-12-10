@@ -5,20 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/agent/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/ChatController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/handler/ChatWebSocketHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/mapper/ChatMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/IChatService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/ChatService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/tools/MusicTool.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/uitls/ChatUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/uitls/PromptUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/resources/mapper/ChatMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
