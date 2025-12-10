@@ -21,6 +21,7 @@
         <module>tenant</module>
         <module>prompt</module>
         <module>gateway</module>
+        <module>agent</module>
     </modules>
 
     <!-- 统一属性配置 -->

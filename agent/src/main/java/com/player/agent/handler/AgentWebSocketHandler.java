@@ -1,17 +1,15 @@
-package com.player.music.handler;
+package com.player.agent.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.player.agent.mapper.AgentMapper;
+import com.player.agent.tool.AgentTool;
 import com.player.common.entity.ChatEntity;
-import com.player.music.constants.SystemtConstants;
-import com.player.music.entity.ChatParamsEntity;
-import com.player.music.mapper.ChatMapper;
 import com.player.common.utils.JwtToken;
-import com.player.music.tools.MusicTool;
-import com.player.music.uitls.ChatUtils;
-
+import com.player.agent.constants.SystemtConstants;
+import com.player.agent.entity.AgentParamsEntity;
+import com.player.agent.uitls.AgentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +25,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class ChatWebSocketHandler extends TextWebSocketHandler {
+public class AgentWebSocketHandler extends TextWebSocketHandler {
 
     @Autowired
     @Qualifier("qwenChatClient")
@@ -37,20 +35,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Qualifier("deepseekChatClient")
     private ChatClient deepseekChatClient;
 
-    private final ChatMapper chatMapper;
+    @Autowired
+    private AgentTool agentTool;
+
+    private final AgentMapper agentMapper;
     @Autowired
     private VectorStore vectorStore;
 
-    public ChatWebSocketHandler(ChatMapper chatMapper) {
-        this.chatMapper = chatMapper;
+    public AgentWebSocketHandler(AgentMapper agentMapper) {
+        this.agentMapper = agentMapper;
     }
 
     @Value("${token.secret}")
     private String secret;
-
-    @Autowired
-    private MusicTool musicTool;
-
+    
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
@@ -67,13 +65,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             boolean showThink = (boolean) payload.get("showThink");
             String language = (String) payload.get("language");
 
-            ChatParamsEntity chatParamsEntity = new ChatParamsEntity();
-            chatParamsEntity.setChatId(chatId);
-            chatParamsEntity.setModelName(modelName);
-            chatParamsEntity.setPrompt(prompt);
-            chatParamsEntity.setShowThink(showThink);
-            chatParamsEntity.setLanguage(language);
-            chatParamsEntity.setType(type);
+            AgentParamsEntity agentParamsEntity = new AgentParamsEntity();
+            agentParamsEntity.setChatId(chatId);
+            agentParamsEntity.setModelName(modelName);
+            agentParamsEntity.setPrompt(prompt);
+            agentParamsEntity.setShowThink(showThink);
+            agentParamsEntity.setLanguage(language);
+            agentParamsEntity.setType(type);
 
             ChatEntity chatEntity = new ChatEntity();
             chatEntity.setChatId(chatId);
@@ -89,13 +87,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 return;
             }
 
-            Flux<String> chatStream  = ChatUtils.processChat(
-                    chatParamsEntity,
+            Flux<String> chatStream  = AgentUtils.processChat(
+                    agentParamsEntity,
                     chatClient,
                     vectorStore,
                     userId,
                     SystemtConstants.MUSIC_SYSTEMT_PROMPT,
-                    musicTool  // Added musicTool parameter
+                    agentTool  // Added agentTool parameter
             );
 
             chatStream.subscribe(
@@ -112,7 +110,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                         }
                     },
                     () -> {
-                        chatMapper.saveChat(chatEntity);
+                        agentMapper.saveChat(chatEntity);
                         try {
                             session.sendMessage(new TextMessage("[completed]"));
                         } catch (IOException e) {

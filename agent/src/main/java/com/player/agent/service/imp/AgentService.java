@@ -1,16 +1,16 @@
-package com.player.music.service.imp;
+package com.player.agent.service.imp;
 
+import com.player.agent.mapper.AgentMapper;
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatEntity;
-import com.player.music.constants.SystemtConstants;
-import com.player.music.entity.ChatParamsEntity;
-import com.player.music.mapper.ChatMapper;
-import com.player.music.service.IChatService;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
-import com.player.music.tools.MusicTool;
-import com.player.music.uitls.ChatUtils;
-import com.player.music.uitls.PromptUtil;
+import com.player.agent.constants.SystemtConstants;
+import com.player.agent.entity.AgentParamsEntity;
+import com.player.agent.service.IAgentService;
+import com.player.agent.tool.AgentTool;
+import com.player.agent.uitls.AgentUtils;
+import com.player.agent.uitls.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
@@ -23,18 +23,21 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
-public class ChatService implements IChatService {
+public class AgentService implements IAgentService {
 
     @Autowired
-    private ChatMapper chatMapper;
+    private AgentMapper agentMapper;
 
 
     @Autowired
@@ -49,7 +52,7 @@ public class ChatService implements IChatService {
     private String UPLOAD_DIR;
 
     @Autowired
-    private MusicTool musicTool;
+    private AgentTool agentTool;
 
     @Autowired
     private VectorStore vectorStore;
@@ -64,26 +67,26 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity) {
-        ChatClient chatClient = getChatClientByModelName(chatParamsEntity.getModelName());
+    public Flux<String> chat(String userId, AgentParamsEntity agentParamsEntity) {
+        ChatClient chatClient = getChatClientByModelName(agentParamsEntity.getModelName());
         if (chatClient == null) {
-            return Flux.error(new IllegalArgumentException("Unsupported model: " + chatParamsEntity.getModelName()));
+            return Flux.error(new IllegalArgumentException("Unsupported model: " + agentParamsEntity.getModelName()));
         }
 
-        Flux<String> stringFlux = ChatUtils.processChat(
-                chatParamsEntity,
+        Flux<String> stringFlux = AgentUtils.processChat(
+                agentParamsEntity,
                 chatClient,
                 vectorStore,
                 userId,
                 SystemtConstants.MUSIC_SYSTEMT_PROMPT,
-                musicTool  // Added musicTool parameter
+                agentTool  // Added agentTool parameter
         );
 
         ChatEntity chatEntity = new ChatEntity();
-        chatEntity.setChatId(chatParamsEntity.getChatId());
+        chatEntity.setChatId(agentParamsEntity.getChatId());
         chatEntity.setUserId(userId);
-        chatEntity.setPrompt(chatParamsEntity.getPrompt());
-        chatEntity.setModelName(chatParamsEntity.getModelName());
+        chatEntity.setPrompt(agentParamsEntity.getPrompt());
+        chatEntity.setModelName(agentParamsEntity.getModelName());
 
         // 将 Flux<String> 转换为 Mono<String>
         Mono<String> contentMono = stringFlux.collectList()
@@ -92,7 +95,7 @@ public class ChatService implements IChatService {
         // 订阅并保存到数据库
         contentMono.subscribe(content -> {
             chatEntity.setContent(content);
-            chatMapper.saveChat(chatEntity);
+            agentMapper.saveChat(chatEntity);
         });
 
         return stringFlux;
@@ -101,14 +104,14 @@ public class ChatService implements IChatService {
     @Override
     public ResultEntity getChatHistory(String userId, int pageNum, int pageSize) {
         int start = (pageNum - 1) * pageSize;
-        ResultEntity success = ResultUtil.success(chatMapper.getChatHistory(userId, start, pageSize));
-        success.setTotal(chatMapper.getChatHistoryTotal(userId));
+        ResultEntity success = ResultUtil.success(agentMapper.getChatHistory(userId, start, pageSize));
+        success.setTotal(agentMapper.getChatHistoryTotal(userId));
         return success;
     }
 
     @Override
     public ResultEntity getModelList() {
-        return ResultUtil.success(chatMapper.getModelList());
+        return ResultUtil.success(agentMapper.getModelList());
     }
 
     // 允许的文件类型
@@ -151,7 +154,7 @@ public class ChatService implements IChatService {
         chatDocEntity.setUserId(userId);
         chatDocEntity.setExt(fileExtension);
 
-        chatMapper.saveDoc(chatDocEntity);
+        agentMapper.saveDoc(chatDocEntity);
 
         // 保存文件：使用32位ID作为文件名
         byte[] bytes = file.getBytes();
@@ -173,14 +176,14 @@ public class ChatService implements IChatService {
 
     @Override
     public ResultEntity getDocList(String userId) {
-        return ResultUtil.success(chatMapper.getDocList(userId));
+        return ResultUtil.success(agentMapper.getDocList(userId));
     }
 
     @Override
     public ResultEntity deleteDoc(String docId, String userId) {
         try {
             // 1. 先查询文档是否存在且属于该用户
-            ChatDocEntity doc = chatMapper.getDocById(docId, userId);
+            ChatDocEntity doc = agentMapper.getDocById(docId, userId);
             if (doc == null) {
                 return ResultUtil.fail(null, "文档不存在或无权删除");
             }
@@ -193,7 +196,7 @@ public class ChatService implements IChatService {
             vectorStore.delete(List.of(docId));
 
             // 4. 从数据库中删除记录
-            long rows = chatMapper.deleteDoc(docId, userId);
+            long rows = agentMapper.deleteDoc(docId, userId);
 
             return ResultUtil.success(rows, "文档删除成功");
         } catch (IOException e) {

@@ -1,7 +1,7 @@
-package com.player.music.uitls;
+package com.player.agent.uitls;
 
-import com.player.music.entity.ChatParamsEntity;
-import com.player.music.tools.MusicTool;
+import com.player.agent.entity.AgentParamsEntity;
+import com.player.agent.tool.AgentTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -17,19 +17,19 @@ import java.util.Map;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
-public class ChatUtils {
+public class AgentUtils {
 
     public static Flux<String> processChat(
-            ChatParamsEntity chatParamsEntity,
+            AgentParamsEntity agentParamsEntity,
             ChatClient chatClient,
             VectorStore vectorStore,
             String userId,
             String systemPromptContent,
-            MusicTool musicTool  // Added MusicTool parameter
+            AgentTool agentTool  // Added AgentTool parameter
     ) {
-        String prompt = chatParamsEntity.getPrompt();
+        String prompt = agentParamsEntity.getPrompt();
 
-        if ("document".equals(chatParamsEntity.getType())) {
+        if ("document".equals(agentParamsEntity.getType())) {
             // 构建原始查询DSL
             String queryDsl = String.format("""
                     {
@@ -47,7 +47,7 @@ public class ChatUtils {
                         }
                       }
                     }
-                    """, chatParamsEntity.getPrompt(), userId);
+                    """, agentParamsEntity.getPrompt(), userId);
 
             List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
             if (relevantDocs.isEmpty()) {
@@ -67,7 +67,7 @@ public class ChatUtils {
 
         Map<String, Object> systemVariables = Map.of(
                 "systemPrompt", systemPromptContent,
-                "thinking", chatParamsEntity.getShowThink() ? "请详细解释你的思考过程。" : "直接给出最终答案，不要解释思考过程。",
+                "thinking", agentParamsEntity.getShowThink() ? "请详细解释你的思考过程。" : "直接给出最终答案，不要解释思考过程。",
                 "current_date", LocalDate.now().toString()
         );
 
@@ -81,7 +81,7 @@ public class ChatUtils {
 
         Map<String, Object> userVariables = Map.of(
                 "message", prompt,
-                "language", "zh".equals(chatParamsEntity.getLanguage()) ? "中文" : "英文"
+                "language", "zh".equals(agentParamsEntity.getLanguage()) ? "中文" : "英文"
         );
 
         Message userMessage = userPromptTemplate.createMessage(userVariables);
@@ -90,11 +90,10 @@ public class ChatUtils {
 
         ChatClient.ChatClientRequestSpec advisors = chatClient
                 .prompt(finalPrompt)
-                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatParamsEntity.getChatId()));
+                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, agentParamsEntity.getChatId()));
 
-        // Add tools configuration if type is "type"
-        if ("type".equals(chatParamsEntity.getType())) {
-            advisors.tools(musicTool);
+        if ("type".equals(agentParamsEntity.getType())) {
+            advisors.tools(agentTool);
         }
 
         return advisors.stream().content();

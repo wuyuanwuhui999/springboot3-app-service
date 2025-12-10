@@ -1,14 +1,14 @@
-package com.player.music.service;
+package com.player.agent.service;
 
 import com.player.common.entity.ResultEntity;
-import com.player.music.entity.ChatParamsEntity;
+import com.player.agent.entity.AgentParamsEntity;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 
-public interface IChatService {
-    Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity);
+public interface IAgentService {
+    Flux<String> chat(String userId, AgentParamsEntity agentParamsEntity);
 
     ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
 
