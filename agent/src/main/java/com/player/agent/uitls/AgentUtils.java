@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
 public class AgentUtils {
 
@@ -90,7 +89,7 @@ public class AgentUtils {
 
         ChatClient.ChatClientRequestSpec advisors = chatClient
                 .prompt(finalPrompt)
-                .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, agentParamsEntity.getChatId()));
+                .advisors(advisorSpec -> advisorSpec.param("AGENT", agentParamsEntity.getChatId()));
 
         if ("type".equals(agentParamsEntity.getType())) {
             advisors.tools(agentTool);

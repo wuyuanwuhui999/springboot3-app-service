@@ -28,5 +28,6 @@ public interface AgentMapper {
 
     List<MusicEntity>selectMusicList(String auther);
 
-    ChatModelEntity getModelByType(String modelType);
+    ChatModelEntity getModelById(String mdelId);
+
 }

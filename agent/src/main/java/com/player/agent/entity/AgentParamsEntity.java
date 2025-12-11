@@ -11,8 +11,8 @@ public class AgentParamsEntity {
     @Schema(description = "会话id")
     private String chatId;
 
-    @Schema(description = "模型名称")
-    private String modelName;
+    @Schema(description = "模型id")
+    private String modelId;
 
     @Schema(description = "是否深度思考")
     private Boolean showThink;

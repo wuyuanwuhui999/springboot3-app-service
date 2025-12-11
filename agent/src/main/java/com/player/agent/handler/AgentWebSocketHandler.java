@@ -1,6 +1,8 @@
 package com.player.agent.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.player.agent.config.ChatClientConfig;
+import com.player.agent.config.RedisChatMemory;
 import com.player.agent.mapper.AgentMapper;
 import com.player.agent.tool.AgentTool;
 import com.player.common.entity.ChatEntity;
@@ -13,6 +15,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -27,14 +30,8 @@ import java.util.Map;
 @Component
 @Slf4j
 public class AgentWebSocketHandler extends TextWebSocketHandler {
-
     @Autowired
-    @Qualifier("qwenOllamaChatClient")
-    private ChatClient qwenOllamaChatClient;
-
-    @Autowired
-    @Qualifier("deepseekOllamaChatClient")
-    private ChatClient deepseekOllamaChatClient;
+    private ChatClientConfig chatClientConfig;
 
     @Autowired
     private AgentTool agentTool;
@@ -47,8 +44,8 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
         this.agentMapper = agentMapper;
     }
 
-    @Value("${token.secret}")
-    private String secret;
+    @Autowired
+    private RedisTemplate redisTemplate;
     
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -62,14 +59,14 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
 
             String prompt = (String) payload.get("prompt");
             String chatId = (String) payload.get("chatId");
-            String modelName = (String) payload.get("modelName");
+            String modelId = (String) payload.get("modelId");
             String type = (String) payload.get("type");
             boolean showThink = (boolean) payload.get("showThink");
             String language = (String) payload.get("language");
 
             AgentParamsEntity agentParamsEntity = new AgentParamsEntity();
             agentParamsEntity.setChatId(chatId);
-            agentParamsEntity.setModelName(modelName);
+            agentParamsEntity.setModelId(modelId);
             agentParamsEntity.setPrompt(prompt);
             agentParamsEntity.setShowThink(showThink);
             agentParamsEntity.setLanguage(language);
@@ -80,12 +77,12 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setUserId(userId);
             chatEntity.setPrompt(prompt);
             chatEntity.setContent("");
-            chatEntity.setModelName(modelName);
+            chatEntity.setModelId(modelId);
 
-            ChatClient chatClient = getChatClientByModelName(modelName);
+            ChatClient chatClient = chatClientConfig.getChatClient(modelId,new RedisChatMemory(redisTemplate));
 
             if (chatClient == null) {
-                session.sendMessage(new TextMessage("{\"error\": \"Unsupported model: " + modelName + "\"}"));
+                session.sendMessage(new TextMessage("{\"error\": \"Unsupported modelId: " + modelId + "\"}"));
                 return;
             }
 
@@ -128,15 +125,6 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
                 log.error("Failed to send error message", ex);
             }
         }
-    }
-
-    private ChatClient getChatClientByModelName(String modelName) {
-        if ("qwen3:8b".equalsIgnoreCase(modelName)) {
-            return qwenOllamaChatClient;
-        } else if ("deepseek-r1:8b".equalsIgnoreCase(modelName)) {
-            return deepseekOllamaChatClient;
-        }
-        return null;
     }
 
     private void sendResponse(WebSocketSession session, String content) {

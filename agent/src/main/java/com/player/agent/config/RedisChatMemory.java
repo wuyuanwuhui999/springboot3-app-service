@@ -17,6 +17,11 @@ public class RedisChatMemory implements ChatMemory {
     private final RedisTemplate<String, Message> redisTemplate; // 使用专用模板
 
     @Override
+    public void add(String conversationId, Message message) {
+        ChatMemory.super.add(conversationId, message);
+    }
+
+    @Override
     public void add(String conversationId, List<Message> messages) {
         if (messages == null || messages.isEmpty()) {
             return;
@@ -31,10 +36,11 @@ public class RedisChatMemory implements ChatMemory {
         redisTemplate.opsForList().rightPushAll(key, filteredMessages);
     }
 
+
     @Override
-    public List<Message> get(String conversationId, int lastN) {
+    public List<Message> get(String conversationId) {
         String key = REDIS_KEY_PREFIX + conversationId;
-        List<Message> serializedMessages = redisTemplate.opsForList().range(key, -lastN, -1);
+        List<Message> serializedMessages = redisTemplate.opsForList().range(key, 0, -1);
 
         if (serializedMessages != null) {
             return serializedMessages.stream()

@@ -15,8 +15,8 @@ public class ChatEntity {
     private String chatId;
     @Schema(description = "提示词")
     private String prompt;
-    @Schema(description = "模型名称")
-    private String modelName;
+    @Schema(description = "模型id")
+    private String modelId;
     @Schema(description = "内容")
     private String content;
     @Schema(description = "think思考内容")

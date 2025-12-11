@@ -9,20 +9,29 @@
       <change beforePath="$PROJECT_DIR$/agent/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisChatMemory.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisChatMemory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/VectorStoreConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/VectorStoreConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/controller/AgentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/controller/AgentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/entity/AgentParamsEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/entity/AgentParamsEntity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/mapper/AgentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/mapper/AgentMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/IAgentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/IAgentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/imp/AgentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/imp/AgentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/resources/mapper/AgentMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/resources/mapper/AgentMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/VectorStoreConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/VectorStoreConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/controller/AgentController.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/controller/AgentController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/entity/AgentParamsEntity.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/entity/AgentParamsEntity.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/mapper/AgentMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/mapper/AgentMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/IAgentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/IAgentService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/imp/AgentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/imp/AgentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/mapper/AgentMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/mapper/AgentMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/entity/MusicAuthorEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/entity/MusicEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/mapper/MusicMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/tool/MusicTool.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/player/common/entity/ChatEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/player/common/entity/ChatEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,40 +59,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AgentApplication.executor": "Run",
-    "Application.ChatApplication.executor": "Run",
-    "Application.GatewayApplication.executor": "Run",
-    "Application.MovieApplication.executor": "Run",
-    "Application.MusicApplication.executor": "Run",
-    "Application.PromptApplication.executor": "Run",
-    "Application.TenantApplication.executor": "Run",
-    "Application.UserApplication.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.GatewayApplication.executor": "Run",
-    "Spring Boot.UserApplication.executor": "Run",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "F:/java/springboot3-app-service/agent/src/main/java/com/player/agent/config",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "F:/java/springboot3-app-service/agent/src/main/java/com/player/Main.java",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "run.configurations.included.in.services": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AgentApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ChatApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.GatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MovieApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MusicApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PromptApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.TenantApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.UserApplication.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.GatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.UserApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/java/springboot3-app-service/agent/src/main/java/com/player/agent/config&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;F:/java/springboot3-app-service/agent/src/main/java/com/player/Main.java&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.player.gateway.filter" />
@@ -204,9 +213,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.AgentApplication" />
+        <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.GatewayApplication" />
         <item itemvalue="Application.UserApplication" />
-        <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.MovieApplication" />
       </list>
     </recent_temporary>

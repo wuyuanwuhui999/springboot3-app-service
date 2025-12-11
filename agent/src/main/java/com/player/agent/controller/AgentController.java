@@ -20,15 +20,6 @@ public class AgentController {
     @Autowired
     private IAgentService agentService;
 
-    @PostMapping(value = "/chat",produces = "text/html;charset=utf-8")
-    public Flux<String> chat(
-            @RequestHeader("X-User-Id") String userId,
-            @RequestBody AgentParamsEntity agentParamsEntity
-
-            ){
-        return agentService.chat(userId, agentParamsEntity);
-    }
-
     @GetMapping("/getChatHistory")
     public ResultEntity getChatHistory(
             @RequestHeader("X-User-Id") String userId,
@@ -41,28 +32,5 @@ public class AgentController {
     @GetMapping("/getModelList")
     public ResultEntity getModelList( ){
         return agentService.getModelList();
-    }
-
-    @PostMapping("/uploadDoc")
-    public ResultEntity uploadDoc(
-            @RequestParam("file") MultipartFile file,
-            @RequestHeader("X-User-Id") String userId
-    ) throws IOException {
-        return agentService.uploadDoc(file,userId);
-    }
-
-    @GetMapping("/getDocList")
-    public ResultEntity getDocList(
-            @RequestHeader("X-User-Id") String userId
-    ) {
-        return agentService.getDocList(userId);
-    }
-
-    @DeleteMapping("/deleteDoc/{docId}")
-    public ResultEntity deleteDoc(
-            @PathVariable("docId") String docId,
-            @RequestHeader("X-User-Id") String userId
-    ) {
-        return agentService.deleteDoc(docId,userId);
     }
 }

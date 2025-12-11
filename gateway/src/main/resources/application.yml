@@ -71,6 +71,13 @@ spring:
           filters:
             - StripPrefix=0
 
+        - id: agent
+          uri: http://localhost:3010
+          predicates:
+            - Path=/service/agent/**
+          filters:
+            - StripPrefix=0
+
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 

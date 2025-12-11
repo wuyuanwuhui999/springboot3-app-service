@@ -6,7 +6,8 @@ import org.elasticsearch.client.RestClient;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.ai.ollama.api.OllamaApi;
-import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.ai.ollama.api.OllamaChatOptions;
+import org.springframework.ai.ollama.api.OllamaEmbeddingOptions;
 import org.springframework.ai.ollama.management.ModelManagementOptions;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStore;
@@ -37,18 +38,12 @@ public class VectorStoreConfig {
     @Value("${spring.ai.vectorstore.elasticsearch.dimensions}")
     private int dimensions;
 
-    @Bean
-    public OllamaApi ollamaApi() {
-        return new OllamaApi(ollamaBaseUrl);
-    }
-
     @Lazy
     @Bean
-    public EmbeddingModel embeddingModel(OllamaApi ollamaApi) {
-        OllamaOptions options = OllamaOptions.builder()
-                .model(embeddingModelName)
-                .build();
-        return new OllamaEmbeddingModel(ollamaApi,options,ObservationRegistry.create(), ModelManagementOptions.builder().build());
+    public EmbeddingModel embeddingModel() {
+        OllamaEmbeddingOptions ollamaEmbeddingOptions = OllamaEmbeddingOptions.builder().model(embeddingModelName).build();
+        OllamaApi ollamaApi1 = OllamaApi.builder().baseUrl(ollamaBaseUrl).build();
+        return OllamaEmbeddingModel.builder().ollamaApi(ollamaApi1).defaultOptions(ollamaEmbeddingOptions).build();
     }
 
     @Lazy
