@@ -6,33 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisChatMemory.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisChatMemory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/VectorStoreConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/VectorStoreConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/controller/AgentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/controller/AgentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/entity/AgentParamsEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/entity/AgentParamsEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/mapper/AgentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/mapper/AgentMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/IAgentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/IAgentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/imp/AgentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/service/imp/AgentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/VectorStoreConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/VectorStoreConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/controller/AgentController.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/controller/AgentController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/entity/AgentParamsEntity.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/entity/AgentParamsEntity.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/mapper/AgentMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/mapper/AgentMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/IAgentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/IAgentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/imp/AgentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/imp/AgentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/player/common/entity/ChatEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/player/common/entity/ChatEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/AssistantSelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/AssistantSelector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOllamaAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOllamaAssistant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOnlineAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOnlineAssistant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOllamaAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOllamaAssistant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOnlineAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOnlineAssistant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,8 +21,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>

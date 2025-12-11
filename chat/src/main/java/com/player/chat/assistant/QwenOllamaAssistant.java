@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
         streamingChatModel="qwenStreamingChatModel",
         chatMemoryProvider="chatMemoryProvider"
 )
-public interface QwenOllamaAssistant {
+public interface QwenOllamaAssistant extends Assistant{
     @SystemMessage("""
         {{systemPrompt}}
         {{language}}

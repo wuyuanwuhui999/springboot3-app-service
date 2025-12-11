@@ -53,18 +53,6 @@ public class ChatService implements IChatService {
     @Autowired
     private ChatMapper chatMapper;
 
-    @Autowired
-    private QwenOllamaAssistant qwenAssistant;
-
-    @Autowired
-    private DeepSeekOllamaAssistant deepSeekAssistant;
-
-    @Autowired
-    private DeepSeekOnlineAssistant deepSeekOnlineAssistant;
-
-    @Autowired
-    private QwenOnlineAssistant qwenOnlineAssistant;
-
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
 
@@ -129,11 +117,7 @@ public class ChatService implements IChatService {
         }
 
         return assistantSelector.selectAssistant(
-                    chatParamsEntity,
-                    qwenAssistant,
-                    deepSeekAssistant,
-                    deepSeekOnlineAssistant,
-                    qwenOnlineAssistant
+                    chatParamsEntity
                 )
                 .doOnNext(responseHandler)
                 .doOnComplete(() -> {

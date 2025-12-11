@@ -14,7 +14,7 @@ import reactor.core.publisher.Flux;
         streamingChatModel="deepseekOnlineChatModel",
         chatMemoryProvider="chatMemoryProvider"
 )
-public interface DeepSeekOnlineAssistant {
+public interface DeepSeekOnlineAssistant extends Assistant{
     @SystemMessage("""
         {{systemPrompt}}
         {{language}}
