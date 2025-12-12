@@ -6,12 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/Assistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/Assistant.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/AssistantSelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/AssistantSelector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOllamaAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOllamaAssistant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOnlineAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOnlineAssistant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOllamaAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOllamaAssistant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOnlineAssistant.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOnlineAssistant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/service/imp/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOllamaAssistant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/DeepSeekOnlineAssistant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOllamaAssistant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/assistant/QwenOnlineAssistant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/config/ChatModelConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/resources/mapper/MusicMapper.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,7 +103,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Application.AgentApplication">
+  <component name="RunManager" selected="Application.ChatApplication">
     <configuration name="AgentApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.player.agent.AgentApplication" />
       <module name="agent" />
@@ -115,13 +118,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.player.gateway.GatewayApplication" />
-      <module name="gateway" />
-      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf -DNACOS_SERVER_ADDR=localhost:8848 -DNACOS_USERNAME=nacos -DNACOS_PASSWORD=nacos" />
+    <configuration name="ChatApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.chat.ChatApplication" />
+      <module name="chat" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.player.gateway.*" />
+          <option name="PATTERN" value="com.player.chat.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -129,13 +132,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MovieApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.player.movie.MovieApplication" />
-      <module name="movie" />
-      <option name="VM_PARAMETERS" value="-DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf" />
+    <configuration name="GatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.player.gateway.GatewayApplication" />
+      <module name="gateway" />
+      <option name="VM_PARAMETERS" value="-DSECRET=WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM= -DMYSQL_PASSWORD=wwq_2021 -DEMAIL=275018723@qq.com -DEMAIL_PASSWORD=tquazwwauhwubgjf -DNACOS_SERVER_ADDR=localhost:8848 -DNACOS_USERNAME=nacos -DNACOS_PASSWORD=nacos" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.player.movie.*" />
+          <option name="PATTERN" value="com.player.gateway.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -183,19 +186,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Application.ChatApplication" />
       <item itemvalue="Application.AgentApplication" />
       <item itemvalue="Application.UserApplication" />
       <item itemvalue="Application.GatewayApplication" />
       <item itemvalue="Application.MusicApplication" />
-      <item itemvalue="Application.MovieApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.ChatApplication" />
         <item itemvalue="Application.AgentApplication" />
         <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.GatewayApplication" />
         <item itemvalue="Application.UserApplication" />
-        <item itemvalue="Application.MovieApplication" />
       </list>
     </recent_temporary>
   </component>

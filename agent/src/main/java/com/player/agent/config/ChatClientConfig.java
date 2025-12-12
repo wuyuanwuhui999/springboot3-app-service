@@ -33,23 +33,40 @@ public class ChatClientConfig {
 
     @Value("${spring.ai.ollama.chat.deepseek-model}")
     private String deepseekModel;
-    
+
     @Autowired
     private AgentMapper agentMapper;
 
-    public ChatClient getChatClient(String modelId,RedisChatMemory redisChatMemory){
+    public ChatClient getChatClient(String modelId, RedisChatMemory redisChatMemory) {
         ChatModelEntity chatModelEntity = agentMapper.getModelById(modelId);
         ChatModel chatModel;
         String baseUrl = chatModelEntity.getBaseUrl();
         String modelName = chatModelEntity.getModelName();
-        if(chatModelEntity.getType().contains("ollama")){
-            OllamaApi ollamaApi = OllamaApi.builder().baseUrl(baseUrl).build();
-            OllamaChatOptions ollamaChatOptions = OllamaChatOptions.builder().model(modelName).temperature(0.7).build();
-            chatModel = OllamaChatModel.builder().ollamaApi(ollamaApi).defaultOptions(ollamaChatOptions).build();
-        }else{
-            OpenAiApi openAiApi = OpenAiApi.builder().baseUrl(baseUrl).apiKey(chatModelEntity.getApiKey()).build();
-            OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder().model(modelName).temperature(0.7).build();
-            chatModel = OpenAiChatModel.builder().openAiApi(openAiApi).defaultOptions(openAiChatOptions).build();
+        if (chatModelEntity.getType().contains("ollama")) {
+            OllamaApi ollamaApi = OllamaApi.builder()
+                    .baseUrl(baseUrl)
+                    .build();
+            OllamaChatOptions ollamaChatOptions = OllamaChatOptions.builder()
+                    .model(modelName)
+                    .temperature(0.7)
+                    .build();
+            chatModel = OllamaChatModel.builder()
+                    .ollamaApi(ollamaApi)
+                    .defaultOptions(ollamaChatOptions)
+                    .build();
+        } else {
+            OpenAiApi openAiApi = OpenAiApi.builder()
+                    .baseUrl(baseUrl)
+                    .apiKey(chatModelEntity.getApiKey())
+                    .build();
+            OpenAiChatOptions openAiChatOptions = OpenAiChatOptions.builder()
+                    .model(modelName)
+                    .temperature(0.7)
+                    .build();
+            chatModel = OpenAiChatModel.builder()
+                    .openAiApi(openAiApi)
+                    .defaultOptions(openAiChatOptions)
+                    .build();
         }
         return ChatClient.builder(chatModel)
                 .defaultSystem(SystemtConstants.MUSIC_SYSTEMT_PROMPT)
