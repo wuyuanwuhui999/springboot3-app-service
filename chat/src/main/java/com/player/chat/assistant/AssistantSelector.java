@@ -42,11 +42,8 @@ public class AssistantSelector {
         // 获取动态提示词，如果为空则使用固定提示词
         String systemPrompt = chatParamsEntity.getSystemPrompt();
         if (systemPrompt == null || systemPrompt.trim().isEmpty()) {
-            systemPrompt = "你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。\n" + language;
-        }else{
-            systemPrompt += "\n" + language;
+            systemPrompt = "你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。\n";
         }
-
         try {
             Assistant assistant = AiServices.builder(Assistant.class)
                     .streamingChatModel(getStreamingChatModel(chatModel))

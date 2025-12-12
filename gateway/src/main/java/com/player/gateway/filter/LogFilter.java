@@ -17,12 +17,18 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Component
 public class LogFilter implements GlobalFilter, Ordered {
 
     @Autowired
     private LogService logService;
+
+    // 注入异步执行器（Spring会自动提供）
+    @Autowired
+    private Executor taskExecutor;
 
     private static final List<String> SENSITIVE_PATHS = List.of(
             "/service/user/login",
@@ -68,12 +74,15 @@ public class LogFilter implements GlobalFilter, Ordered {
                         modifiedExchange.getResponse(), logEntity))
                 .build();
 
-        // 保存请求日志
-        try {
-            logService.saveRequestLog(logEntity);
-        } catch (Exception e) {
-            System.err.println("Failed to save request log: " + e.getMessage());
-        }
+        // 异步保存请求日志（不阻塞主请求）
+        CompletableFuture.runAsync(() -> {
+            try {
+                logService.saveRequestLog(logEntity);
+            } catch (Exception e) {
+                System.err.println("Failed to save request log: " + e.getMessage());
+                // 这里可以添加更详细的错误处理，比如写入错误日志文件
+            }
+        }, taskExecutor);
 
         return chain.filter(responseExchange).doFinally(signalType -> {
             Instant endTime = Instant.now();
@@ -87,13 +96,16 @@ public class LogFilter implements GlobalFilter, Ordered {
             // 如果是敏感路径，不记录响应体
             String responseBody = isSensitivePath ? "[SENSITIVE_PATH]" : logEntity.getResponseBody();
 
-            // 更新响应信息
-            try {
-                logService.updateResponseInfo(requestId, responseStatus,
-                        responseBody, responseHeaders, executeTime, null);
-            } catch (Exception e) {
-                System.err.println("Failed to update response log: " + e.getMessage());
-            }
+            // 异步更新响应信息（不阻塞响应流）
+            CompletableFuture.runAsync(() -> {
+                try {
+                    logService.updateResponseInfo(requestId, responseStatus,
+                            responseBody, responseHeaders, executeTime, null);
+                } catch (Exception e) {
+                    System.err.println("Failed to update response log: " + e.getMessage());
+                    // 这里可以添加更详细的错误处理
+                }
+            }, taskExecutor);
         });
     }
 
