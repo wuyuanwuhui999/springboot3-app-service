@@ -6,13 +6,34 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/mapper/AgentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/mapper/AgentMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/resources/mapper/AgentMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/resources/mapper/AgentMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/WebSocketConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/constants/SystemtConstants.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/controller/AgentController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/mapper/AgentMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/mapper/AgentMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/imp/AgentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/service/imp/AgentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/mapper/AgentMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/mapper/AgentMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/tool/AgentTool.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/player/common/entity/MusicEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/player/common/entity/MusicEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/MusicApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/MusicApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/resources/mapper/MusicMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/mapper/MusicMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,8 +43,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -101,7 +122,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Application.AgentApplication">
+  <component name="RunManager" selected="Application.MusicApplication">
     <configuration name="AgentApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.player.agent.AgentApplication" />
       <module name="agent" />
@@ -192,10 +213,10 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.AgentApplication" />
         <item itemvalue="Application.GatewayApplication" />
         <item itemvalue="Application.ChatApplication" />
-        <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.UserApplication" />
       </list>
     </recent_temporary>

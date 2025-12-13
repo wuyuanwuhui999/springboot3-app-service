@@ -89,8 +89,6 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
             Flux<String> chatStream  = AgentUtils.processChat(
                     agentParamsEntity,
                     chatClient,
-                    vectorStore,
-                    userId,
                     SystemtConstants.MUSIC_SYSTEMT_PROMPT,
                     agentTool  // Added agentTool parameter
             );

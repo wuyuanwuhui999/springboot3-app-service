@@ -97,9 +97,9 @@ public class MusicEntity {
     @Schema(description = "播放权限")
     private int permission;
 
-    @Schema(description = "是否是喜欢，0表示不在喜欢的列表中，1表示在喜欢的列表中")
+    @Schema(description = "是否是喜欢，0表示不在喜欢的列表中，1表示在喜欢的列表中，在music表中没有这个字段，是扩展的字段")
     private int isLike;
 
-    @Schema(description = "听过的次数，在获取播放记录的时候才有")
+    @Schema(description = "听过的次数，在获取播放记录的时候才有，music表中没有这个字段，是扩展的字段")
     private int times;
 }

@@ -7,56 +7,21 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.VectorStore;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-
 public class AgentUtils {
 
     public static Flux<String> processChat(
             AgentParamsEntity agentParamsEntity,
             ChatClient chatClient,
-            VectorStore vectorStore,
-            String userId,
             String systemPromptContent,
             AgentTool agentTool  // Added AgentTool parameter
     ) {
         String prompt = agentParamsEntity.getPrompt();
-
-        if ("document".equals(agentParamsEntity.getType())) {
-            // 构建原始查询DSL
-            String queryDsl = String.format("""
-                    {
-                      "query": {
-                        "bool": {
-                          "must": {
-                            "match": {
-                              "content": "%s"
-                            }
-                          },
-                          "filter": [
-                            {"term": {"metadata.user_id": "%s"}},
-                            {"term": {"metadata.directory_id": "default"}}
-                          ]
-                        }
-                      }
-                    }
-                    """, agentParamsEntity.getPrompt(), userId);
-
-            List<Document> relevantDocs = vectorStore.similaritySearch(queryDsl);
-            if (relevantDocs.isEmpty()) {
-                return Flux.just("没有查询到相关文档").doOnNext(document -> {});
-            }
-            // 2. 构建上下文提示
-            String context = PromptUtil.buildContext(relevantDocs);
-            // 3. 构建完整提示词
-            prompt = PromptUtil.buildPrompt(prompt, context);
-        }
 
         String systemPromptTemplate = """
                 {systemPrompt}
@@ -91,9 +56,7 @@ public class AgentUtils {
                 .prompt(finalPrompt)
                 .advisors(advisorSpec -> advisorSpec.param("AGENT", agentParamsEntity.getChatId()));
 
-        if ("type".equals(agentParamsEntity.getType())) {
-            advisors.tools(agentTool);
-        }
+        advisors.tools(agentTool);
 
         return advisors.stream().content();
     }

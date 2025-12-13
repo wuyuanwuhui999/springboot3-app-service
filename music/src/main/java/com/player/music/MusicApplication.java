@@ -5,14 +5,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(
         scanBasePackages = "com.player.music",exclude = {
             HttpClientAutoConfiguration.class,
             RestClientAutoConfiguration.class,
-            org.springframework.ai.autoconfigure.vectorstore.elasticsearch.ElasticsearchVectorStoreAutoConfiguration.class
         }
 )
+@EnableDiscoveryClient
 @MapperScan("com.player.music.mapper")
 public class MusicApplication {
 

@@ -15,6 +15,10 @@ loggin:
 token:
   secret: ${SECRET} #token秘钥
 spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
   servlet:
     multipart:
       max-file-size: 10MB # 单个文件最大大小
@@ -49,7 +53,7 @@ spring:
   jpa:
     show-sql: true
   application:
-    name: agent
+    name: agent-service
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
     username: root

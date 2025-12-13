@@ -53,10 +53,10 @@
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
-        <spring-cloud-starter-bootstrap.version>5.0.0</spring-cloud-starter-bootstrap.version>
+        <org.springframework.cloud.version>5.0.0</org.springframework.cloud.version>
         <spring-boot-starter-actuator.version>3.4.5</spring-boot-starter-actuator.version>
         <spring-cloud-starter-gateway.version>4.2.6</spring-cloud-starter-gateway.version>
-        <spring-cloud-starter-alibaba-nacos-config.version>2025.0.0.0</spring-cloud-starter-alibaba-nacos-config.version>
+        <com.alibaba.cloud.version>2025.0.0.0</com.alibaba.cloud.version>
         <jedis.version>6.0.0</jedis.version>
         <spring-beans.version>6.2.14</spring-beans.version>
     </properties>
@@ -267,7 +267,13 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-bootstrap</artifactId>
-                <version>${spring-cloud-starter-bootstrap.version}</version>
+                <version>${org.springframework.cloud.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>${org.springframework.cloud.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator -->
@@ -288,7 +294,13 @@
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-                <version>${spring-cloud-starter-alibaba-nacos-config.version}</version>
+                <version>${com.alibaba.cloud.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                <version>${com.alibaba.cloud.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-openai -->

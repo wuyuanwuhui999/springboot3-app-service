@@ -13,6 +13,10 @@ app:
 loggin:
   config: /src/main/resources/logback-spring.xml
 spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848  # Nacos 地址
   token:
     secret: ${SECRET} #token秘钥
   servlet:
@@ -49,7 +53,7 @@ spring:
   jpa:
     show-sql: true
   application:
-    name: music
+    name: music-service
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
     username: root

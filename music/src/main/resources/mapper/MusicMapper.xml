@@ -272,8 +272,10 @@
             FROM
                 music_favorite_list
             WHERE
-                favorite_id = #{favoriteId}
-                AND EXISTS ( SELECT * FROM music_favorite_directory WHERE user_id = #{userId} AND id = #{favoriteId} )
+                <if test="favoriteId != '' and favoriteId != null">
+                    favorite_id = #{favoriteId} AND
+                </if>
+                 EXISTS ( SELECT * FROM music_favorite_directory WHERE user_id = #{userId} AND id = #{favoriteId} )
             ORDER BY
                 update_time DESC
                 LIMIT #{start},#{pageSize}

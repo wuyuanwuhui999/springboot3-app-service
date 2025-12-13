@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(
         scanBasePackages = "com.player.agent",exclude = {
@@ -13,6 +15,8 @@ import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfigura
         RestClientAutoConfiguration.class,
 }
 )
+@EnableDiscoveryClient
+@EnableFeignClients // 启用 Feign 客户端
 @MapperScan("com.player.agent.mapper")
 public class AgentApplication {
 

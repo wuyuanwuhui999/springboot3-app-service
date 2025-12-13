@@ -18,14 +18,6 @@ public interface AgentMapper {
 
     List<ChatModelEntity> getModelList();
 
-    void saveDoc(ChatDocEntity chatDocEntity);
-
-    List<ChatDocEntity> getDocList(String userId);
-
-    ChatDocEntity getDocById(String docId, String userId);
-
-    long deleteDoc(String docId, String userId);
-
     List<MusicEntity>selectMusicList(String auther);
 
     ChatModelEntity getModelById(String modelId);
