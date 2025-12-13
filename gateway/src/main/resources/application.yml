@@ -42,18 +42,18 @@ spring:
           filters:
             - StripPrefix=0
 
-        - id: chat
-          uri: http://localhost:3006
-          predicates:
-            - Path=/service/chat/**
-          filters:
-            - StripPrefix=0
-
         # WebSocket 路由（需要特殊处理）
         - id: chat_websocket
           uri: ws://localhost:3006
           predicates:
             - Path=/service/chat/ws/**
+          filters:
+            - StripPrefix=0
+
+        - id: chat
+          uri: http://localhost:3006
+          predicates:
+            - Path=/service/chat/**
           filters:
             - StripPrefix=0
 
@@ -68,6 +68,13 @@ spring:
           uri: http://localhost:3008
           predicates:
             - Path=/service/prompt/**
+          filters:
+            - StripPrefix=0
+
+        - id: agent_websocket
+          uri: http://localhost:3010
+          predicates:
+            - Path=/service/agent/ws/**
           filters:
             - StripPrefix=0
 
