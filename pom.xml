@@ -53,7 +53,7 @@
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
-        <org.springframework.cloud.version>5.0.0</org.springframework.cloud.version>
+        <org.springframework.cloud.version>4.3.0</org.springframework.cloud.version>
         <spring-boot-starter-actuator.version>3.4.5</spring-boot-starter-actuator.version>
         <spring-cloud-starter-gateway.version>4.2.6</spring-cloud-starter-gateway.version>
         <com.alibaba.cloud.version>2025.0.0.0</com.alibaba.cloud.version>
@@ -334,6 +334,12 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring-beans.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                <version>${org.springframework.cloud.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

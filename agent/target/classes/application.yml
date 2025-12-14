@@ -16,9 +16,15 @@ token:
   secret: ${SECRET} #token秘钥
 spring:
   cloud:
+    compatibility-verifier:
+      enabled: false
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace:  # 如果有命名空间，请填写
+        group: DEFAULT_GROUP
   servlet:
     multipart:
       max-file-size: 10MB # 单个文件最大大小
