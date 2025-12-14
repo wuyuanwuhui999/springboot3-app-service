@@ -7,6 +7,7 @@ public class SystemtConstants {
         2. 收藏管理：可以帮用户收藏/取消收藏歌曲
         3. 历史记录：记录用户的收听历史
         4. 个性化推荐：基于用户历史行为推荐音乐
+        5. 根据歌词推测用户喜欢的歌曲标签
         
         数据库表结构：
         - music主表，保存音乐歌曲数据，表结构如下
@@ -42,7 +43,7 @@ public class SystemtConstants {
               PRIMARY KEY (`id`) USING BTREE
             ) ENGINE=InnoDB AUTO_INCREMENT=100001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='音乐主表id';
             
-        - music_favorite_list表
+        - music_favorite_list：用户收藏音乐表
             CREATE TABLE `music_favorite_list` (
               `id` int NOT NULL AUTO_INCREMENT COMMENT '主键id',
               `music_id` int DEFAULT NULL COMMENT '音乐id',
@@ -53,7 +54,7 @@ public class SystemtConstants {
               KEY `收藏夹id` (`favorite_id`) USING BTREE,
               CONSTRAINT `收藏夹id` FOREIGN KEY (`favorite_id`) REFERENCES `music_favorite_directory` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
-         
+        - music_favorite_directory：用户收藏夹名称表
             CREATE TABLE `music_favorite_directory` (
               `id` int NOT NULL AUTO_INCREMENT COMMENT '主键id',
               `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '收藏夹名称',
@@ -63,7 +64,7 @@ public class SystemtConstants {
               PRIMARY KEY (`id`) USING BTREE
             ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
                 
-        - music_record表如下：存储播放历史记录
+        - music_record：播放记录表
             CREATE TABLE `music_record` (
               `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
               `music_id` int DEFAULT NULL COMMENT '音乐id',
@@ -75,7 +76,17 @@ public class SystemtConstants {
               `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'app版本',
               PRIMARY KEY (`id`) USING BTREE
             ) ENGINE=InnoDB AUTO_INCREMENT=989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
-                
+        
+        - music_like：用户喜欢的音乐记录表        
+            CREATE TABLE `music_like` (
+              `id` int NOT NULL AUTO_INCREMENT COMMENT ' 主键',
+              `music_id` int NOT NULL,
+              `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+              `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+              `user_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '用户id',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=273 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=COMPACT;
+            
         你可以使用以下工具：
         1. searchMusic - 多条件查询音乐
         2. recommendMusic - 个性化音乐推荐

@@ -27,52 +27,52 @@ public class AgentTool {
 
     // 建议扩展AgentTool类
     @Tool(description = "根据多种条件查询音乐")
-    public List<MusicEntity> searchMusic(
+    public List<MusicEntity> queryMusic(
             @ToolParam(description = "歌曲名称（可选）") String songName,
             @ToolParam(description = "歌手名称（可选）") String authorName,
             @ToolParam(description = "专辑名称（可选）") String albumName,
             @ToolParam(description = "语言（可选）") String language,
-            @ToolParam(description = "是否热门（0否1是，可选）") Integer isHot,
             @ToolParam(description = "发布时间范围开始（可选）") Date publishStart,
-            @ToolParam(description = "发布时间范围结束（可选）") Date publishEnd,
-            @ToolParam(description = "标签（可选）") String label
+            @ToolParam(description = "标签（可选）") String label,
+            @ToolParam(description = "页码，从1开始，必须") int pageNum,
+            @ToolParam(description = "每页条数，必须") int pageSize
     ) {
-        return null;
+        return (List<MusicEntity>) musicFeignClient.queryMusic(songName,authorName,albumName,language,publishStart,label,pageNum,pageSize).getData();
     }
 
-    @Tool(description = "根据用户喜好推荐音乐")
-    public List<MusicEntity> recommendMusic(
-            @ToolParam(description = "用户ID") String userId,
-            @ToolParam(description = "推荐数量，默认10") Integer limit
-    ) {
-        return null;
-    }
 
     @Tool(description = "查询用户收藏的歌曲")
-    public List<MusicEntity> getFavorites(
-            @ToolParam(description = "用户ID") String userId
+    public List<MusicEntity> getMusicListByFavoriteId(
+            @ToolParam(description = "用户ID") String userId,
+            @ToolParam(description = "页码，从1开始，必须") int pageNum,
+            @ToolParam(description = "每页条数，必须") int pageSize,
+            @ToolParam(description = "收藏夹Id,可选，省略时查询所有收藏加的歌曲") String favoriteId
     ) {
-        return null;
+        return (List<MusicEntity>) musicFeignClient.getMusicListByFavoriteId(favoriteId,userId,pageNum,pageSize).getData();
     }
 
-    @Tool(description = "获取用户收听历史")
-    public List<MusicEntity> getHistory(
+    @Tool(description = "获取用户播放历史")
+    public List<MusicEntity> getMusicRecord(
             @ToolParam(description = "用户ID") String userId,
-            @ToolParam(description = "查询天数，默认7天") Integer days
-    ) {
-        return null;
+            @ToolParam(description = "开始时间，可省，默认null") Date startDate,
+            @ToolParam(description = "结束时间，可省，默认null") Date endDate,
+            @ToolParam(description = "页码，从1开始") int pageNum,
+            @ToolParam(description = "每页条数，可省，默认100") int pageSize
+            ) {
+        return (List<MusicEntity>) musicFeignClient.getMusicRecord(userId,startDate,endDate,pageNum,pageSize).getData();
     }
 
     @Tool(description = "查询歌手的所有歌曲")
-    @GetMapping("/music/getMusicListByAuthorId")
-    public ResultEntity getMusicListByAuthorId(
+    @GetMapping("/music/getMusicListByAuthor")
+    public List<MusicEntity> getMusicListByAuthor(
             HttpServletRequest request,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
-            @RequestParam(name = "authorId",required = true) int authorId
+            @RequestParam(name = "authorId",required = true) String authorId,
+            @RequestParam(name = "authorId",required = true) String authorName
     ){
-        return null;
+        return (List<MusicEntity>) musicFeignClient.getMusicListByAuthor(authorId,authorName,userId,pageNum,pageSize).getData();
     }
 
     @Tool(description = "智能音乐搜索")

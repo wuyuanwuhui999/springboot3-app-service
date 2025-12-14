@@ -4,6 +4,7 @@ import com.player.common.entity.LogEntity;
 import com.player.music.entity.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -20,9 +21,9 @@ public interface MusicMapper {
 
     Long getMusicAuthorTotal(int categoryId);
 
-    List<MusicEntity> getMusicListByAuthorId(String userId,int authorId, int start, int pageSize);
+    List<MusicEntity> getMusicListByAuthor(String userId,int authorId,String authorName, int start, int pageSize);
 
-    Long getMusicListByAuthorIdTotal(int authorId);
+    Long getMusicListByAuthorTotal(int authorId);
 
     List<MusicAuthorEntity> getFavoriteAuthor(String userId, int start, int pageSize);
 
@@ -32,7 +33,7 @@ public interface MusicMapper {
 
     Long deleteFavoriteAuthor(String userId,int authorId);
 
-    List<MusicEntity> getMusicRecord(String userId, int start, int pageSize);
+    List<MusicEntity> getMusicRecord(String userId, Date startDate,Date endDate, int start, int pageSize);
 
     Long getMusicRecordCount(String userId);
 

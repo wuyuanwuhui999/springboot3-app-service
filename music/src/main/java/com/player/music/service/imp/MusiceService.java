@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -127,16 +128,16 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicListByAuthorId(String redisKey,String userId,int authorId, int pageNum, int pageSize) {
-        redisKey += "?pageNum=" + pageNum + "&pageSize=" + pageSize + "&authorId=" + authorId;
+    public ResultEntity getMusicListByAuthor(String redisKey,String userId,int authorId,String authorName, int pageNum, int pageSize) {
+        redisKey += "?pageNum=" + pageNum + "&pageSize=" + pageSize + "&authorId=" + authorId + "&authorName=" + authorName;
         String result = (String) redisTemplate.opsForValue().get(redisKey);
         if (!StringUtils.isEmpty(result)) {
             return JSON.parseObject(result, ResultEntity.class);
         } else {
             if (pageSize > 500) pageSize = 500;
             int start = (pageNum - 1) * pageSize;
-            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthorId(userId,authorId, start, pageSize));
-            Long singerTotal = musicMapper.getMusicListByAuthorIdTotal(authorId);
+            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthor(userId,authorId,authorName, start, pageSize));
+            Long singerTotal = musicMapper.getMusicListByAuthorTotal(authorId);
             resultEntity.setTotal(singerTotal);
             return resultEntity;
         }
@@ -164,10 +165,10 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicRecord(String userId, int pageNum, int pageSize){
+    public ResultEntity getMusicRecord(String userId, Date startDate, Date endDate, int pageNum, int pageSize){
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicRecord(userId,start,pageSize));
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicRecord(userId,startDate,endDate,start,pageSize));
         Long mySingerCount = musicMapper.getMusicRecordCount(userId);
         resultEntity.setTotal(mySingerCount);
         return resultEntity;

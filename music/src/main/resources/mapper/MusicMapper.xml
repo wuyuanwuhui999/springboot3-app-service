@@ -3,35 +3,35 @@
 <mapper namespace="com.player.music.mapper.MusicMapper">
 
     <sql id="musicSql">
-      select
-      id,
-      album_id,
-      song_name,
-      author_name,
-      album_name,
-      version,
-      `language`,
-      publish_date,
-      wide_audio_id,
-      is_publish,
-      big_pack_id,
-      final_id,
-      audio_id,
-      author_id,
-      similar_audio_id,
-      is_hot,
-      album_audio_id,
-      audio_group_id,
-      cover,
-      play_url,
-      local_play_url,
-      source_name,
-      source_url,
-      create_time,
-      update_time,
-      label,
-      lyrics
-      from music
+        select
+        id,
+        album_id,
+        song_name,
+        author_name,
+        album_name,
+        version,
+        `language`,
+        publish_date,
+        wide_audio_id,
+        is_publish,
+        big_pack_id,
+        final_id,
+        audio_id,
+        author_id,
+        similar_audio_id,
+        is_hot,
+        album_audio_id,
+        audio_group_id,
+        cover,
+        play_url,
+        local_play_url,
+        source_name,
+        source_url,
+        create_time,
+        update_time,
+        label,
+        lyrics
+        from music
     </sql>
 
     <select id="getKeywordMusic" resultType="MusicEntity">
@@ -45,23 +45,25 @@
 
     <select id="getMusicListByClassifyId" resultType="MusicEntity">
         SELECT
-            t3.*,
-            (CASE WHEN t4.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like
+        t3.*,
+        (CASE WHEN t4.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like
         FROM
-            (
-                SELECT
-                    t2.*
-                FROM music_classify t1
-                LEFT JOIN music t2
-                ON t1.music_id = t2.id
-                WHERE t1.classify_id =#{classifyId} AND t2.local_play_url IS NOT NULL ORDER BY t1.audio_rank DESC limit #{start},#{pageSize}
-            ) t3
+        (
+        SELECT
+        t2.*
+        FROM music_classify t1
+        LEFT JOIN music t2
+        ON t1.music_id = t2.id
+        WHERE t1.classify_id =#{classifyId} AND t2.local_play_url IS NOT NULL ORDER BY t1.audio_rank DESC limit
+        #{start},#{pageSize}
+        ) t3
         LEFT JOIN music_like t4
         ON t3.id = t4.music_id AND t4.user_id = #{userId} WHERE t3.id is not null
     </select>
 
     <select id="getMusicTotalByClassifyId" resultType="Long">
-        select count(*) as total from (select t2.id from music_classify t1 LEFT JOIN music t2 ON t1.music_id = t2.id WHERE classify_id = #{classifyId}) t3 WHERE t3.id IS NOT NULL
+        select count(*) as total from (select t2.id from music_classify t1 LEFT JOIN music t2 ON t1.music_id = t2.id
+        WHERE classify_id = #{classifyId}) t3 WHERE t3.id IS NOT NULL
     </select>
 
     <select id="getMusicAuthorListByCategoryId" resultType="MusicAuthorEntity">
@@ -100,40 +102,67 @@
         </if>
     </select>
 
-    <select id="getMusicListByAuthorId" resultType="MusicEntity">
-          SELECT
-            t1.*,
-            ( CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS is_like
+    <select id="getMusicListByAuthor" resultType="MusicEntity">
+    	SELECT
+        t1.*,
+        ( CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS is_like
+    FROM
+        (
+        SELECT
+            *
         FROM
-            (
-            SELECT
-                *
-            FROM
-                music
-            WHERE
+            music
+        WHERE
+        <!-- 使用choose实现if-else互斥逻辑 -->
+        <choose>
+            <when test="authorId != null">
                 author_id = #{authorId}
-            ORDER BY
-                update_time DESC
-                LIMIT #{start},#{pageSize}
-            ) t1
-            LEFT JOIN music_like t2 ON t1.id = t2.music_id and t2.user_id = #{userId}
+            </when>
+            <when test="authorName != null and authorName != ''">
+                author_name = #{authorName}
+            </when>
+            <!-- 可以添加一个otherwise防止没有条件的情况 -->
+            <otherwise>
+                1=1
+            </otherwise>
+        </choose>
+        ORDER BY
+            update_time DESC
+        LIMIT #{start},#{pageSize}
+        ) t1
+        LEFT JOIN music_like t2 ON t1.id = t2.music_id and t2.user_id = #{userId}
     </select>
 
-    <select id="getMusicListByAuthorIdTotal" resultType="Long">
-        select count(*) as total from music WHERE author_id = #{authorId}
+    <select id="getMusicListByAuthorTotal" resultType="Long">
+        select count(*) as total
+        from music
+        WHERE
+        <!-- 使用choose实现if-else互斥逻辑 -->
+        <choose>
+            <when test="authorId != null">
+                author_id = #{authorId}
+            </when>
+            <when test="authorName != null and authorName != ''">
+                author_name = #{authorName}
+            </when>
+            <otherwise>
+                1=1
+            </otherwise>
+        </choose>
     </select>
 
     <select id="getFavoriteAuthor" resultType="MusicAuthorEntity">
         select t4.*,COUNT(t5.author_id) as total from
-            (select t3.* from
-                (select t1.* from music_author_like t1 WHERE user_id = #{userId} LIMIT #{start},#{pageSize}) t2
-                    LEFT JOIN music_authors t3 on t2.author_id = t3.author_id) t4
+        (select t3.* from
+        (select t1.* from music_author_like t1 WHERE user_id = #{userId} LIMIT #{start},#{pageSize}) t2
+        LEFT JOIN music_authors t3 on t2.author_id = t3.author_id) t4
         LEFT JOIN music t5 on t5.author_id = t4.author_id
         GROUP BY t5.author_id,t4.id
     </select>
 
-    <insert id="insertFavoriteAuthor" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
-        INSERT INTO music_author_like (author_id,create_time,update_time,user_id) VALUES (#{authorId},now(),now(),#{userId})
+    <insert id="insertFavoriteAuthor" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO music_author_like (author_id,create_time,update_time,user_id) VALUES
+        (#{authorId},now(),now(),#{userId})
     </insert>
 
     <delete id="deleteFavoriteAuthor">
@@ -141,7 +170,7 @@
     </delete>
 
     <select id="getFavoriteAuthorCount" resultType="Long">
-       SELECT count(*) as total FROM music_author_like where user_id = #{userId}
+        SELECT count(*) as total FROM music_author_like where user_id = #{userId}
     </select>
 
     <select id="getMusicRecord" resultType="MusicEntity">
@@ -149,47 +178,76 @@
             *
         FROM
             (
-            SELECT
-                t5.*,
-                t6.times
-            FROM
-                (
                 SELECT
-                    t1.*
+                    t5.*,
+                    t6.times
                 FROM
-                    ( SELECT * FROM music_record WHERE user_id = #{userId} ) t1
-                    INNER JOIN ( SELECT music_id, MAX( create_time ) AS max_date FROM ( SELECT * FROM music_record WHERE user_id = #{userId} ) t2 GROUP BY music_id ) t3 ON t1.music_id = t3.music_id
-                    AND t1.create_time = t3.max_date
-                ORDER BY
-                    t1.create_time DESC
-                ) t4
-                INNER JOIN music t5 ON t4.music_id = t5.id
-                INNER JOIN ( SELECT COUNT( music_id ) AS times, music_id FROM music_record GROUP BY music_id ) t6 ON t6.music_id = t4.music_id
+                    (
+                        SELECT
+                            t1.*
+                        FROM
+                            (
+                                SELECT * FROM music_record
+                                WHERE user_id = #{userId}
+                                    <!-- 成对判断开始和结束时间 -->
+                                    <if test="startDate != null and endDate != null">
+                                        AND create_time BETWEEN #{startDate} AND #{endDate}
+                                    </if>
+                            ) t1
+                        INNER JOIN (
+                            SELECT music_id, MAX( create_time ) AS max_date
+                        FROM (
+                            SELECT * FROM music_record
+                        WHERE user_id = #{userId}
+                        <!-- 成对判断开始和结束时间 -->
+                        <if test="startDate != null and endDate != null">
+                            AND create_time BETWEEN #{startDate} AND #{endDate}
+                        </if>
+                    ) t2 GROUP BY music_id
+                ) t3 ON t1.music_id = t3.music_id
+            AND t1.create_time = t3.max_date
+            ORDER BY
+                t1.create_time DESC
+            ) t4
+            INNER JOIN music t5 ON t4.music_id = t5.id
+            INNER JOIN (
+                SELECT COUNT( music_id ) AS times, music_id
+                FROM music_record
+                WHERE 1=1
+                <!-- 成对判断开始和结束时间 -->
+                <if test="startDate != null and endDate != null">
+                    AND create_time BETWEEN #{startDate} AND #{endDate}
+                </if>
+            GROUP BY music_id
+            ) t6 ON t6.music_id = t4.music_id
             ORDER BY
                 t4.create_time DESC
             ) t7
-            LIMIT #{start},#{pageSize}
+        LIMIT #{start},#{pageSize}
     </select>
 
     <select id="getMusicRecordCount" resultType="Long">
         SELECT
-            COUNT( * )
+        COUNT( * )
         FROM
-            (
-            SELECT
-                t1.*
-            FROM
-                ( SELECT * FROM music_record WHERE user_id = #{userId} ) t1
-                INNER JOIN ( SELECT music_id, MAX( create_time ) AS max_date FROM ( SELECT * FROM music_record WHERE user_id = #{userId} ) t2 GROUP BY music_id ) t3 ON t1.music_id = t3.music_id
-            AND t1.create_time = t3.max_date
-            ) t4
+        (
+        SELECT
+        t1.*
+        FROM
+        ( SELECT * FROM music_record WHERE user_id = #{userId} ) t1
+        INNER JOIN ( SELECT music_id, MAX( create_time ) AS max_date FROM ( SELECT * FROM music_record WHERE user_id =
+        #{userId} ) t2 GROUP BY music_id ) t3 ON t1.music_id = t3.music_id
+        AND t1.create_time = t3.max_date
+        ) t4
     </select>
 
-    <insert id="insertMusicRecord" parameterType="MusicRecordEntity" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
-        insert into music_record (music_id,user_id,platform,version,device,create_time,update_time) VALUES (#{musicId},#{userId},#{platform},#{version},#{device},now(),now())
+    <insert id="insertMusicRecord" parameterType="MusicRecordEntity" useGeneratedKeys="true" keyProperty="id"
+            keyColumn="id">
+        insert into music_record (music_id,user_id,platform,version,device,create_time,update_time) VALUES
+        (#{musicId},#{userId},#{platform},#{version},#{device},now(),now())
     </insert>
 
-    <insert id="insertMusicLike" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+    <insert id="insertMusicLike" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into music_like (music_id,user_id,create_time,update_time) VALUES (#{musicId},#{userId},now(),now())
     </insert>
 
@@ -198,101 +256,109 @@
     </delete>
 
     <select id="getMusicLike" resultType="MusicEntity">
-        SELECT t2.* FROM music_like t1 LEFT JOIN music t2 on t1.music_id = t2.id where t1.user_id = #{userId} ORDER BY create_time desc LIMIT #{start}, #{pageSize}
+        SELECT t2.* FROM music_like t1 LEFT JOIN music t2 on t1.music_id = t2.id where t1.user_id = #{userId} ORDER BY
+        create_time desc LIMIT #{start}, #{pageSize}
     </select>
 
     <select id="getMusicLikeCount" resultType="Long">
-        select count(*) as total from (SELECT DISTINCT id,music_id,user_id,create_time,update_time FROM music_like WHERE user_id = #{userId}) t1
+        select count(*) as total from (SELECT DISTINCT id,music_id,user_id,create_time,update_time FROM music_like WHERE
+        user_id = #{userId}) t1
     </select>
 
     <select id="searchMusic" resultType="MusicEntity">
-        SELECT t1.*,(CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END) AS isFavorite FROM music t1 LEFT JOIN music_like t2 on t1.id = t2.music_id AND T2.user_id = #{userId}
-        where t1.song_name like concat('%',#{keyword},'%') or t1.author_name like concat('%',#{keyword},'%') or t1.album_name like concat('%',#{keyword},'%') LIMIT #{start}, #{pageSize}
+        SELECT t1.*,(CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END) AS isFavorite FROM music t1 LEFT JOIN
+        music_like t2 on t1.id = t2.music_id AND T2.user_id = #{userId}
+        where t1.song_name like concat('%',#{keyword},'%') or t1.author_name like concat('%',#{keyword},'%') or
+        t1.album_name like concat('%',#{keyword},'%') LIMIT #{start}, #{pageSize}
     </select>
 
     <select id="searchMusicCount" resultType="Long">
-        SELECT count(id) from music where song_name like concat('%',#{keyword},'%') or author_name like concat('%',#{keyword},'%') or album_name like concat('%',#{keyword},'%')
+        SELECT count(id) from music where song_name like concat('%',#{keyword},'%') or author_name like
+        concat('%',#{keyword},'%') or album_name like concat('%',#{keyword},'%')
     </select>
 
     <select id="getMusicAuthorCategory" resultType="MusicAuthorCategoryEntity">
-         SELECT * FROM music_author_category where disabled = 0 ORDER BY `rank` DESC
+        SELECT * FROM music_author_category where disabled = 0 ORDER BY `rank` DESC
     </select>
 
     <select id="getFavoriteDirectory" resultType="MusicFavoriteDirectoryEntity">
         SELECT
-            t8.*,
-            t10.cover
+        t8.*,
+        t10.cover
         FROM
-            (
-            SELECT
-                t1.*,
-                COUNT( t2.favorite_id ) AS total,
-                ( CASE WHEN t3.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS checked
-            FROM
-                music_favorite_directory t1
-                LEFT JOIN music_favorite_list t2 ON t1.id = t2.favorite_id
-                LEFT JOIN music_favorite_list t3 ON t1.id = t3.favorite_id
-                AND t3.music_id = #{musicId}
-            WHERE
-                t1.user_id = #{userId}
-            GROUP BY
-                t2.favorite_id,
-                t1.id
-            ORDER BY t1.create_time desc
-            ) t8
-            LEFT JOIN (
-            SELECT
-                t6.*,
-                t7.music_id
-            FROM
-                (
-                SELECT
-                    MAX( id ) AS id,
-                    favorite_id
-                FROM
-                    music_favorite_list
-                WHERE
-                    favorite_id IN ( SELECT id FROM music_favorite_directory WHERE user_id = #{userId} )
-                GROUP BY
-                    favorite_id
-                ) t6
-                LEFT JOIN music_favorite_list t7 ON t6.id = t7.id
-            ) t9 ON t8.id = t9.favorite_id
-            LEFT JOIN music t10 ON t9.music_id = t10.id
+        (
+        SELECT
+        t1.*,
+        COUNT( t2.favorite_id ) AS total,
+        ( CASE WHEN t3.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS checked
+        FROM
+        music_favorite_directory t1
+        LEFT JOIN music_favorite_list t2 ON t1.id = t2.favorite_id
+        LEFT JOIN music_favorite_list t3 ON t1.id = t3.favorite_id
+        AND t3.music_id = #{musicId}
+        WHERE
+        t1.user_id = #{userId}
+        GROUP BY
+        t2.favorite_id,
+        t1.id
+        ORDER BY t1.create_time desc
+        ) t8
+        LEFT JOIN (
+        SELECT
+        t6.*,
+        t7.music_id
+        FROM
+        (
+        SELECT
+        MAX( id ) AS id,
+        favorite_id
+        FROM
+        music_favorite_list
+        WHERE
+        favorite_id IN ( SELECT id FROM music_favorite_directory WHERE user_id = #{userId} )
+        GROUP BY
+        favorite_id
+        ) t6
+        LEFT JOIN music_favorite_list t7 ON t6.id = t7.id
+        ) t9 ON t8.id = t9.favorite_id
+        LEFT JOIN music t10 ON t9.music_id = t10.id
     </select>
 
     <select id="getMusicListByFavoriteId" resultType="MusicEntity">
         SELECT
-            t2.*,
-            ( CASE WHEN t3.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS is_like
+        t2.*,
+        ( CASE WHEN t3.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS is_like
         FROM
-            (
-            SELECT
-                *
-            FROM
-                music_favorite_list
-            WHERE
-                <if test="favoriteId != '' and favoriteId != null">
-                    favorite_id = #{favoriteId} AND
-                </if>
-                 EXISTS ( SELECT * FROM music_favorite_directory WHERE user_id = #{userId} AND id = #{favoriteId} )
-            ORDER BY
-                update_time DESC
-                LIMIT #{start},#{pageSize}
-            ) t1
-            LEFT JOIN music t2 ON t1.music_id = t2.id
-            LEFT JOIN music_like t3 ON t1.music_id = t3.music_id and t3.user_id = #{userId}
+        (
+        SELECT
+        *
+        FROM
+        music_favorite_list
+        WHERE
+        <if test="favoriteId != '' and favoriteId != null">
+            favorite_id = #{favoriteId} AND
+        </if>
+        EXISTS ( SELECT * FROM music_favorite_directory WHERE user_id = #{userId} AND id = #{favoriteId} )
+        ORDER BY
+        update_time DESC
+        LIMIT #{start},#{pageSize}
+        ) t1
+        LEFT JOIN music t2 ON t1.music_id = t2.id
+        LEFT JOIN music_like t3 ON t1.music_id = t3.music_id and t3.user_id = #{userId}
     </select>
 
     <select id="getMusicCountByFavoriteId" resultType="Long">
-       SELECT count(id) FROM music_favorite_list WHERE favorite_id = #{favoriteId}
+        SELECT count(id) FROM music_favorite_list WHERE favorite_id = #{favoriteId}
     </select>
 
-    <insert id="insertFavoriteDirectory" parameterType="MusicFavoriteDirectoryEntity" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="insertFavoriteDirectory" parameterType="MusicFavoriteDirectoryEntity" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
         <selectKey keyProperty="id" resultType="Long" order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
-        INSERT INTO music_favorite_directory(`name`,user_id,create_time,update_time) SELECT #{name},#{userId},NOW(),NOW() FROM DUAL WHERE NOT EXISTS (SELECT * FROM music_favorite_directory WHERE `name` = #{name} and `user_id`= #{userId})
+        INSERT INTO music_favorite_directory(`name`,user_id,create_time,update_time) SELECT
+        #{name},#{userId},NOW(),NOW() FROM DUAL WHERE NOT EXISTS (SELECT * FROM music_favorite_directory WHERE `name` =
+        #{name} and `user_id`= #{userId})
     </insert>
 
     <select id="getFavoriteDirectoryById" resultType="MusicFavoriteDirectoryEntity">
@@ -304,30 +370,37 @@
     </update>
 
     <delete id="deleteFavoriteDirectory">
-        delete from music_favorite_directory where id = #{favoriteId} and user_id =  #{userId}
+        delete from music_favorite_directory where id = #{favoriteId} and user_id = #{userId}
     </delete>
 
     <select id="isMusicFavorite" resultType="Long">
-        SELECT COUNT(id) FROM music_favorite_list where music_id = #{musicId} and favorite_id in (SELECT id FROM music_favorite_directory WHERE user_id = #{userId})
+        SELECT COUNT(id) FROM music_favorite_list where music_id = #{musicId} and favorite_id in (SELECT id FROM
+        music_favorite_directory WHERE user_id = #{userId})
     </select>
 
     <delete id="deleteMusicFavorite">
-        DELETE FROM music_favorite_list WHERE favorite_id IN (SELECT id FROM music_favorite_directory WHERE user_id = #{userId}) and music_id = #{musicId}
+        DELETE FROM music_favorite_list WHERE favorite_id IN (SELECT id FROM music_favorite_directory WHERE user_id =
+        #{userId}) and music_id = #{musicId}
     </delete>
 
     <delete id="deleteMusicFavoriteByFavoriteId">
-        DELETE FROM music_favorite_list WHERE favorite_id IN (SELECT id FROM music_favorite_directory WHERE user_id = #{userId}) and favorite_id = #{favoriteId}
+        DELETE FROM music_favorite_list WHERE favorite_id IN (SELECT id FROM music_favorite_directory WHERE user_id =
+        #{userId}) and favorite_id = #{favoriteId}
     </delete>
 
-    <insert id="insertMusicFavorite" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+    <insert id="insertMusicFavorite" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO music_favorite_list(music_id,favorite_id,create_time,update_time)
         <foreach collection="list" separator="union all" item="item">
-            select #{item.musicId},#{item.favoriteId},now(),now() FROM dual WHERE EXISTS (SELECT * FROM music_favorite_directory WHERE user_id = #{item.userId} and id = #{item.favoriteId})
+            select #{item.musicId},#{item.favoriteId},now(),now() FROM dual WHERE EXISTS (SELECT * FROM
+            music_favorite_directory WHERE user_id = #{item.userId} and id = #{item.favoriteId})
         </foreach>
     </insert>
 
-    <insert id="saveLog" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
-        INSERT INTO log(`method`,`url`,`headers`,`ip`,`params`,`query_string`,`result`,`start_time`,`run_time`,`description`,`end_time`,`oparation`,`type`,`user_id`,`app_id`,`app_name`) values (#{method},#{url},#{headers},#{ip},#{params},#{queryString},#{result},#{startTime},#{runTime},#{description},#{endTime},#{oparation},#{type},#{userId},#{appId},#{appName})
+    <insert id="saveLog" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO
+        log(`method`,`url`,`headers`,`ip`,`params`,`query_string`,`result`,`start_time`,`run_time`,`description`,`end_time`,`oparation`,`type`,`user_id`,`app_id`,`app_name`)
+        values
+        (#{method},#{url},#{headers},#{ip},#{params},#{queryString},#{result},#{startTime},#{runTime},#{description},#{endTime},#{oparation},#{type},#{userId},#{appId},#{appName})
     </insert>
 </mapper>
 

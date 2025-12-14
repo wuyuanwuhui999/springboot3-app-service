@@ -8,9 +8,11 @@ import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
 import com.player.music.service.IMusicService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -58,15 +60,16 @@ public class MusicController {
     }
 
     // 根据歌手id获取歌手专辑
-    @GetMapping("/music/getMusicListByAuthorId")
-    public ResultEntity getMusicListByAuthorId(
+    @GetMapping("/music/getMusicListByAuthor")
+    public ResultEntity getMusicListByAuthor(
             HttpServletRequest request,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
-            @RequestParam(name = "authorId",required = true) int authorId
+            @RequestParam(name = "authorName",required = false) int authorName,
+            @RequestParam(name = "authorId",required = false) int authorId
     ) {
-        return musicService.getMusicListByAuthorId(HttpUtils.getFullRequestPath(request),userId, authorId, pageNum, pageSize);
+        return musicService.getMusicListByAuthor(HttpUtils.getFullRequestPath(request),userId, authorId, pageNum, pageSize);
     }
 
     // 获取用户收藏歌手
@@ -101,10 +104,12 @@ public class MusicController {
     @GetMapping("/music/getMusicRecord")
     public ResultEntity getMusicRecord(
             @RequestHeader("X-User-Id") String userId,
+            @RequestParam(name="startDate",required = false) Date startDate,
+            @RequestParam(name="endDate",required = false) Date endDate,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize
     ) {
-        return musicService.getMusicRecord(userId,pageNum,pageSize);
+        return musicService.getMusicRecord(userId,startDate,endDate,pageNum,pageSize);
     }
 
     // 插入播放记录
@@ -134,7 +139,7 @@ public class MusicController {
         return musicService.deleteMusicLike(userId,id);
     }
 
-    // 查询音乐收藏
+    // 查询点赞的音乐
     @GetMapping("/music/getMusicLike")
     public ResultEntity getMusicLike(
             @RequestHeader("X-User-Id") String userId,
@@ -144,7 +149,7 @@ public class MusicController {
         return musicService.getMusicLike(userId,pageNum,pageSize);
     }
 
-    //    @ApiOperation("查询音乐收藏")
+    // 搜素音乐
     @GetMapping("/music/searchMusic")
     public ResultEntity searchMusic(
             @RequestHeader("X-User-Id") String userId,
@@ -153,6 +158,21 @@ public class MusicController {
             @RequestParam(name = "pageSize",required = true) int pageSize
     ) {
         return musicService.searchMusic(userId,keyword,pageNum,pageSize);
+    }
+
+    // 搜素音乐
+    @GetMapping("/music/queryMusic")
+    public ResultEntity queryMusic(
+            @RequestParam(name = "songName",required = false) String songName,
+            @RequestParam(name = "authorName",required = false) String authorName,
+            @RequestParam(name = "albumName",required = false) String albumName,
+            @RequestParam(name = "language",required = false) String language,
+            @RequestParam(name = "publishStart",required = false) Date publishStart,
+            @RequestParam(name = "label",required = false) String label,
+            @RequestParam(name = "pageNum",required = true) int pageNum,
+            @RequestParam(name = "pageSize",required = true) int pageSize
+    ) {
+        return musicService.queryMusic(songName,authorName,albumName,language,publishStart,label,pageNum,pageSize);
     }
 
     // 获取歌手分类
@@ -193,7 +213,7 @@ public class MusicController {
     // 查询收藏夹音乐
     @GetMapping("/music/getMusicListByFavoriteId")
     public ResultEntity getMusicListByFavoriteId(
-            @RequestParam(name = "favoriteId",required = true) Long favoriteId,
+            @RequestParam(name = "favoriteId",required = false) Long favoriteId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
             @RequestHeader("X-User-Id") String userId

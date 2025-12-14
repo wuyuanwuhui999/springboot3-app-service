@@ -6,6 +6,7 @@ import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 public interface IMusicService {
@@ -17,7 +18,7 @@ public interface IMusicService {
 
     ResultEntity getMusicAuthorListByCategoryId(String redisKey,String token, int categoryId, int pageNum, int pageSize);
 
-    ResultEntity getMusicListByAuthorId(String redisKey,String token, int authorId, int pageNum, int pageSize);
+    ResultEntity getMusicListByAuthor(String redisKey,String token, int authorId, int pageNum, int pageSize);
 
     ResultEntity getFavoriteAuthor(String token,int pageNum, int pageSize);
 
@@ -25,7 +26,7 @@ public interface IMusicService {
 
     ResultEntity deleteFavoriteAuthor(String token,int authorId);
 
-    ResultEntity getMusicRecord(String token, int pageNum, int pageSize);
+    ResultEntity getMusicRecord(String token, Date startDate, Date endDate, int pageNum, int pageSize);
 
     @Transactional
     ResultEntity insertMusicRecord(String token, MusicRecordEntity myMusicRecordEntity);
@@ -39,6 +40,8 @@ public interface IMusicService {
     ResultEntity getMusicLike(String token, int pageNum, int pageSize);
 
     ResultEntity searchMusic(String token,String keyword, int pageNum, int pageSize);
+
+    ResultEntity queryMusic(String songName,String authorName,String albumName,String language,Date publishStart,String label,int pageNum,int pageSize);
 
     ResultEntity getMusicAuthorCategory(String redisKey);
 

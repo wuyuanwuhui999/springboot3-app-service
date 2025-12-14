@@ -6,11 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/AgentApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/client/MusicFeignClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/client/MusicFeignClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/AgentApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/mapper/MusicMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/mapper/MusicMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/IMusicService.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/IMusicService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music/src/main/resources/mapper/MusicMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/mapper/MusicMapper.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,7 +104,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Application.MusicApplication">
+  <component name="RunManager" selected="Application.AgentApplication">
     <configuration name="AgentApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.player.agent.AgentApplication" />
       <module name="agent" />
@@ -190,8 +195,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.AgentApplication" />
+        <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.GatewayApplication" />
         <item itemvalue="Application.ChatApplication" />
         <item itemvalue="Application.UserApplication" />
