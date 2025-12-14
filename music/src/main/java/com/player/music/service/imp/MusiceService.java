@@ -13,17 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class MusiceService implements IMusicService {
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Autowired
     private MusicMapper musicMapper;
@@ -290,13 +285,12 @@ public class MusiceService implements IMusicService {
      */
     @Override
     public ResultEntity insertMusicFavorite(String userId,Long musicId, List<MusicFavoriteEntity> myMusicFavoriteEntityList) {
-        String uid = userId;
-        Long deleteLength = musicMapper.deleteMusicFavorite(uid, musicId);
+        Long deleteLength = musicMapper.deleteMusicFavorite(userId, musicId);
         if(myMusicFavoriteEntityList.size() == 0){
             return ResultUtil.success(deleteLength);
         }else{
             myMusicFavoriteEntityList.forEach(item->{
-                item.setUserId(uid);
+                item.setUserId(userId);
                 item.setMusicId(musicId);
             });
             return ResultUtil.success(musicMapper.insertMusicFavorite(myMusicFavoriteEntityList));

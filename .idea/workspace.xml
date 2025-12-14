@@ -6,16 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/client/MusicFeignClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/client/MusicFeignClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/controller/AgentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/controller/AgentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat_history.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/controller/MusicController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/mapper/MusicMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/mapper/MusicMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/IMusicService.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/IMusicService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/java/com/player/music/service/imp/MusiceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/src/main/resources/mapper/MusicMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/mapper/MusicMapper.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
