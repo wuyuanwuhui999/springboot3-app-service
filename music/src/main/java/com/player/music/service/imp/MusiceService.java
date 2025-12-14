@@ -36,21 +36,8 @@ public class MusiceService implements IMusicService {
      * @date: 2023-05-25 20:55
      */
     @Override
-    public ResultEntity getKeywordMusic(String redisKey) {
-        String result = (String) redisTemplate.opsForValue().get(redisKey);
-        if (!StringUtils.isEmpty(result)) {
-            return JSON.parseObject(result, ResultEntity.class);
-        } else {
-            ResultEntity resultEntity = ResultUtil.success(musicMapper.getKeywordMusic());
-            // 修改后的代码
-            redisTemplate.opsForValue().set(
-                    redisKey,
-                    JSON.toJSONString(resultEntity),
-                    1,
-                    TimeUnit.DAYS
-            );
-            return resultEntity;
-        }
+    public ResultEntity getKeywordMusic() {
+        return ResultUtil.success(musicMapper.getKeywordMusic());
     }
 
     /**
@@ -61,21 +48,8 @@ public class MusiceService implements IMusicService {
      * @date: 2023-05-25 21:00
      */
     @Override
-    public ResultEntity getMusicClassify(String redisKey) {
-        String result = (String) redisTemplate.opsForValue().get(redisKey);
-        if (!StringUtils.isEmpty(result)) {
-            return JSON.parseObject(result, ResultEntity.class);
-        } else {
-            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicClassify());
-            // 修改后的代码
-            redisTemplate.opsForValue().set(
-                    redisKey,
-                    JSON.toJSONString(resultEntity),
-                    1,
-                    TimeUnit.DAYS
-            );
-            return resultEntity;
-        }
+    public ResultEntity getMusicClassify() {
+        return ResultUtil.success(musicMapper.getMusicClassify());
     }
 
     /**
@@ -86,29 +60,7 @@ public class MusiceService implements IMusicService {
      * @date: 2023-05-25 21:00
      */
     @Override
-    public ResultEntity getMusicListByClassifyId(String redisKey, int classifyId, int pageNum, int pageSize, boolean isRedis, String userId) {
-        if(isRedis){
-            redisKey += "?classifyId=" + classifyId + "&pageNum=" + pageNum + "&pageSize=" + pageNum + "&userId=" + userId;
-            String result = (String) redisTemplate.opsForValue().get(redisKey);
-            if (!StringUtils.isEmpty(result)) {// 如果缓存中有数据
-                return JSON.parseObject(result, ResultEntity.class);
-            } else {// 如果缓存中没有数据，从数据库中查询，并将查询结果写入缓存
-                ResultEntity resultEntity = findMusicListByClassifyId(classifyId, pageNum, pageSize, userId);
-                // 修改后的代码
-                redisTemplate.opsForValue().set(
-                        redisKey,
-                        JSON.toJSONString(resultEntity),
-                        1,
-                        TimeUnit.DAYS
-                );
-                return resultEntity;
-            }
-        }else{
-            return findMusicListByClassifyId(classifyId, pageNum, pageSize,userId);
-        }
-    }
-
-    private ResultEntity findMusicListByClassifyId(int classifyId, int pageNum, int pageSize,String userId){
+    public ResultEntity getMusicListByClassifyId(int classifyId, int pageNum, int pageSize, boolean isRedis, String userId) {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
         ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByClassifyId(classifyId, start, pageSize, userId));
@@ -118,7 +70,7 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicAuthorListByCategoryId(String redisKey,String userId,int categoryId, int pageNum, int pageSize) {
+    public ResultEntity getMusicAuthorListByCategoryId(String userId,int categoryId, int pageNum, int pageSize) {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
         ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicAuthorListByCategoryId(userId,categoryId, start, pageSize));
@@ -128,19 +80,13 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicListByAuthor(String redisKey,String userId,int authorId,String authorName, int pageNum, int pageSize) {
-        redisKey += "?pageNum=" + pageNum + "&pageSize=" + pageSize + "&authorId=" + authorId + "&authorName=" + authorName;
-        String result = (String) redisTemplate.opsForValue().get(redisKey);
-        if (!StringUtils.isEmpty(result)) {
-            return JSON.parseObject(result, ResultEntity.class);
-        } else {
-            if (pageSize > 500) pageSize = 500;
-            int start = (pageNum - 1) * pageSize;
-            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthor(userId,authorId,authorName, start, pageSize));
-            Long singerTotal = musicMapper.getMusicListByAuthorTotal(authorId);
-            resultEntity.setTotal(singerTotal);
-            return resultEntity;
-        }
+    public ResultEntity getMusicListByAuthor(String userId,int authorId,String authorName, int pageNum, int pageSize) {
+        if (pageSize > 500) pageSize = 500;
+        int start = (pageNum - 1) * pageSize;
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthor(userId,authorId,authorName, start, pageSize));
+        Long singerTotal = musicMapper.getMusicListByAuthorTotal(authorId,authorName);
+        resultEntity.setTotal(singerTotal);
+        return resultEntity;
     }
 
 
@@ -245,6 +191,16 @@ public class MusiceService implements IMusicService {
         return resultEntity;
     }
 
+    @Override
+    public ResultEntity queryMusic(String songName, String authorName, String albumName, String language, Date publishStart, String label, int pageNum, int pageSize) {
+        if (pageSize > 500) pageSize = 500;
+        int start = (pageNum - 1) * pageSize;
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.queryMusic(songName, authorName, albumName, language, publishStart, label, start, pageSize));
+        Long total = musicMapper.queryMusicCount(songName, authorName, albumName, language, publishStart, label);
+        resultEntity.setTotal(total);
+        return null;
+    }
+
     /**
      * @author: wuwenqiang
      * @methodsName: getMusicAuthorCategory
@@ -253,21 +209,8 @@ public class MusiceService implements IMusicService {
      * @date: 2024-01-27 16:57
      */
     @Override
-    public ResultEntity getMusicAuthorCategory(String redisKey){
-        String result = (String) redisTemplate.opsForValue().get(redisKey);
-        if (!StringUtils.isEmpty(result)) {
-            return JSON.parseObject(result, ResultEntity.class);
-        } else {
-            ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicAuthorCategory());
-            // 修改后的代码
-            redisTemplate.opsForValue().set(
-                    redisKey,
-                    JSON.toJSONString(resultEntity),
-                    1,
-                    TimeUnit.DAYS
-            );
-            return resultEntity;
-        }
+    public ResultEntity getMusicAuthorCategory(){
+        return ResultUtil.success(musicMapper.getMusicAuthorCategory());
     }
 
     /**

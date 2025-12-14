@@ -23,7 +23,7 @@ public interface MusicMapper {
 
     List<MusicEntity> getMusicListByAuthor(String userId,int authorId,String authorName, int start, int pageSize);
 
-    Long getMusicListByAuthorTotal(int authorId);
+    Long getMusicListByAuthorTotal(int authorId,String authorName);
 
     List<MusicAuthorEntity> getFavoriteAuthor(String userId, int start, int pageSize);
 
@@ -75,5 +75,7 @@ public interface MusicMapper {
 
     Long isMusicFavorite(String userId,Long musicId);
 
-    Long saveLog(LogEntity logEntity);
+    List<MusicEntity> queryMusic(String songName, String authorName, String albumName, String language, Date publishStart, String label, int pageNum, int pageSize);
+
+    Long queryMusicCount(String songName, String authorName, String albumName, String language, Date publishStart, String label);
 }

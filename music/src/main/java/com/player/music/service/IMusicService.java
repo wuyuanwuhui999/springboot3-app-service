@@ -10,15 +10,15 @@ import java.util.Date;
 import java.util.List;
 
 public interface IMusicService {
-    ResultEntity getKeywordMusic(String redisKey);
+    ResultEntity getKeywordMusic();
 
-    ResultEntity getMusicClassify(String redisKey);
+    ResultEntity getMusicClassify();
 
-    ResultEntity getMusicListByClassifyId(String redisKey, int classifyId, int pageNum, int pageSize, boolean isRedis, String token);
+    ResultEntity getMusicListByClassifyId(int classifyId, int pageNum, int pageSize, boolean isRedis, String token);
 
-    ResultEntity getMusicAuthorListByCategoryId(String redisKey,String token, int categoryId, int pageNum, int pageSize);
+    ResultEntity getMusicAuthorListByCategoryId(String userId,int categoryId, int pageNum, int pageSize);
 
-    ResultEntity getMusicListByAuthor(String redisKey,String token, int authorId, int pageNum, int pageSize);
+    ResultEntity getMusicListByAuthor(String token, int authorId,String authorName, int pageNum, int pageSize);
 
     ResultEntity getFavoriteAuthor(String token,int pageNum, int pageSize);
 
@@ -43,11 +43,11 @@ public interface IMusicService {
 
     ResultEntity queryMusic(String songName,String authorName,String albumName,String language,Date publishStart,String label,int pageNum,int pageSize);
 
-    ResultEntity getMusicAuthorCategory(String redisKey);
+    ResultEntity getMusicAuthorCategory();
 
     ResultEntity getFavoriteDirectory(String token,Long musicId);
 
-    ResultEntity getMusicListByFavoriteId(String token,Long favoriteId,int pageNum,int pageSize);
+    ResultEntity getMusicListByFavoriteId(String userId,Long favoriteId,int pageNum,int pageSize);
 
     @Transactional
     ResultEntity insertFavoriteDirectory(String token, MusicFavoriteDirectoryEntity favoriteDirectoryEntity);

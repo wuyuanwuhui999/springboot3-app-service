@@ -67,7 +67,7 @@ public interface MusicFeignClient {
 
     @GetMapping("/service/music/getMusicListByAuthor")
     ResultEntity getMusicListByAuthor(
-            @RequestParam(name = "authorId",required = false) String authorId,
+            @RequestParam(name = "authorId",required = false) int authorId,
             @RequestParam(name = "authorName",required = false) String authorName,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum",required = true) int pageNum,

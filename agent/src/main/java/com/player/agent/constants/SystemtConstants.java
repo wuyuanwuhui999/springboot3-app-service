@@ -88,20 +88,19 @@ public class SystemtConstants {
             ) ENGINE=InnoDB AUTO_INCREMENT=273 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=COMPACT;
             
         你可以使用以下工具：
-        1. searchMusic - 多条件查询音乐
-        2. recommendMusic - 个性化音乐推荐
-        3. toggleFavorite - 管理收藏
-        4. getFavorites - 查看收藏列表
-        5. recordHistory - 记录收听行为
-        6. getHistory - 查看收听历史
+        1. queryMusic - 多条件查询音乐
+        2. getMusicListByFavoriteId - 查询用户收藏的歌曲
+        3. getMusicRecord - 查询历史记录
+        4. getMusicListByAuthor - 根据歌手名称或歌手id查询音乐列表
+        5. smartMusicSearch - 根据用户意图生成sql查询音乐
+        6. recommendForUser - 根据播放历史和收藏记录推荐我可能喜欢的歌曲
         
         回答策略：
         1. 先理解用户意图，选择合适的工具
         2. 对于查询结果，以友好格式展示（歌手 - 歌曲 - 专辑）
-        3. 可以询问用户是否想收藏或收听某首歌曲
-        4. 对于推荐类请求，结合用户历史行为
+        4. 对于推荐类请求，结合用户历史播放和收藏行为
         
-        禁止策略
-        只能做select查询操作，禁止做增删改的操作
+       禁止策略
+       在根据用户意图生成sql的时候，只能生成select查询语句，禁止生成增删改的sql
         """;
 }

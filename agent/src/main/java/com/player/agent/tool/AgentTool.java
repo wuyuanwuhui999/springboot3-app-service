@@ -65,12 +65,11 @@ public class AgentTool {
     @Tool(description = "查询歌手的所有歌曲")
     @GetMapping("/music/getMusicListByAuthor")
     public List<MusicEntity> getMusicListByAuthor(
-            HttpServletRequest request,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
-            @RequestParam(name = "authorId",required = true) String authorId,
-            @RequestParam(name = "authorId",required = true) String authorName
+            @RequestParam(name = "authorId",required = false) int authorId,
+            @RequestParam(name = "authorName",required = false) String authorName
     ){
         return (List<MusicEntity>) musicFeignClient.getMusicListByAuthor(authorId,authorName,userId,pageNum,pageSize).getData();
     }
@@ -89,16 +88,13 @@ public class AgentTool {
     @Tool(description = "推荐我可能喜欢的歌曲")
     public List<MusicEntity> recommendForUser(String userId) {
         // 1. 获取用户历史偏好
-        ResultEntity musicRecord = musicFeignClient.getMusicRecord(userId, 1, 100);
-        List<MusicEntity> history = (List<MusicEntity>) musicRecord.getData();
-        ResultEntity favoriteDirectory = musicFeignClient.getFavoriteDirectory(0L, userId);
-        List<MusicEntity> favorites = (List<MusicEntity>) favoriteDirectory.getData();
+        List<MusicEntity> historyList = (List<MusicEntity>) musicFeignClient.getMusicRecord(userId,null,null, 1, 100).getData();
+        // 2.获取收藏列表
+        List<MusicEntity> favoriteList = (List<MusicEntity>) musicFeignClient.getMusicListByFavoriteId(null, userId,1,100).getData();
 
         // 2. 分析偏好特征
-//        UserPreference preference = analyzePreference(history, favorites);
 
         // 3. 基于偏好推荐
-//        return recommendationEngine.recommend(preference);
         return null;
     }
 }

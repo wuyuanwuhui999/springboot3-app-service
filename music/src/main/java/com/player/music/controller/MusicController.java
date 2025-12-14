@@ -24,52 +24,49 @@ public class MusicController {
 
     // 获取搜索框默认推荐音乐
     @GetMapping("/music/getKeywordMusic")
-    public ResultEntity getKeywordMusic(HttpServletRequest request,@RequestHeader("X-User-Id") String userId) {
-        return musicService.getKeywordMusic(HttpUtils.getFullRequestPath(request));
+    public ResultEntity getKeywordMusic() {
+        return musicService.getKeywordMusic();
     }
 
     // 获取音乐分类
     @GetMapping("/music/getMusicClassify")
-    public ResultEntity getClassifyMusic(HttpServletRequest request) {
-        return musicService.getMusicClassify(HttpUtils.getFullRequestPath(request));
+    public ResultEntity getClassifyMusic() {
+        return musicService.getMusicClassify();
     }
 
     // 获取推荐音乐列表,isRedis表示是否从redis中获取数据
     @GetMapping("/music/getMusicListByClassifyId")
     public ResultEntity getMusicListByClassifyId(
-            HttpServletRequest request,
             @RequestParam(name = "classifyId",required = true) int classifyId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
             @RequestParam(name = "isRedis",defaultValue = "0",required = false) int isRedis,
             @RequestHeader("X-User-Id") String userId
     ) {
-        return musicService.getMusicListByClassifyId(HttpUtils.getFullRequestPath(request), classifyId, pageNum, pageSize, isRedis != 0, userId);
+        return musicService.getMusicListByClassifyId(classifyId, pageNum, pageSize, isRedis != 0, userId);
     }
 
     //  根据分类id获取歌手
     @GetMapping("/music/getMusicAuthorListByCategoryId")
     public ResultEntity getMusicAuthorListByCategoryId(
-            HttpServletRequest request,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
             @RequestParam(name = "categoryId",required = true) int categoryId
     ) {
-        return musicService.getMusicAuthorListByCategoryId(HttpUtils.getFullRequestPath(request),userId, categoryId, pageNum, pageSize);
+        return musicService.getMusicAuthorListByCategoryId(userId, categoryId, pageNum, pageSize);
     }
 
     // 根据歌手id获取歌手专辑
     @GetMapping("/music/getMusicListByAuthor")
     public ResultEntity getMusicListByAuthor(
-            HttpServletRequest request,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum",required = true) int pageNum,
             @RequestParam(name = "pageSize",required = true) int pageSize,
-            @RequestParam(name = "authorName",required = false) int authorName,
+            @RequestParam(name = "authorName",required = false) String authorName,
             @RequestParam(name = "authorId",required = false) int authorId
     ) {
-        return musicService.getMusicListByAuthor(HttpUtils.getFullRequestPath(request),userId, authorId, pageNum, pageSize);
+        return musicService.getMusicListByAuthor(userId, authorId, authorName, pageNum, pageSize);
     }
 
     // 获取用户收藏歌手
@@ -177,10 +174,8 @@ public class MusicController {
 
     // 获取歌手分类
     @GetMapping("/music/getMusicAuthorCategory")
-    public ResultEntity getMusicAuthorCategory(
-            HttpServletRequest request
-    ) {
-        return musicService.getMusicAuthorCategory(HttpUtils.getFullRequestPath(request));
+    public ResultEntity getMusicAuthorCategory() {
+        return musicService.getMusicAuthorCategory();
     }
 
     // 查询收藏夹列表
