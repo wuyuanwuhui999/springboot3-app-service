@@ -21,8 +21,9 @@ spring:
         server-addr: 127.0.0.1:8848  # Nacos 地址
         username: nacos
         password: nacos
-        namespace:  # 如果有命名空间，请填写
-        group: DEFAULT_GROUP
+        service: ${spring.application.name}
+#        namespace:  # 如果有命名空间，请填写
+#        group: DEFAULT_GROUP
   token:
     secret: ${SECRET} #token秘钥
   servlet:
@@ -96,7 +97,8 @@ logging:
     org.springframework.ai.chat.client: DEBUG
     org.springframework.ai.ollama: INFO
     org.springframework.ai.model: INFO
-
+    com.alibaba.nacos: DEBUG
+    org.springframework.cloud.nacos: DEBUG
 ollama:
   base-url: http://localhost:11434
   model-name: qwen3:8b

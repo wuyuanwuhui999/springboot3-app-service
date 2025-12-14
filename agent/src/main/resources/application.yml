@@ -22,6 +22,7 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
         username: nacos
+        service: ${spring.application.name}
         password: nacos
         namespace:  # 如果有命名空间，请填写
         group: DEFAULT_GROUP

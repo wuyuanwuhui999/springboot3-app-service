@@ -12,7 +12,7 @@
     <groupId>com.player.music</groupId>
     <artifactId>music</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>music</name>
+    <name>music-service</name>
     <description>music</description>
     <url/>
     <licenses>
