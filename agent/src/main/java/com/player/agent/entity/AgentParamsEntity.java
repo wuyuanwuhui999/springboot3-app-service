@@ -22,4 +22,7 @@ public class AgentParamsEntity {
 
     @Schema(description = "语言，zh/cn")
     private String language;
+
+    @Schema(description = "用户ID")
+    private String userId;
 }
