@@ -115,7 +115,7 @@
         WHERE
         <!-- 使用choose实现if-else互斥逻辑 -->
         <choose>
-            <when test="authorId != null">
+            <when test="authorId != 0">
                 author_id = #{authorId}
             </when>
             <when test="authorName != null and authorName != ''">

@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
@@ -54,7 +53,7 @@ public class AgentUtils {
 
                         // 添加日志顾问（可选）
                         if (log.isDebugEnabled()) {
-                            advisorSpec.add(new SimpleLoggerAdvisor());
+                            advisorSpec.advisors(new SimpleLoggerAdvisor());
                         }
                     });
 
@@ -301,137 +300,5 @@ public class AgentUtils {
         }
 
         return result.toString();
-    }
-
-    /**
-     * 提取查询意图
-     */
-    public static Map<String, String> extractQueryIntent(String userQuery) {
-        Map<String, String> intent = new HashMap<>();
-        String lowerQuery = userQuery.toLowerCase();
-
-        // 提取歌手信息
-        String[] commonAuthors = {"周杰伦", "林俊杰", "邓紫棋", "陈奕迅", "薛之谦",
-                "王菲", "张学友", "刘德华", "孙燕姿", "蔡依林"};
-        for (String author : commonAuthors) {
-            if (lowerQuery.contains(author.toLowerCase())) {
-                intent.put("author", author);
-                break;
-            }
-        }
-
-        // 提取歌曲类型
-        if (lowerQuery.contains("流行")) {
-            intent.put("genre", "流行");
-        } else if (lowerQuery.contains("摇滚")) {
-            intent.put("genre", "摇滚");
-        } else if (lowerQuery.contains("古典")) {
-            intent.put("genre", "古典");
-        } else if (lowerQuery.contains("民谣")) {
-            intent.put("genre", "民谣");
-        }
-
-        // 提取语言
-        if (lowerQuery.contains("中文") || lowerQuery.contains("国语")) {
-            intent.put("language", "中文");
-        } else if (lowerQuery.contains("英文") || lowerQuery.contains("英语")) {
-            intent.put("language", "英文");
-        } else if (lowerQuery.contains("日语") || lowerQuery.contains("日文")) {
-            intent.put("language", "日语");
-        }
-
-        // 判断查询类型
-        if (lowerQuery.contains("收藏") || lowerQuery.contains("喜欢")) {
-            intent.put("type", "favorite");
-        } else if (lowerQuery.contains("历史") || lowerQuery.contains("听过")) {
-            intent.put("type", "history");
-        } else if (lowerQuery.contains("推荐")) {
-            intent.put("type", "recommend");
-        } else if (lowerQuery.contains("搜索") || lowerQuery.contains("查找")) {
-            intent.put("type", "search");
-        }
-
-        return intent;
-    }
-
-    /**
-     * 构建工具调用参数
-     */
-    public static Map<String, Object> buildToolParams(String userQuery, String userId) {
-        Map<String, Object> params = new HashMap<>();
-        Map<String, String> intent = extractQueryIntent(userQuery);
-
-        // 基本参数
-        params.put("userId", userId);
-        params.put("pageNum", 1);
-        params.put("pageSize", 20);
-
-        // 根据意图设置参数
-        if (intent.containsKey("author")) {
-            params.put("authorName", intent.get("author"));
-        }
-        if (intent.containsKey("genre")) {
-            params.put("label", intent.get("genre"));
-        }
-        if (intent.containsKey("language")) {
-            params.put("language", intent.get("language"));
-        }
-
-        return params;
-    }
-
-    /**
-     * 验证查询参数
-     */
-    public static boolean validateQueryParams(Map<String, Object> params) {
-        try {
-            // 检查必要参数
-            if (!params.containsKey("userId") || params.get("userId") == null) {
-                return false;
-            }
-
-            // 验证分页参数
-            if (params.containsKey("pageNum")) {
-                int pageNum = Integer.parseInt(params.get("pageNum").toString());
-                if (pageNum < 1) return false;
-            }
-
-            if (params.containsKey("pageSize")) {
-                int pageSize = Integer.parseInt(params.get("pageSize").toString());
-                if (pageSize < 1 || pageSize > 100) return false;
-            }
-
-            return true;
-        } catch (Exception e) {
-            log.error("参数验证失败", e);
-            return false;
-        }
-    }
-
-    /**
-     * 生成响应摘要
-     */
-    public static String generateResponseSummary(String response, int maxLength) {
-        if (response == null || response.length() <= maxLength) {
-            return response;
-        }
-
-        // 截断并添加省略号
-        String summary = response.substring(0, maxLength - 3) + "...";
-
-        // 尝试在句子边界处截断
-        int lastPeriod = summary.lastIndexOf('.');
-        int lastExclamation = summary.lastIndexOf('!');
-        int lastQuestion = summary.lastIndexOf('?');
-        int lastNewline = summary.lastIndexOf('\n');
-
-        int lastBreak = Math.max(Math.max(lastPeriod, lastExclamation),
-                Math.max(lastQuestion, lastNewline));
-
-        if (lastBreak > maxLength / 2) {
-            summary = response.substring(0, lastBreak + 1);
-        }
-
-        return summary;
     }
 }
