@@ -1,5 +1,8 @@
 package com.player.agent.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -89,7 +92,7 @@ public class RedisConfig {
     }
 
     /**
-     * 创建专门用于 Spring AI Message 的序列化器
+     * 创建专门用于 Spring AI Message 的序列化器 - 修复版
      */
     private GenericJackson2JsonRedisSerializer createMessageSerializer() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -97,48 +100,74 @@ public class RedisConfig {
         // 注册 JavaTime 模块
         objectMapper.registerModule(new JavaTimeModule());
 
-        // 配置多态类型处理 - 这是关键！
+        // 配置多态类型处理
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(Message.class)  // 允许 Message 及其子类
+                .allowIfSubType(Message.class)
                 .allowIfSubType("org.springframework.ai.chat.messages")
                 .allowIfSubType("java.util")
                 .allowIfSubType("java.time")
                 .build();
 
-        // 激活默认类型信息，使用属性方式存储类型信息
-        objectMapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        // 激活默认类型信息
+        objectMapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY);
 
-        // 添加 Mixin 来解决 UserMessage 等类缺少默认构造函数的问题
+        // 添加 Mixin 来解决反序列化问题
         objectMapper.addMixIn(Message.class, MessageMixin.class);
         objectMapper.addMixIn(UserMessage.class, UserMessageMixin.class);
         objectMapper.addMixIn(SystemMessage.class, SystemMessageMixin.class);
         objectMapper.addMixIn(AssistantMessage.class, AssistantMessageMixin.class);
 
+        // 配置忽略未知属性
+        objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         return new GenericJackson2JsonRedisSerializer(objectMapper);
     }
 
-    // Mixin 类定义 - 解决 Spring AI Message 类的反序列化问题
+    // 修复后的 Mixin 类 - 添加必要的构造函数和属性
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     abstract static class MessageMixin {
-        public MessageMixin() {}  // 添加默认构造函数
-        public MessageMixin(String content) {}  // 保留原有构造函数
+        @JsonCreator
+        public MessageMixin(
+                @JsonProperty("content") String content,
+                @JsonProperty("metadata") java.util.Map<String, Object> metadata) {
+        }
+
+        @JsonProperty("messageType")
+        abstract String getMessageType();
+
+        @JsonProperty("content")
+        abstract String getContent();
+
+        @JsonProperty("metadata")
+        abstract java.util.Map<String, Object> getMetadata();
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     abstract static class UserMessageMixin {
-        public UserMessageMixin() {}  // 添加默认构造函数
-        public UserMessageMixin(String content) {}  // 保留原有构造函数
-        public UserMessageMixin(String content, java.util.Map<String, Object> properties) {}  // 保留原有构造函数
+        @JsonCreator
+        public UserMessageMixin(
+                @JsonProperty("content") String content,
+                @JsonProperty("metadata") java.util.Map<String, Object> metadata) {
+        }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     abstract static class SystemMessageMixin {
-        public SystemMessageMixin() {}  // 添加默认构造函数
-        public SystemMessageMixin(String content) {}  // 保留原有构造函数
-        public SystemMessageMixin(String content, java.util.Map<String, Object> properties) {}  // 保留原有构造函数
+        @JsonCreator
+        public SystemMessageMixin(
+                @JsonProperty("content") String content,
+                @JsonProperty("metadata") java.util.Map<String, Object> metadata) {
+        }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     abstract static class AssistantMessageMixin {
-        public AssistantMessageMixin() {}  // 添加默认构造函数
-        public AssistantMessageMixin(String content) {}  // 保留原有构造函数
-        public AssistantMessageMixin(String content, java.util.Map<String, Object> properties) {}  // 保留原有构造函数
+        @JsonCreator
+        public AssistantMessageMixin(
+                @JsonProperty("content") String content,
+                @JsonProperty("metadata") java.util.Map<String, Object> metadata) {
+        }
     }
 }

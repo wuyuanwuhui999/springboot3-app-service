@@ -36,6 +36,10 @@ public class ChatClientConfig {
         ChatModel chatModel;
         String baseUrl = chatModelEntity.getBaseUrl();
         String modelName = chatModelEntity.getModelName();
+
+        log.info("创建ChatClient - 模型ID: {}, 模型名称: {}, 类型: {}",
+                modelId, modelName, chatModelEntity.getType());
+
         if ("ollama".equals(chatModelEntity.getType())) {
             OllamaApi ollamaApi = OllamaApi.builder()
                     .baseUrl(baseUrl)
@@ -62,12 +66,27 @@ public class ChatClientConfig {
                     .defaultOptions(openAiChatOptions)
                     .build();
         }
-        return ChatClient.builder(chatModel)
-                .defaultSystem(SystemtConstants.MUSIC_SYSTEMT_PROMPT)
-                .defaultAdvisors(
+
+        // 构建ChatClient，可选地使用聊天记忆
+        ChatClient.Builder builder = ChatClient.builder(chatModel)
+                .defaultSystem(SystemtConstants.SQL_GENERATOR_PROMPT)
+                .defaultAdvisors(new SimpleLoggerAdvisor());
+
+        // 如果聊天记忆可用，添加它
+        if (redisChatMemory != null) {
+            try {
+                builder.defaultAdvisors(
                         new SimpleLoggerAdvisor(),
                         MessageChatMemoryAdvisor.builder(redisChatMemory).build()
-                )
-                .build();
+                );
+                log.debug("已启用聊天记忆功能");
+            } catch (Exception e) {
+                log.warn("启用聊天记忆失败，将继续无记忆模式", e);
+            }
+        } else {
+            log.debug("未启用聊天记忆功能");
+        }
+
+        return builder.build();
     }
 }

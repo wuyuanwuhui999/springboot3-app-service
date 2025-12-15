@@ -131,8 +131,7 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
             Flux<String> chatStream = AgentUtils.processChat(
                     agentParamsEntity,
                     chatClient,
-                    SystemtConstants.MUSIC_SYSTEMT_PROMPT,
-                    agentTool
+                    SystemtConstants.MUSIC_SYSTEMT_PROMPT
             );
 
             // 订阅流式响应
@@ -317,14 +316,7 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
 
         // 发送连接成功消息
         try {
-            Map<String, String> welcomeMsg = Map.of(
-                    "type", "connection_established",
-                    "message", "连接成功，欢迎使用音乐AI助手！",
-                    "userId", userId,
-                    "timestamp", String.valueOf(System.currentTimeMillis())
-            );
-            ObjectMapper mapper = new ObjectMapper();
-            session.sendMessage(new TextMessage(mapper.writeValueAsString(welcomeMsg)));
+            session.sendMessage(new TextMessage("欢迎使用音乐AI助手！正在查询数据..."));
         } catch (Exception e) {
             log.warn("发送欢迎消息失败", e);
         }

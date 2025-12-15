@@ -159,7 +159,7 @@ public class AgentTool {
             } else if (analysis.contains("喜欢")) {
                 List<MusicEntity> likes = getMusicLike(userId, 1, 20);
                 return formatMusicList(likes, "您喜欢的歌曲");
-            } else if (analysis.contains("歌手") || analysis.contains("周杰伦") || analysis.contains("林俊杰")) {
+            } else if (analysis.contains("歌手")) {
                 // 提取歌手名
                 String authorName = extractAuthorName(userQuery);
                 if (authorName != null) {
