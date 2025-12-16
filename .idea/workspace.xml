@@ -6,19 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/ChatClientConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisChatMemory.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisChatMemory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/config/RedisConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/constants/SystemtConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/tool/AgentTool.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/ChatClientConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisChatMemory.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/config/RedisConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/constants/SystemtConstants.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/constants/SystemtConstants.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/handler/AgentWebSocketHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/tool/AgentTool.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/tool/AgentTool.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils$SQLResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils$SQLResult.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/agent/target/classes/com/player/agent/uitls/AgentUtils.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -48,7 +37,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.AgentApplication.executor": "Debug",
+    "Application.AgentApplication.executor": "Run",
     "Application.ChatApplication.executor": "Run",
     "Application.GatewayApplication.executor": "Run",
     "Application.MovieApplication.executor": "Run",
@@ -289,68 +278,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>41</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/handler/AgentWebSocketHandler.java</url>
-          <line>130</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>47</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>162</line>
+          <line>181</line>
           <option name="timeStamp" value="23" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>174</line>
+          <line>194</line>
           <option name="timeStamp" value="24" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>84</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>93</line>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>99</line>
-          <option name="timeStamp" value="33" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>97</line>
-          <option name="timeStamp" value="34" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>120</line>
-          <option name="timeStamp" value="35" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>121</line>
-          <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>176</line>
+          <line>199</line>
           <option name="timeStamp" value="39" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
-          <line>145</line>
-          <option name="timeStamp" value="42" />
+          <line>117</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/agent/src/main/java/com/player/agent/uitls/AgentUtils.java</url>
+          <line>113</line>
+          <option name="timeStamp" value="46" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
