@@ -1,30 +1,45 @@
 @echo off
 chcp 65001 >nul
 echo ================================
-echo Gitee 代码推送脚本（地址写死版）
+echo Gitee 代码推送脚本
+echo 专用仓库：https://gitee.com/wuyuanwuhui99/springboot3-app-service.git
 echo ================================
 echo.
 
-REM 写死目标仓库地址（使用 .git 后缀更规范）
-set "REPO_URL=https://gitee.com/wuyuanwuhui99/springboot3-app-service.git"
+REM 强制设置仓库地址为HTTPS地址
+set "TARGET_REPO=https://gitee.com/wuyuanwuhui99/springboot3-app-service.git"
+echo 设置远程仓库地址...
+git remote remove origin 2>nul
+git remote add origin "%TARGET_REPO%"
 
-REM 强制设置 origin 为指定地址（无论当前是什么）
-git remote set-url origin "%REPO_URL%" >nul 2>&1 || git remote add origin "%REPO_URL%"
+REM 显示设置的地址
+echo 当前远程地址：
+git remote get-url origin
+echo.
 
-echo 当前推送地址已设为：%REPO_URL%
-echo 正在推送代码到 Gitee...
+REM 如果你还需要添加SSH密钥（虽然HTTPS地址不需要SSH）
+REM 但如果你其他仓库需要，可以保留这部分
+echo 初始化SSH连接（可选）...
+ssh-add "%USERPROFILE%\.ssh\id_ed25519" 2>nul
+if errorlevel 1 (
+    echo SSH密钥未加载，跳过SSH初始化...
+)
 
+REM 推送代码
+echo.
+echo 正在推送到远程仓库...
 git push origin master
 
+REM 显示结果
 if errorlevel 1 (
     echo.
     echo ❌ 推送失败！
-    echo 请检查：
-    echo   • 是否已提交更改（git commit）
-    echo   • 网络是否正常
-    echo   • 是否已配置 Gitee Personal Access Token（作为密码）
-    echo   • 是否有推送权限
+    echo 此仓库使用HTTPS地址，需要：
+    echo 1. Gitee用户名密码
+    echo 2. 或私人令牌（如果启用了双重认证）
     echo.
+    echo 请手动运行：git push origin master
+    echo 然后输入凭据
     pause
     exit /b 1
 ) else (
