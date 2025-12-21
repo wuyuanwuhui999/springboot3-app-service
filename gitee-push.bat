@@ -1,44 +1,30 @@
 @echo off
 chcp 65001 >nul
 echo ================================
-echo Gitee 代码推送脚本
+echo Gitee 代码推送脚本（地址写死版）
 echo ================================
 echo.
 
-REM 检查远程地址
-echo 检查远程仓库地址...
-git remote get-url origin >nul 2>nul
-if errorlevel 1 (
-    echo 未设置远程仓库，正在设置...
-    git remote add origin git@gitee.com:wuyuanwuhui99/springboot3-app-service.git
-) else (
-    echo 当前远程地址：
-    git remote get-url origin
-)
+REM 写死目标仓库地址（使用 .git 后缀更规范）
+set "REPO_URL=https://gitee.com/wuyuanwuhui99/springboot3-app-service.git"
 
-REM 启动SSH代理并添加密钥
-echo.
-echo 初始化SSH连接...
-ssh-add "%USERPROFILE%\.ssh\id_ed25519" 2>nul
-if errorlevel 1 (
-    echo SSH密钥未加载，尝试启动代理...
-    ssh-agent -s > %TEMP%\ssh-agent.env
-    call %TEMP%\ssh-agent.env
-    del %TEMP%\ssh-agent.env
-    ssh-add "%USERPROFILE%\.ssh\id_ed25519" 2>nul
-)
+REM 强制设置 origin 为指定地址（无论当前是什么）
+git remote set-url origin "%REPO_URL%" >nul 2>&1 || git remote add origin "%REPO_URL%"
 
-REM 推送代码
-echo.
-echo 正在推送到远程仓库...
+echo 当前推送地址已设为：%REPO_URL%
+echo 正在推送代码到 Gitee...
+
 git push origin master
 
-REM 显示结果
 if errorlevel 1 (
     echo.
     echo ❌ 推送失败！
-    echo 如果使用的是HTTPS地址，请运行以下命令切换到SSH：
-    echo git remote set-url origin git@gitee.com:wuyuanwuhui99/springboot3-app-service.git
+    echo 请检查：
+    echo   • 是否已提交更改（git commit）
+    echo   • 网络是否正常
+    echo   • 是否已配置 Gitee Personal Access Token（作为密码）
+    echo   • 是否有推送权限
+    echo.
     pause
     exit /b 1
 ) else (
