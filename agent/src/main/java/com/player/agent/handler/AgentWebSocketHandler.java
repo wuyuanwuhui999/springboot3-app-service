@@ -11,7 +11,6 @@ import com.player.agent.entity.AgentParamsEntity;
 import com.player.agent.uitls.AgentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -36,8 +35,6 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
 
     private final AgentMapper agentMapper;
 
-    @Autowired
-    private VectorStore vectorStore;
 
     public AgentWebSocketHandler(AgentMapper agentMapper) {
         this.agentMapper = agentMapper;
