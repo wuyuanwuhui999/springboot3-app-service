@@ -6,30 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="3f41e46d-aa4f-436c-b4fb-95e2c5b3ccd1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/agent/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/chat/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/ChatApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/java/com/player/chat/ChatApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/chat/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/circle/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/circle/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/CircleApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/circle/src/main/java/com/player/circle/CircleApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/circle/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/circle/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/movie/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/MovieApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/movie/src/main/java/com/player/movie/MovieApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/movie/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/movie/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/music/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/music/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/music/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/PromptApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/src/main/java/com/player/prompt/PromptApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prompt/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/prompt/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/social/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social/src/main/java/com/player/social/SocialApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/social/src/main/java/com/player/social/SocialApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/social/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/social/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tenant/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tenant/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/player/user/UserApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/player/user/UserApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tenant/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/tenant/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +99,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Application.AgentApplication">
+  <component name="RunManager" selected="Application.UserApplication">
     <configuration name="AgentApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.player.agent.AgentApplication" />
       <module name="agent" />
@@ -209,11 +190,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.UserApplication" />
         <item itemvalue="Application.AgentApplication" />
         <item itemvalue="Application.MusicApplication" />
         <item itemvalue="Application.GatewayApplication" />
         <item itemvalue="Application.ChatApplication" />
-        <item itemvalue="Application.UserApplication" />
       </list>
     </recent_temporary>
   </component>

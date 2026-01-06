@@ -1,17 +1,34 @@
 static:
   file-path: E:/
+
 server:
   port: 3002
+
 cookie:
-  name: token #cookie名称
-  expiry: 2592000 #tcookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
+  name: token # cookie名称
+  expiry: 2592000 # cookie失效时间一个月 60 * 60 * 24 * 30, 以秒为单位
+
 app:
   appId: com.play.music
   appName: 在线音乐
   avater-img: /static/user/avater/
   avater-path: E:${app.avater-img}
-loggin:
-  config: /src/main/resources/logback-spring.xml
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    com.player.user: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
+    # 添加以下AI模型调用相关日志配置
+    com.player.music.config.com.player.gateway.music.config.ChatClientConfig: DEBUG
+    org.springframework.ai.chat.client: DEBUG
+    org.springframework.ai.ollama: INFO
+    org.springframework.ai.model: INFO
+    com.alibaba.nacos: DEBUG
+    org.springframework.cloud.nacos: DEBUG
+
 spring:
   cloud:
     compatibility-verifier:
@@ -23,16 +40,20 @@ spring:
         username: ${NACOS_USERNAME:nacos}  # 用户名，支持动态配置
         password: ${NACOS_PASSWORD:nacos}  # 密码，支持动态配置
         service: ${spring.application.name}
+
   token:
-    secret: ${SECRET} #token秘钥
+    secret: ${SECRET} # token秘钥
+
   servlet:
     multipart:
       max-file-size: 10MB # 单个文件最大大小
       max-request-size: 50MB # 请求的最大大小
       location: G:/static/ai/
+
   elasticsearch:
     host: localhost
     port: 9200
+
   ai:
     ollama:
       base-url: http://localhost:11434
@@ -42,7 +63,8 @@ spring:
         deepseek-model: deepseek-r1:8b
         endpoint: /api/chat
       embedding:
-        model: mxbai-embed-large #nomic-embed-text:latest
+        model: mxbai-embed-large # nomic-embed-text:latest
+
     vectorstore:
       elasticsearch:
         initialize-schema: true
@@ -50,29 +72,35 @@ spring:
         dimensions: 1024
         host: 9200
         similarity: cosine
+
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+
   http:
     client:
       type: simple
+
   jpa:
     show-sql: true
+
   application:
     name: music-service
+
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
-    username: root
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:play}?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_PASSWORD}
     driverClassName: com.mysql.cj.jdbc.Driver
-    initialSize: 5  #初始建立连接数量
-    minIdle: 5  #最小连接数量
-    maxActive: 20 #最大连接数量
-    maxWait: 10000  #获取连接最大等待时间，毫秒
-    testOnBorrow: true #申请连接时检测连接是否有效
-    testOnReturn: false #归还连接时检测连接是否有效
-    timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
-    minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+    initialSize: 5  # 初始建立连接数量
+    minIdle: 5  # 最小连接数量
+    maxActive: 20 # 最大连接数量
+    maxWait: 10000  # 获取连接最大等待时间，毫秒
+    testOnBorrow: true # 申请连接时检测连接是否有效
+    testOnReturn: false # 归还连接时检测连接是否有效
+    timeBetweenEvictionRunsMillis: 60000 # 配置间隔检测连接是否有效的时间（单位是毫秒）
+    minEvictableIdleTimeMillis: 300000  # 连接在连接池的最小生存时间（毫秒）
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}  # Redis主机，支持动态配置
@@ -89,15 +117,6 @@ mybatis:
     mapUnderscoreToCamelCase: true              # 自动映射下划线到驼峰命名
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印 SQL 日志
 
-logging:
-  level:
-    # 添加以下AI模型调用相关日志配置
-    com.player.music.config.com.player.gateway.music.config.ChatClientConfig: DEBUG
-    org.springframework.ai.chat.client: DEBUG
-    org.springframework.ai.ollama: INFO
-    org.springframework.ai.model: INFO
-    com.alibaba.nacos: DEBUG
-    org.springframework.cloud.nacos: DEBUG
 ollama:
   base-url: http://localhost:11434
   model-name: qwen3:8b
