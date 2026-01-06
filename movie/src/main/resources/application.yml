@@ -23,10 +23,10 @@ spring:
       type: simple
   redis:
     database: 2 # Redis数据库索引（默认为0）
-    host: 127.0.0.1 # Redis服务器地址
-    port: 6379 # Redis服务器连接端口
-    password: # Redis服务器连接密码（默认为空）
-    timeout: 5000 # 连接超时时间（毫秒）
+    host: ${REDIS_HOST:127.0.0.1} # Redis服务器地址，支持动态配置
+    port: ${REDIS_PORT:6379} # Redis服务器连接端口，支持动态配置
+    password: ${REDIS_PASSWORD:} # Redis服务器连接密码（默认为空）
+    timeout: ${REDIS_TIMEOUT:5000} # 连接超时时间（毫秒）
     jedis:
       pool:
         max-active: 8 # 连接池最大连接数（使用负值表示没有限制）
@@ -36,7 +36,7 @@ spring:
   jpa:
     show-sql: true
   application:
-    name: movie
+    name: movie-service  # 修改为movie-service统一规范
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
     username: root
@@ -50,6 +50,13 @@ spring:
     testOnReturn: false #归还连接时检测连接是否有效
     timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
     minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}  # Nacos服务发现地址
+        namespace: ${NACOS_NAMESPACE:public}  # 命名空间
+        username: ${NACOS_USERNAME:nacos}  # 用户名
+        password: ${NACOS_PASSWORD:nacos}  # 密码
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径

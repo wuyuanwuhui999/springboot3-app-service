@@ -5,38 +5,83 @@ spring:
   application:
     name: gateway
   main:
-    web-application-type: reactive  # 添加这行
+    web-application-type: reactive
   cloud:
+    nacos:
+      # 服务发现配置
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: public
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        # 集群配置（可选）
+        # cluster-name: DEFAULT
+        # 注册配置
+        register-enabled: false  # gateway作为网关不需要注册到nacos
+        # 服务订阅
+        service: ${spring.application.name}
+        # 心跳间隔
+        heartbeat-interval: 15000
+        # 心跳超时
+        heartbeat-timeout: 30000
+        # 实例删除超时
+        instance-expired-seconds: 90
+
+      # 配置中心配置
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        namespace: public
+        shared-configs:
+          - data-id: common-config.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        enabled: true
+        import-check:
+          enabled: false
+
     gateway:
+      # 启用服务发现
+      discovery:
+        locator:
+          enabled: true  # 开启从注册中心动态创建路由
+          lower-case-service-id: true  # 服务ID转换为小写
+
       routes:
+        # 使用服务名而不是具体的IP地址
         - id: movie
-          uri: http://localhost:3001
+          uri: lb://movie-service  # lb:// 表示负载均衡
           predicates:
             - Path=/service/movie/**
+          filters:
+            - StripPrefix=0
 
         - id: music
-          uri: http://localhost:3002
+          uri: lb://music-service
           predicates:
             - Path=/service/music/**
           filters:
             - StripPrefix=0
 
         - id: user
-          uri: http://localhost:3005
+          uri: lb://user-service
           predicates:
             - Path=/service/user/**
           filters:
             - StripPrefix=0
 
         - id: circle
-          uri: http://localhost:3004
+          uri: lb://circle-service
           predicates:
             - Path=/service/circle/**
           filters:
             - StripPrefix=0
 
         - id: social
-          uri: http://localhost:3003
+          uri: lb://social-service
           predicates:
             - Path=/service/social/**
           filters:
@@ -44,42 +89,43 @@ spring:
 
         # WebSocket 路由（需要特殊处理）
         - id: chat_websocket
-          uri: ws://localhost:3006
+          uri: lb://chat-service
           predicates:
             - Path=/service/chat/ws/**
           filters:
             - StripPrefix=0
+            # 注意：WebSocket需要特殊处理，可能需要额外的过滤器
 
         - id: chat
-          uri: http://localhost:3006
+          uri: lb://chat-service
           predicates:
             - Path=/service/chat/**
           filters:
             - StripPrefix=0
 
         - id: tenant
-          uri: http://localhost:3007
+          uri: lb://tenant-service
           predicates:
             - Path=/service/tenant/**
           filters:
             - StripPrefix=0
 
         - id: prompt
-          uri: http://localhost:3008
+          uri: lb://prompt-service
           predicates:
             - Path=/service/prompt/**
           filters:
             - StripPrefix=0
 
         - id: agent_websocket
-          uri: http://localhost:3010
+          uri: lb://agent-service
           predicates:
             - Path=/service/agent/ws/**
           filters:
             - StripPrefix=0
 
         - id: agent
-          uri: http://localhost:3010
+          uri: lb://agent-service
           predicates:
             - Path=/service/agent/**
           filters:
@@ -90,24 +136,10 @@ spring:
 
     compatibility-verifier:
       enabled: false
-    nacos:
-      # 通用配置
-      config:
-        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
-        # 添加以下认证配置
-        username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:nacos}
-        file-extension: yaml
-        group: DEFAULT_GROUP
-        namespace: public  # 显式指定命名空间
-        shared-configs:
-          - data-id: common-config.yaml
-            group: DEFAULT_GROUP
-            refresh: true
+    # 负载均衡配置
+    loadbalancer:
+      nacos:
         enabled: true
-        # 禁用bootstrap检查
-        import-check:
-          enabled: false
 
   redis:
     host: localhost
@@ -120,14 +152,14 @@ spring:
     username: root
     password: ${MYSQL_PASSWORD}
     driverClassName: com.mysql.jdbc.Driver
-    initialSize: 5  #初始建立连接数量
-    minIdle: 5  #最小连接数量
-    maxActive: 20 #最大连接数量
-    maxWait: 10000  #获取连接最大等待时间，毫秒
-    testOnBorrow: true #申请连接时检测连接是否有效
-    testOnReturn: false #归还连接时检测连接是否有效
-    timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
-    minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 10000
+    testOnBorrow: true
+    testOnReturn: false
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
 
 jwt:
   secret: ${SECRET}
@@ -161,8 +193,8 @@ logging:
 gateway:
   log:
     enabled: true
-    max-request-body-size: 5000  # 最大请求体记录大小
-    max-response-body-size: 5000  # 最大响应体记录大小
+    max-request-body-size: 5000
+    max-response-body-size: 5000
     sensitive-paths:
       - /service/user/login
       - /service/user/loginByEmail

@@ -18,12 +18,11 @@ spring:
       enabled: false
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848  # Nacos 地址
-        username: nacos
-        password: nacos
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}  # Nacos地址，支持动态配置
+        namespace: ${NACOS_NAMESPACE:public}  # 命名空间，支持动态配置
+        username: ${NACOS_USERNAME:nacos}  # 用户名，支持动态配置
+        password: ${NACOS_PASSWORD:nacos}  # 密码，支持动态配置
         service: ${spring.application.name}
-#        namespace:  # 如果有命名空间，请填写
-#        group: DEFAULT_GROUP
   token:
     secret: ${SECRET} #token秘钥
   servlet:
@@ -76,11 +75,11 @@ spring:
     minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST:localhost}  # Redis主机，支持动态配置
       database: 0
-      port: 6379
-      password:
-      timeout: 5000
+      port: ${REDIS_PORT:6379}  # Redis端口，支持动态配置
+      password: ${REDIS_PASSWORD:}  # Redis密码，支持动态配置
+      timeout: ${REDIS_TIMEOUT:5000}  # 超时时间，支持动态配置
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径

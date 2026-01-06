@@ -1,37 +1,116 @@
 static:
   file-path: E:/
+
 server:
   port: 3006
+
 token:
   secret: ${SECRET} #token秘钥
+
 cookie:
   name: token #cookie名称
-  expiry: 2592000 #tcookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
+  expiry: 2592000 #cookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
+
 app:
   appId: com.play.chat
   appName: ai
   avater-img: /static/user/avater/
   avater-path: E:${app.avater-img}
+
 loggin:
   config: /src/main/resources/logback-spring.xml
+
 spring:
+  application:
+    name: chat-service
+
+  cloud:
+    nacos:
+      # 服务发现配置
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        namespace: public
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        # 集群配置（可选）
+        # cluster-name: DEFAULT
+        # 服务分组
+        group: DEFAULT_GROUP
+        # 权重（0-1之间）
+        weight: 1.0
+        # 是否为临时实例
+        ephemeral: true
+        # 心跳间隔
+        heartbeat-interval: 15000
+        # 心跳超时
+        heartbeat-timeout: 30000
+        # 实例删除超时
+        instance-expired-seconds: 90
+        # 元数据
+        metadata:
+          version: 1.0
+          # WebSocket支持标记（chat模块有WebSocket）
+          websocket: true
+          # 可以添加自定义元数据
+          # context-path: /chat
+          # ai-model: qwen3:8b
+
+      # 配置中心配置
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        namespace: public
+        # 共享配置
+        shared-configs:
+          - data-id: common-config.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        # 扩展配置
+        extension-configs:
+          - data-id: ${spring.application.name}.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        enabled: true
+        import-check:
+          enabled: false
+
+    compatibility-verifier:
+      enabled: false
+
+    # 负载均衡配置
+    loadbalancer:
+      nacos:
+        enabled: true
+
+  # 配置导入（Spring Cloud 2021+）
+  config:
+    import:
+      - optional:nacos:common-config.yaml?group=DEFAULT_GROUP
+      - optional:nacos:${spring.application.name}.yaml?group=DEFAULT_GROUP
+
   servlet:
     multipart:
       max-file-size: 10MB # 单个文件最大大小
       max-request-size: 50MB # 请求的最大大小
       location: G:/static/chat/
+
   token:
     secret: ${SECRET} #token秘钥
+
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+
   http:
     client:
       type: simple
+
   jpa:
     show-sql: true
-  application:
-    name: chat-service
+
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
     username: root
@@ -45,6 +124,7 @@ spring:
     testOnReturn: false #归还连接时检测连接是否有效
     timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
     minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+
   data:
     redis:
       host: localhost
@@ -52,6 +132,14 @@ spring:
       port: 6379
       password:
       timeout: 5000
+      # 连接池配置
+      jedis:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
   elasticsearch:
     uris: http://localhost:9200
     initialize-schema: true
@@ -59,6 +147,7 @@ spring:
     dimensions: 1024
     host: 9200
     similarity: cosine
+
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径
   type-aliases-package: com.player.chat.entity  # 实体类包路径，用于别名自动映射
@@ -73,6 +162,8 @@ logging:
     com.player.chat: DEBUG  # 你的应用包路径
     dev.langchain4j: DEBUG  # LangChain4J相关日志
     org.springframework.web: DEBUG
+    com.alibaba.nacos: INFO
+    org.springframework.cloud.client.discovery: DEBUG
     # 添加MyBatis相关日志配置
     org.apache.ibatis: DEBUG
     java.sql: DEBUG
@@ -80,6 +171,9 @@ logging:
     java.sql.Statement: DEBUG
     java.sql.PreparedStatement: DEBUG
     java.sql.ResultSet: DEBUG
+    # WebSocket日志
+    org.springframework.web.socket: DEBUG
+    org.springframework.web.socket.handler: DEBUG
 
 langchain4j:
   ollama:
@@ -90,7 +184,24 @@ langchain4j:
       log-requests: true
       log-responses: true
       temperature: 0.3
+
 nomic:
   embedding:
     model-name: nomic-embed-text:latest #mxbai-embed-large:latest # 或其他可用模型
     timeout: 60s
+
+# 可选：添加管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
