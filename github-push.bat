@@ -1,4 +1,5 @@
-@echo off
+﻿@echo off
+chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 :: 设置远程仓库
@@ -16,7 +17,7 @@ echo 开始推送代码到GitHub...
 set /a retry_count+=1
 echo 第!retry_count!次尝试推送...
 
-:: 尝试推送，设置超时为10秒
+:: 尝试推送
 git push origin master --progress
 if !errorlevel! equ 0 (
     set push_success=1
