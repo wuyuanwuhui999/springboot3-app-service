@@ -1,79 +1,128 @@
 static:
   file-path: E:/
+
 server:
   port: 3010
+
 cookie:
   name: token #cookie名称
-  expiry: 2592000 #tcookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
+  expiry: 2592000 #cookie失效时间一个月 60 * 60 * 24 * 30,以秒为单位
+
 app:
   appId: com.play.agent
   appName: 智能体
   avater-img: /static/user/avater/
   avater-path: E:${app.avater-img}
-loggin:
-  config: /src/main/resources/logback-spring.xml
+
 token:
   secret: ${SECRET} #token秘钥
+
 spring:
+  application:
+    name: agent-service
+
   cloud:
-    compatibility-verifier:
-      enabled: false
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848
-        username: nacos
-        service: ${spring.application.name}
-        password: nacos
-        namespace:  # 如果有命名空间，请填写
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        namespace: public
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
         group: DEFAULT_GROUP
+        weight: 1.0
+        ephemeral: true
+        heartbeat-interval: 15000
+        heartbeat-timeout: 30000
+        instance-expired-seconds: 90
+        metadata:
+          version: 1.0
+          websocket: true
+
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        namespace: public
+        shared-configs:
+          - data-id: common-config.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        extension-configs:
+          - data-id: ${spring.application.name}.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        enabled: true
+        import-check:
+          enabled: false
+
+    compatibility-verifier:
+      enabled: false
+
+    loadbalancer:
+      nacos:
+        enabled: true
+
+  config:
+    import:
+      - optional:nacos:common-config.yaml?group=DEFAULT_GROUP
+      - optional:nacos:${spring.application.name}.yaml?group=DEFAULT_GROUP
+
   servlet:
     multipart:
-      max-file-size: 10MB # 单个文件最大大小
-      max-request-size: 50MB # 请求的最大大小
+      max-file-size: 10MB
+      max-request-size: 50MB
       location: G:/static/ai/
+
   elasticsearch:
-    host: localhost
-    port: 9200
+    host: ${ELASTICSEARCH_HOST:localhost}
+    port: ${ELASTICSEARCH_PORT:9200}
+
   ai:
     ollama:
-      base-url: http://localhost:11434
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       chat:
-        model: qwen3:8b
-        qwen-model: qwen3:8b
-        deepseek-model: deepseek-r1:8b
+        model: ${OLLAMA_CHAT_MODEL:qwen3:8b}
+        qwen-model: ${OLLAMA_QWEN_MODEL:qwen3:8b}
+        deepseek-model: ${OLLAMA_DEEPSEEK_MODEL:deepseek-r1:8b}
         endpoint: /api/chat
       embedding:
-        model: mxbai-embed-large #nomic-embed-text:latest
+        model: ${OLLAMA_EMBEDDING_MODEL:mxbai-embed-large}
+
     vectorstore:
       elasticsearch:
         initialize-schema: true
         index-name: agent_vector_index
         dimensions: 1024
-        host: 9200
+        host: ${ELASTICSEARCH_PORT:9200}
         similarity: cosine
+
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+
   http:
     client:
       type: simple
+
   jpa:
     show-sql: true
-  application:
-    name: agent-service
+
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/play?characterEncoding=utf-8
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/play?characterEncoding=utf-8
     username: root
     password: ${MYSQL_PASSWORD}
     driverClassName: com.mysql.cj.jdbc.Driver
-    initialSize: 5  #初始建立连接数量
-    minIdle: 5  #最小连接数量
-    maxActive: 20 #最大连接数量
-    maxWait: 10000  #获取连接最大等待时间，毫秒
-    testOnBorrow: true #申请连接时检测连接是否有效
-    testOnReturn: false #归还连接时检测连接是否有效
-    timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
-    minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 10000
+    testOnBorrow: true
+    testOnReturn: false
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+
   data:
     redis:
       host: localhost
@@ -83,25 +132,29 @@ spring:
       timeout: 5000
 
 mybatis:
-  mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径
-  type-aliases-package: com.player.agent.entity  # 实体类包路径，用于别名自动映射
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.player.agent.entity
   configuration:
     use-actual-param-name: true
-    mapUnderscoreToCamelCase: true              # 自动映射下划线到驼峰命名
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印 SQL 日志
+    mapUnderscoreToCamelCase: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 logging:
+  config: classpath:logback-spring.xml
   level:
-    # 添加以下AI模型调用相关日志配置
+    com.player.agent: DEBUG
+    org.springframework.web: DEBUG
+    com.alibaba.nacos: INFO
+    org.springframework.cloud.client.discovery: DEBUG
     com.player.agent.config.com.player.gateway.agent.config.ChatClientConfig: DEBUG
     org.springframework.ai.chat.client: DEBUG
     org.springframework.ai.ollama: INFO
     org.springframework.ai.model: INFO
 
 ollama:
-  base-url: http://localhost:11434
-  model-name: qwen3:8b
-  temperature: 0.7
-  top-p: 0.9
-  timeout: 120s
-  max-retries: 3
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model-name: ${OLLAMA_MODEL_NAME:qwen3:8b}
+  temperature: ${OLLAMA_TEMPERATURE:0.7}
+  top-p: ${OLLAMA_TOP_P:0.9}
+  timeout: ${OLLAMA_TIMEOUT:120s}
+  max-retries: ${OLLAMA_MAX_RETRIES:3}

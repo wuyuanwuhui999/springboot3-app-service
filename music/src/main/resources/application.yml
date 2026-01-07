@@ -35,11 +35,38 @@ spring:
       enabled: false
     nacos:
       discovery:
-        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}  # Nacos地址，支持动态配置
-        namespace: ${NACOS_NAMESPACE:public}  # 命名空间，支持动态配置
-        username: ${NACOS_USERNAME:nacos}  # 用户名，支持动态配置
-        password: ${NACOS_PASSWORD:nacos}  # 密码，支持动态配置
-        service: ${spring.application.name}
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        namespace: public
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        group: DEFAULT_GROUP
+        weight: 1.0
+        ephemeral: true
+        heartbeat-interval: 15000
+        heartbeat-timeout: 30000
+        instance-expired-seconds: 90
+        metadata:
+          version: 1.0
+          websocket: true
+
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        namespace: public
+        shared-configs:
+          - data-id: common-config.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        extension-configs:
+          - data-id: ${spring.application.name}.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        enabled: true
+        import-check:
+          enabled: false
 
   token:
     secret: ${SECRET} # token秘钥
@@ -51,26 +78,26 @@ spring:
       location: G:/static/ai/
 
   elasticsearch:
-    host: localhost
-    port: 9200
+    host: ${ELASTICSEARCH_HOST:localhost}
+    port: ${ELASTICSEARCH_PORT:9200}
 
   ai:
     ollama:
-      base-url: http://localhost:11434
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       chat:
-        model: qwen3:8b
-        qwen-model: qwen3:8b
-        deepseek-model: deepseek-r1:8b
+        model: ${OLLAMA_CHAT_MODEL:qwen3:8b}
+        qwen-model: ${OLLAMA_QWEN_MODEL:qwen3:8b}
+        deepseek-model: ${OLLAMA_DEEPSEEK_MODEL:deepseek-r1:8b}
         endpoint: /api/chat
       embedding:
-        model: mxbai-embed-large # nomic-embed-text:latest
+        model: ${OLLAMA_EMBEDDING_MODEL:mxbai-embed-large}
 
     vectorstore:
       elasticsearch:
         initialize-schema: true
         index-name: music_vector_index
         dimensions: 1024
-        host: 9200
+        host: ${ELASTICSEARCH_PORT:9200}
         similarity: cosine
 
   jackson:
@@ -118,9 +145,9 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印 SQL 日志
 
 ollama:
-  base-url: http://localhost:11434
-  model-name: qwen3:8b
-  temperature: 0.7
-  top-p: 0.9
-  timeout: 120s
-  max-retries: 3
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model-name: ${OLLAMA_MODEL_NAME:qwen3:8b}
+  temperature: ${OLLAMA_TEMPERATURE:0.7}
+  top-p: ${OLLAMA_TOP_P:0.9}
+  timeout: ${OLLAMA_TIMEOUT:120s}
+  max-retries: ${OLLAMA_MAX_RETRIES:3}
