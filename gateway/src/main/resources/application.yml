@@ -142,24 +142,17 @@ spring:
         enabled: true
 
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
     password: ""
     database: 0
 
-  datasource:
-    url: jdbc:mysql://localhost:3306/play?characterEncoding=utf-8
-    username: root
-    password: ${MYSQL_PASSWORD}
-    driverClassName: com.mysql.jdbc.Driver
-    initialSize: 5
-    minIdle: 5
-    maxActive: 20
-    maxWait: 10000
-    testOnBorrow: true
-    testOnReturn: false
-    timeBetweenEvictionRunsMillis: 60000
-    minEvictableIdleTimeMillis: 300000
+  data:
+    mongodb:
+      host: ${MONGODB_HOST:localhost}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:log}
+
 
 jwt:
   secret: ${SECRET}

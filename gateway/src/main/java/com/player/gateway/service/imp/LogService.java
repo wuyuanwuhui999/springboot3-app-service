@@ -1,12 +1,14 @@
 package com.player.gateway.service.imp;
 
 import com.player.gateway.entity.LogEntity;
-import com.player.gateway.mapper.LogMapper;
 import com.player.gateway.service.ILogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,32 +16,26 @@ import java.util.UUID;
 public class LogService implements ILogService {
 
     @Autowired
-    private LogMapper logMapper;
+    private ReactiveMongoTemplate mongoTemplate;
 
-    /**
-     * 保存请求日志
-     */
     @Override
-    @Transactional
     public void saveRequestLog(LogEntity logEntity) {
         if (logEntity.getId() == null) {
             logEntity.setId(UUID.randomUUID().toString().replace("-", ""));
         }
         if (logEntity.getCreateTime() == null) {
             logEntity.setCreateTime(LocalDateTime.now());
+            logEntity.setUpdateTime(LocalDateTime.now());
         }
-        logMapper.insertLog(logEntity);
+        // 异步插入（fire-and-forget）
+        mongoTemplate.save(logEntity)
+                .doOnError(e -> System.err.println("Failed to save log to MongoDB: " + e.getMessage()))
+                .subscribe();
     }
 
-    /**
-     * 更新响应信息
-     */
     @Override
-    @Transactional
-    public void updateResponseInfo(String requestId, String responseStatus,
-                                   String responseBody, String responseHeaders,
-                                   Long executeTime, String errorMessage) {
-        // 将responseStatus转换为Integer
+    public void updateResponseInfo(String requestId, String responseStatus, String responseBody,
+                                   String responseHeaders, Long executeTime, String errorMessage) {
         Integer status = null;
         try {
             status = Integer.parseInt(responseStatus);
@@ -47,7 +43,18 @@ public class LogService implements ILogService {
             status = 500;
         }
 
-        logMapper.updateResponseInfo(requestId, status, responseBody,
-                responseHeaders, executeTime, errorMessage);
+        Query query = Query.query(Criteria.where("request_id").is(requestId));
+        Update update = new Update()
+                .set("response_status", status)
+                .set("response_body", responseBody)
+                .set("response_headers", responseHeaders)
+                .set("execute_time", executeTime)
+                .set("error_message", errorMessage)
+                .set("update_time", LocalDateTime.now());
+
+        // 异步更新
+        mongoTemplate.updateFirst(query, update, LogEntity.class)
+                .doOnError(e -> System.err.println("Failed to update log in MongoDB: " + e.getMessage()))
+                .subscribe();
     }
 }

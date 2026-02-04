@@ -112,7 +112,7 @@ spring:
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/play?characterEncoding=utf-8
     username: root
-    password: ${MYSQL_PASSWORD}
+    password: ${MYSQL_PASSWORD:wwq_2021}
     driverClassName: com.mysql.cj.jdbc.Driver
     initialSize: 5
     minIdle: 5
