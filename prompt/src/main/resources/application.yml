@@ -38,7 +38,7 @@ spring:
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:play}?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD}
+    password: ${MYSQL_PASSWORD:wwq_2021}
     driverClassName: com.mysql.jdbc.Driver
     initialSize: 5  # 初始建立连接数量
     minIdle: 5  # 最小连接数量
@@ -56,7 +56,10 @@ spring:
         namespace: ${NACOS_NAMESPACE:public}  # 命名空间，支持动态配置
         username: ${NACOS_USERNAME:nacos}  # 用户名，支持动态配置
         password: ${NACOS_PASSWORD:nacos}  # 密码，支持动态配置
-
+  config:
+    import:
+      - optional:nacos:common-config.yaml?group=DEFAULT_GROUP
+      - optional:nacos:${spring.application.name}.yaml?group=DEFAULT_GROUP
 mybatis:
   mapper-locations: classpath:mapper/*Mapper.xml
   type-aliases-package: com.player.prompt.entity

@@ -14,9 +14,6 @@ app:
   avater-img: /static/user/avater/
   avater-path: E:${app.avater-img}
 
-token:
-  secret: ${SECRET} #token秘钥
-
 spring:
   application:
     name: agent-service

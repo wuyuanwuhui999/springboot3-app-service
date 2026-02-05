@@ -4,9 +4,6 @@ static:
 server:
   port: 3004
 
-token:
-  secret: ${SECRET} # token秘钥
-
 cookie:
   name: token # cookie名称
   expiry: 2592000 # cookie失效时间一个月 60 * 60 * 24 * 30, 以秒为单位
@@ -26,9 +23,6 @@ logging:
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
 
 spring:
-  token:
-    secret: ${SECRET} # token秘钥
-
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -59,7 +53,7 @@ spring:
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:play}?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD}
+    password: ${MYSQL_PASSWORD:wwq_2021}
     driverClassName: com.mysql.cj.jdbc.Driver
     initialSize: 5  # 初始建立连接数量
     minIdle: 5  # 最小连接数量
@@ -71,6 +65,8 @@ spring:
     minEvictableIdleTimeMillis: 300000  # 连接在连接池的最小生存时间（毫秒）
 
   cloud:
+    compatibility-verifier:
+      enabled: false
     nacos:
       discovery:
         server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}  # Nacos地址，支持动态配置，默认127.0.0.1:8848
@@ -79,6 +75,10 @@ spring:
         password: ${NACOS_PASSWORD:nacos}  # 密码，支持动态配置，默认nacos
         group: ${NACOS_GROUP:DEFAULT_GROUP}  # 服务分组，支持动态配置，默认DEFAULT_GROUP
 
+  config:
+    import:
+      - optional:nacos:common-config.yaml?group=DEFAULT_GROUP
+      - optional:nacos:${spring.application.name}.yaml?group=DEFAULT_GROUP
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml   # Mapper XML 文件路径
   type-aliases-package: com.player.circle.entity  # 实体类包路径，用于别名自动映射

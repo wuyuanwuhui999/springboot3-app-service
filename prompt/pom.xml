@@ -34,6 +34,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <version>${spring-boot.version}</version>
             <exclusions>
                 <!-- 排除其他日志框架（如有冲突） -->
                 <exclusion>
@@ -43,11 +44,11 @@
             </exclusions>
         </dependency>
 
-<!--        &lt;!&ndash; 显式引入 Logback &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>ch.qos.logback</groupId>-->
-<!--            <artifactId>logback-classic</artifactId>-->
-<!--        </dependency>-->
+        <!-- 显式引入 Logback -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
         <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,6 +65,7 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
         </dependency>
+
         <!-- MySQL Connector -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -85,6 +87,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
+            <version>5.1</version> <!-- 请确认是否有最新版本 -->
         </dependency>
 
         <!-- Nacos 服务发现 -->

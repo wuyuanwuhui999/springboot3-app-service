@@ -1,0 +1,57 @@
+# =========================
+# 操作系统相关
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+.$*
+*.swp
+*.swo
+*～
+desktop.ini
+
+# =========================
+# IDE 相关（IntelliJ IDEA / VS Code / Eclipse）
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+
+# =========================
+# Maven 相关
+# =========================
+target/
+!*/src/main/resources/application*.yml
+!*/src/main/resources/application*.properties
+
+# =========================
+# Gradle（如果你以后切换构建工具）
+# =========================
+.gradle/
+build/
+
+# =========================
+# 日志和临时文件
+# =========================
+logs/
+*.log
+*.tmp
+temp/
+tmp/
+
+# =========================
+# 其他通用忽略项
+# =========================
+*.jar
+*.war
+*.ear
+*.class
+*.pyc
+*.pid
+.DS_Store

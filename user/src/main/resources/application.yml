@@ -1,10 +1,7 @@
 server:
   port: 3005
-
 token:
-  expiration-time: 2592000000 # token失效时间一个月 1000 * 60 * 60 * 24 * 30
-  secret: ${SECRET} # token秘钥
-
+  secret: ${SECRET:WCdTBej2ZRhIBXafQbALbAwpJ5A+v1PR4A4IN6+OhnM=}
 app:
   appId: com.player.user
   appName: 用户中心
