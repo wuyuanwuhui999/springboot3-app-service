@@ -75,6 +75,7 @@ public class ChatService implements IChatService {
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setUserId(userId);
         chatEntity.setChatId(chatParamsEntity.getChatId());
+        chatEntity.setTenantId(chatParamsEntity.getTenantId());
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
         chatEntity.setModelId(chatParamsEntity.getModelId());
         chatEntity.setContent(""); // Initialize empty content
@@ -158,10 +159,10 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity getChatHistory(String userId, int pageNum, int pageSize) {
+    public ResultEntity getChatHistory(String tenantId, String userId, int pageNum, int pageSize) {
         int start = (pageNum - 1) * pageSize;
-        ResultEntity success = ResultUtil.success(chatMapper.getChatHistory(userId, start, pageSize));
-        success.setTotal(chatMapper.getChatHistoryTotal(userId));
+        ResultEntity success = ResultUtil.success(chatMapper.getChatHistory(tenantId,userId, start, pageSize));
+        success.setTotal(chatMapper.getChatHistoryTotal(tenantId,userId));
         return success;
     }
 

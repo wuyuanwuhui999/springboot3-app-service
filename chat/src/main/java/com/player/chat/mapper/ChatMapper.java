@@ -12,9 +12,9 @@ import java.util.List;
 public interface ChatMapper {
     void saveChat(ChatEntity chatEntity);
 
-    List<ChatEntity> getChatHistory(String userId,int start,int limit);
+    List<ChatEntity> getChatHistory(String tenantId,String userId,int start,int limit);
 
-    Long getChatHistoryTotal(String userId);
+    Long getChatHistoryTotal(String tenantId,String userId);
 
     List<ChatModelEntity> getModelList();
 

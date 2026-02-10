@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public interface IChatService {
     Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity);
 
-    ResultEntity getChatHistory(String userId,int pageNum,int pageSize);
+    ResultEntity getChatHistory(String tenantId,String userId,int pageNum,int pageSize);
 
     ResultEntity getModelList();
 
