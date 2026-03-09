@@ -30,10 +30,10 @@ public class ChatController {
 
     @GetMapping("/getChatHistory")
     public ResultEntity getChatHistory(
-            @RequestHeader("tenantId") String tenantId,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam("pageNum") int pageNum,
-            @RequestParam("pageSize") int pageSize
+            @RequestParam("pageSize") int pageSize,
+            @RequestParam("tenantId") String tenantId
     ){
         return chatService.getChatHistory(tenantId,userId, pageNum, pageSize);
     }

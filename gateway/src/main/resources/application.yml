@@ -169,10 +169,11 @@ management:
 logging:
   level:
     reactor.netty.http.client: DEBUG
-    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway: TRACE  # 改为 TRACE
     org.springframework.cloud.gateway.filter: TRACE
     org.springframework.cloud.gateway.route: TRACE
-    com.player.gateway: INFO
+    # 增加以下包以查看断言匹配过程
+    org.springframework.cloud.gateway.handler.predicate: TRACE
 
 gateway:
   log:
