@@ -126,14 +126,8 @@ public class PromptService implements IPromptService {
         return ResultUtil.success(promptMapper.getMyCollectPromptList(tenantId,categoryId, userId, start, pageSize),promptMapper.getMyCollectPromptCount(tenantId,categoryId,userId));
     }
 
-
-
-
-
-
-
-
-
-
-    
+    @Override
+    public ResultEntity getDefaultPromptByTenantId(String tenantId) {
+        return ResultUtil.success(promptMapper.getDefaultPromptByTenantId(tenantId));
+    }
 }

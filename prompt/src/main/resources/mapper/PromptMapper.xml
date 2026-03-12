@@ -185,4 +185,8 @@
               AND tu.disabled = 0  -- 用户启用状态
         )
     </select>
+
+    <select id="getDefaultPromptByTenantId" resultType="DetaultPromptEntity">
+        SELECT * FROM prompt_default WHERE tenant_id = #{tenantId}
+    </select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.player.prompt.mapper;
 
+import com.player.prompt.entity.DetaultPromptEntity;
 import com.player.prompt.entity.PromptCategoryEntity;
 import com.player.prompt.entity.SystemPromptEntity;
 import com.player.prompt.entity.UserPromptEntity;
@@ -40,4 +41,6 @@ public interface PromptMapper {
     List<SystemPromptEntity> getMyCollectPromptList(String tenantId,String categoryId,String userId, int start, int pageSize);
 
     Long getMyCollectPromptCount(String tenantId,String categoryId, String userId);
+
+    DetaultPromptEntity getDefaultPromptByTenantId(String tenantId);
 }

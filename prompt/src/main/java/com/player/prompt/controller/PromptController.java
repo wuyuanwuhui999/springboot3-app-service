@@ -96,8 +96,7 @@ public class PromptController {
     }
 
     @GetMapping("/getMyCollectPromptList")
-    public ResultEntity getMyCollectPromptList(
-            @RequestParam(value = "tenantId") String tenantId,
+    public ResultEntity getMyCollectPromptList(@RequestParam(value = "tenantId") String tenantId,
             @RequestParam(value = "categoryId", required = false) String categoryId,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(value = "pageNum")int pageNum,
@@ -105,5 +104,11 @@ public class PromptController {
     )
     {
         return promptService.getMyCollectPromptList(tenantId,categoryId,userId,pageNum,pageSize);
+    }
+
+    @GetMapping("/getDefaultPromptByTenantId")
+    public ResultEntity getDefaultPromptByTenantId(@RequestParam(value = "tenantId") String tenantId)
+    {
+        return promptService.getDefaultPromptByTenantId(tenantId);
     }
 }

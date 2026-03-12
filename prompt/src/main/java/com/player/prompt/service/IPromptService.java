@@ -31,4 +31,6 @@ public interface IPromptService {
     ResultEntity getMyCollectPromptCategory(String tenantId,String userId);
 
     ResultEntity getMyCollectPromptList(String tenantId,String categoryId,String userId, int pageNUm,int pageSize);
+
+    ResultEntity getDefaultPromptByTenantId(String tenantId);
 }
