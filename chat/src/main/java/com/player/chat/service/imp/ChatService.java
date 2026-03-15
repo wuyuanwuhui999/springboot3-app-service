@@ -69,7 +69,6 @@ public class ChatService implements IChatService {
         this.assistantSelector = assistantSelector;
     }
 
-
     @Override
     public Flux<String> chat(String userId, ChatParamsEntity chatParamsEntity) {
         ChatEntity chatEntity = new ChatEntity();
@@ -77,8 +76,9 @@ public class ChatService implements IChatService {
         chatEntity.setChatId(chatParamsEntity.getChatId());
         chatEntity.setTenantId(chatParamsEntity.getTenantId());
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
+        chatEntity.setSystemPrompt(chatParamsEntity.getSystemPrompt()); // 添加 systemPrompt
         chatEntity.setModelId(chatParamsEntity.getModelId());
-        chatEntity.setContent(""); // Initialize empty content
+        chatEntity.setContent("");
 
         StringBuilder responseCollector = new StringBuilder();
 
@@ -86,18 +86,13 @@ public class ChatService implements IChatService {
                 userId,
                 chatParamsEntity,
                 responsePart -> {
-                    // Collect each response part
                     responseCollector.append(responsePart);
                     chatEntity.setContent(responseCollector.toString());
                 }
         )
-                .collectList()
-                .flatMapMany(aiResponses -> {
-                    // Save the final chat content
-                    String fullResponse = String.join("", aiResponses);
-                    chatEntity.setContent(fullResponse);
-                    chatMapper.saveChat(chatEntity);
-                    return Flux.fromIterable(aiResponses);
+                .doOnComplete(() -> {
+                    // chatWithWebSocketHandling 中已经保存，这里不需要重复保存
+                    log.info("Chat completed for chatId: {}", chatEntity.getChatId());
                 });
     }
 
@@ -107,8 +102,13 @@ public class ChatService implements IChatService {
         chatEntity.setUserId(userId);
         chatEntity.setChatId(chatParamsEntity.getChatId());
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
+        chatEntity.setSystemPrompt(chatParamsEntity.getSystemPrompt()); // 添加 systemPrompt
         chatEntity.setModelId(chatParamsEntity.getModelId());
         chatEntity.setTenantId(chatParamsEntity.getTenantId());
+        chatEntity.setContent(""); // Initialize empty content
+
+        StringBuilder responseCollector = new StringBuilder();
+
         if ("document".equals(chatParamsEntity.getType())) {
             String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity);
             if (context == null || context.isEmpty()) {
@@ -117,15 +117,28 @@ public class ChatService implements IChatService {
             chatParamsEntity.setPrompt(context);
         }
 
-        return assistantSelector.selectAssistant(
-                    chatParamsEntity
-                )
-                .doOnNext(responseHandler)
+        return assistantSelector.selectAssistant(chatParamsEntity)
+                .doOnNext(part -> {
+                    // 收集响应片段
+                    responseCollector.append(part);
+                    // 实时更新content
+                    chatEntity.setContent(responseCollector.toString());
+                    // 调用外部响应处理器
+                    responseHandler.accept(part);
+                })
                 .doOnComplete(() -> {
+                    // 完成时确保content是最新的
+                    chatEntity.setContent(responseCollector.toString());
                     chatMapper.saveChat(chatEntity);
+                    log.info("Chat saved successfully for chatId: {}", chatEntity.getChatId());
                 })
                 .doOnError(e -> {
                     log.error("Error during chat streaming", e);
+                    // 出错时也保存当前已收集的内容
+                    if (responseCollector.length() > 0) {
+                        chatEntity.setContent(responseCollector.toString());
+                        chatMapper.saveChat(chatEntity);
+                    }
                 });
     }
 
@@ -170,7 +183,7 @@ public class ChatService implements IChatService {
      * 获取模型列表
      * 使用@Cacheable缓存结果，key为固定值"model:list"
      */
-    @Cacheable(value = "model", key = "'list'")
+//    @Cacheable(value = "model", key = "'list'")
     @Override
     public ResultEntity getModelList() {
         return ResultUtil.success(chatMapper.getModelList());

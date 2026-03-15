@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <configuration>
+    <!-- 使用用户主目录作为日志路径（避免权限问题） -->
+    <property name="LOG_PATH" value="${user.home}/logs/chjb" />
+    <property name="LOG_FILE" value="${LOG_PATH}/chjb.log" />
 
-    <!-- 配置根日志级别，控制全局的日志级别 -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_FILE}</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="INFO">
-        <!-- 附加输出目标（appender）的引用，可以有多个 -->
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>
-
-    <!-- 定义控制台输出 -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- 定义文件输出 -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <!--<file>myapp.log</file>-->
-        <file>/log/chjb.log</file>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
 </configuration>

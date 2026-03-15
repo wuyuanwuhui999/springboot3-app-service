@@ -24,7 +24,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private IChatService chatService;
 
-    // ChatWebSocketHandler.java
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
@@ -56,23 +55,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatParamsEntity.setType((String) payload.get("type"));
             chatParamsEntity.setLanguage((String) payload.get("language"));
             chatParamsEntity.setSystemPrompt((String) payload.get("systemPrompt"));
+
             if("document".equals(chatParamsEntity.getType())){
                 chatParamsEntity.setDocIds((ArrayList<String>)payload.get("docIds"));
             }
-            ChatEntity chatEntity = new ChatEntity();
-            chatEntity.setChatId(chatId);
-            chatEntity.setUserId(userId);
-            chatEntity.setPrompt(prompt);
-            chatEntity.setTenantId(tenantId);
-            chatEntity.setContent("");
-            chatEntity.setModelId(modelId);
+
+            // 使用 StringBuilder 收集完整响应
+            StringBuilder fullResponse = new StringBuilder();
 
             // Use the new service method
             chatService.chatWithWebSocketHandling(
                     userId,
                     chatParamsEntity,
                     responsePart -> {
-                        chatEntity.setContent(chatEntity.getContent() + responsePart);
+                        fullResponse.append(responsePart);
                         sendResponse(session, responsePart);
                     }
             ).subscribe(
@@ -88,15 +84,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                     () -> {
                         try {
                             session.sendMessage(new TextMessage("[completed]"));
+                            log.info("Streaming completed for chatId: {}, full response length: {}",
+                                    chatId, fullResponse.length());
                         } catch (IOException e) {
                             log.error("Failed to send completion message", e);
-                            try {
-                                session.sendMessage(new TextMessage("[completed]"));
-                            } catch (IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
-                        } finally {
-
                         }
                     }
             );
@@ -109,7 +100,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
-
     /**
      * 从 WebSocket 会话中获取 userId
      * Gateway 会在握手请求头中设置 X-User-Id
