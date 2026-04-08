@@ -16,6 +16,8 @@ public interface ChatMapper {
 
     Long getChatHistoryTotal(String tenantId,String userId);
 
+    List<ChatEntity>getChatHistoryByChatId(String userId, String chatId);
+
     List<ChatModelEntity> getModelList();
 
     // 新增方法：根据模型ID查询模型配置
@@ -28,9 +30,9 @@ public interface ChatMapper {
 
     List<ChatDocEntity> getDocList(String userId,String tenantId);
 
-    ChatDocEntity getDocById(String docId, String userId,String directoryId);
+    ChatDocEntity getDocById(String docId, String userId);
 
-    long deleteDoc(String docId, String userId, String directoryId);
+    long deleteDoc(String docId, String userId);
 
     List<DirectoryEntity> getDirectoryList(String userId,String tenantId);
 

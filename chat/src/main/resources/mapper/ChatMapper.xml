@@ -7,6 +7,33 @@
 
     <select id="getChatHistory" resultType="com.player.common.entity.ChatEntity">
         SELECT
+        id,
+        user_id,
+        files,
+        chat_id,
+        prompt,
+        system_prompt,
+        content,
+        model_id,
+        create_time
+        FROM (
+        SELECT
+        *,
+        ROW_NUMBER() OVER (PARTITION BY chat_id ORDER BY create_time DESC) AS rn
+        FROM
+        chat_history
+        WHERE
+        user_id = #{userId}
+        AND tenant_id = #{tenantId}
+        ) AS t
+        WHERE rn = 1
+        ORDER BY
+        create_time DESC
+        LIMIT #{start}, #{limit}
+    </select>
+
+    <select id="getChatHistoryByChatId" resultType="com.player.common.entity.ChatEntity">
+        SELECT
             id,
             user_id,
             files,
@@ -14,17 +41,15 @@
             prompt,
             system_prompt
             content,
+            think_content,
+            response_content,
             model_id,
             create_time
         FROM
             chat_history
         WHERE
             user_id = #{userId}
-            and tenant_id = #{tenantId}
-        ORDER BY
-            create_time DESC
-            LIMIT
-            #{start}, #{limit}
+            and chat_id = #{chatId}
     </select>
 
     <!-- 查询总数 -->
@@ -161,8 +186,7 @@
         DELETE FROM
             chat_doc_directory
         WHERE
-            id = #{directoryId}
-          AND user_id = #{userId}
+            user_id = #{userId}
     </delete>
 
     <!-- 在对应的Mapper XML文件中添加 -->

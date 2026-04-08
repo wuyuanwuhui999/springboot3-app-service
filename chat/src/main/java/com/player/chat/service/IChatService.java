@@ -14,6 +14,8 @@ public interface IChatService {
 
     ResultEntity getChatHistory(String tenantId,String userId,int pageNum,int pageSize);
 
+    ResultEntity getChatHistoryByChatId(String userId, String chatId);
+
     ResultEntity getModelList();
 
     ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId) throws IOException;
@@ -22,7 +24,7 @@ public interface IChatService {
 
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 
-    ResultEntity deleteDoc(String docId, String userId, String directoryId);
+    ResultEntity deleteDoc(String docId, String userId);
 
     ResultEntity getDirectoryList(String userId,String tenantId);
 

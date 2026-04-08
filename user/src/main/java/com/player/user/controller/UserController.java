@@ -8,6 +8,7 @@ import com.player.user.entity.ResetPasswordEntity;
 import com.player.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -54,10 +55,14 @@ public class UserController {
     }
 
     // 头像上传
-    @PutMapping("/user/updateAvater")
-    public ResultEntity updateAvater(@RequestHeader("X-User-Id") String userId, @RequestBody Map map) {
-        return userService.updateAvater(userId, map.get("img").toString());
+    @PostMapping(value = "/updateAvater", consumes = "multipart/form-data")
+    public ResultEntity updateAvater(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return userService.updateAvater(userId, file);
     }
+
 
     // 找回密码
     @PostMapping("/user/sendEmailVertifyCode")

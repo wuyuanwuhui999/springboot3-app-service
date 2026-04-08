@@ -5,6 +5,7 @@ import com.player.common.entity.UserEntity;
 import com.player.user.entity.MailEntity;
 import com.player.user.entity.PasswordEntity;
 import com.player.user.entity.ResetPasswordEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IUserService {
     ResultEntity getUserData(String userId);  // 参数改为userId
@@ -19,7 +20,7 @@ public interface IUserService {
 
     ResultEntity updatePassword(PasswordEntity passwordEntity, String userId);  // 参数改为userId
 
-    ResultEntity updateAvater(String userId, String base64);  // 参数改为userId
+    ResultEntity updateAvater(String userId, MultipartFile file);
 
     ResultEntity resetPassword(ResetPasswordEntity resetPasswordEntity);
 

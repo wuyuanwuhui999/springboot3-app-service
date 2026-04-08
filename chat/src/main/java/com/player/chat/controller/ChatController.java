@@ -38,6 +38,14 @@ public class ChatController {
         return chatService.getChatHistory(tenantId,userId, pageNum, pageSize);
     }
 
+    @GetMapping("/getChatHistoryByChatId")
+    public ResultEntity getChatHistoryByChatId(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("chatId") String chatId
+    ){
+        return chatService.getChatHistoryByChatId(userId, chatId);
+    }
+
     @GetMapping("/getModelList")
     public ResultEntity getModelList( ){
         return chatService.getModelList();
@@ -73,10 +81,9 @@ public class ChatController {
     @DeleteMapping("/deleteDoc/{docId}")
     public ResultEntity deleteDoc(
             @PathVariable("docId") String docId,
-            @RequestParam(name = "directoryId",value = "public",required = false) String directoryId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        return chatService.deleteDoc(docId,userId,directoryId);
+        return chatService.deleteDoc(docId,userId);
     }
 
     @GetMapping("/getDirectoryList")

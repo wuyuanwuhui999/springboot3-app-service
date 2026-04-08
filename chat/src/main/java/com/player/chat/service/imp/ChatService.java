@@ -143,10 +143,10 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity deleteDoc(String docId, String userId, String directoryId) {
+    public ResultEntity deleteDoc(String docId, String userId) {
         try {
             // 1. 先查询文档是否存在且属于该用户
-            ChatDocEntity doc = chatMapper.getDocById(docId, userId,directoryId);
+            ChatDocEntity doc = chatMapper.getDocById(docId, userId);
             if (doc == null) {
                 return ResultUtil.fail(null, "文档不存在或无权删除");
             }
@@ -156,13 +156,13 @@ public class ChatService implements IChatService {
             Files.deleteIfExists(filePath);
 
             // 3. 从Elasticsearch中删除文档
-            IsEqualTo directoryFilter = new IsEqualTo("metadata.directory_id", directoryId);
+            IsEqualTo directoryFilter = new IsEqualTo("metadata.doc_id", docId);
             IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
             Filter andFilter = Filter.and(directoryFilter, userIdFilter);
             elasticsearchEmbeddingStore.removeAll(andFilter);
 
             // 4. 从数据库中删除记录
-            long rows = chatMapper.deleteDoc(docId, userId,directoryId);
+            long rows = chatMapper.deleteDoc(docId, userId);
 
             return ResultUtil.success(rows, "文档删除成功");
         } catch (IOException e) {
@@ -177,6 +177,11 @@ public class ChatService implements IChatService {
         ResultEntity success = ResultUtil.success(chatMapper.getChatHistory(tenantId,userId, start, pageSize));
         success.setTotal(chatMapper.getChatHistoryTotal(tenantId,userId));
         return success;
+    }
+
+    @Override
+    public ResultEntity getChatHistoryByChatId(String userId, String chatId) {
+        return ResultUtil.success(chatMapper.getChatHistoryByChatId(userId, chatId));
     }
 
     /**

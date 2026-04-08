@@ -19,7 +19,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -164,30 +167,63 @@ public class UserService implements IUserService {
         return ResultUtil.fail(0,"旧密码错误");
     }
 
+    // UserService.java 实现类修改
     /**
      * @author: wuwenqiang
-     * @methodsName: updatePassword
-     * @description: 修改密码
+     * @methodsName: updateAvater
+     * @description: 修改头像（文件上传方式）
      * @return: ResultEntity
      * @date: 2021-06-18 00:21
      */
     @Override
     @Transactional
-    public ResultEntity updateAvater(String userId, String base64){
-        if (StringUtils.isEmpty(base64)) {
+    public ResultEntity updateAvater(String userId, MultipartFile file){
+        if (file == null || file.isEmpty()) {
             return ResultUtil.fail("请选择文件");
         }
-        String ext = base64.replaceAll(";base64,.+","").replaceAll("data:image/","");
 
-        base64 = base64.replaceAll("data:image/.+base64,","");
-        String imgName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
-        String savePath = avaterPath+ imgName;
-        String newImgName = Common.generateImage(base64, savePath);
-        if(newImgName != null){
-            userMapper.updateAvater(newImgName, userId);
-            return ResultUtil.success(newImgName);
-        }else{
-            return ResultUtil.fail("修改头像失败");
+        try {
+            // 获取文件扩展名
+            String originalFilename = file.getOriginalFilename();
+            String ext = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+            }
+
+            // 验证文件类型
+            String[] allowedExt = {"jpg", "jpeg", "png", "gif", "bmp"};
+            boolean isValidExt = false;
+            for (String allowed : allowedExt) {
+                if (allowed.equalsIgnoreCase(ext)) {
+                    isValidExt = true;
+                    break;
+                }
+            }
+
+            if (!isValidExt) {
+                return ResultUtil.fail("不支持的图片格式，仅支持 jpg、jpeg、png、gif、bmp 格式");
+            }
+
+            // 生成新的文件名
+            String imgName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
+            String savePath = avaterPath + imgName;
+
+            // 保存文件
+            File dest = new File(savePath);
+            // 确保目录存在
+            if (!dest.getParentFile().exists()) {
+                dest.getParentFile().mkdirs();
+            }
+            file.transferTo(dest);
+
+            // 更新数据库中的头像路径
+            userMapper.updateAvater(imgName, userId);
+
+            return ResultUtil.success(imgName);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResultUtil.fail("修改头像失败：" + e.getMessage());
         }
     }
 
