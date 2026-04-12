@@ -2,6 +2,7 @@ package com.player.prompt.controller;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.utils.JwtToken;
+import com.player.prompt.entity.PromptEntity;
 import com.player.prompt.entity.UserPromptEntity;
 import com.player.prompt.service.IPromptService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,12 @@ public class PromptController {
     @Autowired
     private IPromptService promptService;
 
-    @PostMapping("/insertPrompt")
-    public ResultEntity insertPrompt(@RequestBody UserPromptEntity userPromptEntity,
-                                     @RequestHeader("X-User-Id") String userId) {
-        return promptService.insertPrompt(userPromptEntity, userId);
+    @GetMapping("/getPrompt")
+    public ResultEntity getPrompt(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam(value = "tenantId",required = true) String tenantId
+    ){
+        return promptService.getPrompt(userId,tenantId);
     }
 
     @DeleteMapping("/deletePrompt/{tenantId}/{id}")
@@ -29,9 +32,9 @@ public class PromptController {
     }
 
     @PutMapping("/updatePrompt")
-    public ResultEntity updatePrompt(@RequestBody UserPromptEntity userPromptEntity,
+    public ResultEntity updatePrompt(@RequestBody PromptEntity promptEntity,
                                      @RequestHeader("X-User-Id") String userId) {
-        return promptService.updatePrompt(userPromptEntity, userId);
+        return promptService.updatePrompt(promptEntity, userId);
     }
 
     @GetMapping("/getPromptById/{tenantId}/{id}")

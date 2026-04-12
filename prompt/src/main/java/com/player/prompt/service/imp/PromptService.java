@@ -2,6 +2,7 @@ package com.player.prompt.service.imp;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
+import com.player.prompt.entity.PromptEntity;
 import com.player.prompt.entity.UserPromptEntity;
 import com.player.prompt.mapper.PromptMapper;
 import com.player.prompt.service.IPromptService;
@@ -18,24 +19,17 @@ public class PromptService implements IPromptService {
     private PromptMapper promptMapper;
 
     @Override
-    public ResultEntity insertPrompt(UserPromptEntity userPromptEntity, String userId) {
-        try {
-
-            userPromptEntity.setId(UUID.randomUUID().toString());
-            userPromptEntity.setCreatedBy(userId);
-            userPromptEntity.setUpdatedBy(userId);
-            userPromptEntity.setCreateTime(new Date());
-            userPromptEntity.setUpdateTime(new Date());
-
-            int result = promptMapper.insertPrompt(userPromptEntity);
-            if (result > 0) {
-                return ResultUtil.success("新增提示词成功");
-            } else {
-                return ResultUtil.fail("新增提示词失败");
-            }
-        } catch (Exception e) {
-            return ResultUtil.fail("新增提示词异常：" + e.getMessage());
+    public ResultEntity getPrompt(String tenantId, String userId) {
+        PromptEntity promptEntity = promptMapper.getPrompt(tenantId,userId);
+        if(promptEntity == null){
+            promptEntity = new PromptEntity();
+            promptEntity.setTenantId(tenantId);
+            promptEntity.setUserId(userId);
+            promptEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+            promptEntity.setPrompt("你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。");
+            promptMapper.insertPrompt(promptEntity);
         }
+        return ResultUtil.success(promptEntity);
     }
 
     @Override
@@ -54,13 +48,13 @@ public class PromptService implements IPromptService {
     }
 
     @Override
-    public ResultEntity updatePrompt(UserPromptEntity userPromptEntity, String userId) {
+    public ResultEntity updatePrompt(PromptEntity promptEntity, String userId) {
         try {
 
-            userPromptEntity.setUpdatedBy(userId);
-            userPromptEntity.setUpdateTime(new Date());
+            promptEntity.setUserId(userId);
+            promptEntity.setUpdateTime(new Date());
 
-            int result = promptMapper.updatePrompt(userPromptEntity);
+            int result = promptMapper.updatePrompt(promptEntity);
             if (result > 0) {
                 return ResultUtil.success("更新提示词成功");
             } else {

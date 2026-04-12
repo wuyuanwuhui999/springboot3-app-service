@@ -2,36 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.prompt.mapper.PromptMapper">
 
-    <insert id="insertPrompt" parameterType="UserPromptEntity">
-        INSERT INTO prompt_user (
-        id, tenant_id, title, content, disabled,
-        categoryId, tags, create_time, update_time, created_by, updated_by
+    <select id="getPrompt">
+        SELECT * FROM prompt WHERE tenant_id = #{tenantId} and user_id = #{userId}
+    </select>
+
+    <insert id="insertPrompt">
+        INSERT INTO prompt (
+            id,prompt,tenant_id,user_id,create_time,update_time
         ) VALUES (
-        #{id}, #{tenantId}, #{title}, #{content}, #{disabled},
-        #{categoryId}, #{tags}, #{createDate}, #{updateDate}, #{createdBy}, #{updatedBy}
+            #{id},#{prompt},#{tenantId},#{userId},now(),now()
         )
     </insert>
 
-    <delete id="deletePrompt">
-        DELETE FROM prompt_user
-        WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
-    </delete>
-
-    <update id="updatePrompt" parameterType="UserPromptEntity">
-        UPDATE prompt_user
-        SET title = #{title},
-        content = #{content},
-        disabled = #{disabled},
-        categoryId = #{categoryId},
-        tags = #{tags},
-        update_date = #{updateDate},
-        updated_by = #{updatedBy}
-        WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{updatedBy}
+    <update id="updatePromptById" parameterType="PromptEntity">
+        UPDATE prompt set prompt = #{prompt},update_time = now() where id = #{id} and user_id = #{userId}
     </update>
 
-    <select id="getPromptById" resultType="UserPromptEntity">
-        SELECT * FROM prompt_user
-        WHERE id = #{id} AND tenant_id = #{tenantId} AND created_by = #{createdBy}
+    <select id="getPromptById" resultType="PromptEntity">
+        SELECT * FROM prompt WHERE id = #{id}
     </select>
 
     <select id="getPromptList" resultType="UserPromptEntity">

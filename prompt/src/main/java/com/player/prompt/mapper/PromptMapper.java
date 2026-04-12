@@ -1,24 +1,22 @@
 package com.player.prompt.mapper;
 
-import com.player.prompt.entity.DetaultPromptEntity;
-import com.player.prompt.entity.PromptCategoryEntity;
-import com.player.prompt.entity.SystemPromptEntity;
-import com.player.prompt.entity.UserPromptEntity;
+import com.player.prompt.entity.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface PromptMapper {
+    PromptEntity getPrompt(String tenantId,String userId);
 
     // 新增提示词
-    int insertPrompt(UserPromptEntity userPromptEntity);
+    int insertPrompt(PromptEntity promptEntity);
 
     // 根据ID、租户ID和创建人ID删除提示词
     int deletePrompt(String id,String tenantId, String createdBy);
 
     // 更新提示词（根据ID、租户ID和创建人ID过滤）
-    int updatePrompt(UserPromptEntity userPromptEntity);
+    int updatePrompt(PromptEntity promptEntity);
 
     // 根据ID、租户ID和创建人ID查询提示词
     UserPromptEntity getPromptById(String id, String tenantId, String createdBy);
