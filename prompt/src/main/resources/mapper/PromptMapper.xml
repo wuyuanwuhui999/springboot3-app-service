@@ -14,7 +14,7 @@
         )
     </insert>
 
-    <update id="updatePromptById" parameterType="PromptEntity">
+    <update id="updatePrompt" parameterType="PromptEntity">
         UPDATE prompt set prompt = #{prompt},update_time = now() where id = #{id} and user_id = #{userId}
     </update>
 

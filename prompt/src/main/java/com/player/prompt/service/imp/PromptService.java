@@ -54,12 +54,8 @@ public class PromptService implements IPromptService {
             promptEntity.setUserId(userId);
             promptEntity.setUpdateTime(new Date());
 
-            int result = promptMapper.updatePrompt(promptEntity);
-            if (result > 0) {
-                return ResultUtil.success("更新提示词成功");
-            } else {
-                return ResultUtil.fail("更新提示词失败，可能不存在或无权操作");
-            }
+            promptMapper.updatePrompt(promptEntity);
+            return ResultUtil.success("更新提示词成功");
         } catch (Exception e) {
             return ResultUtil.fail("更新提示词异常：" + e.getMessage());
         }
