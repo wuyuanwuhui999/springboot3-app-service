@@ -48,4 +48,18 @@ public class CompanyController {
             @RequestBody CompanyUserEntity companyUser) {
         return companyService.addUser(userId, companyUser);
     }
+
+    /**
+     * 查询公司用户列表（支持关键字模糊搜索）
+     */
+    @GetMapping("/getCompanyUser")
+    @Operation(summary = "查询公司用户列表")
+    public ResultEntity getCompanyUser(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("companyId") String companyId,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+        return companyService.getCompanyUser(userId, companyId, pageNum, pageSize, keyword);
+    }
 }

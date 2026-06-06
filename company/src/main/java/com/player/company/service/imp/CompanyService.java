@@ -123,4 +123,36 @@ public class CompanyService implements ICompanyService {
         Integer result = companyMapper.insertCompanyUser(newRelation);
         return ResultUtil.success(result, "添加成功");
     }
+
+    /**
+     * 查询公司用户列表（支持关键字模糊搜索）
+     */
+    @Override
+    public ResultEntity getCompanyUser(String userId, String companyId, Integer pageNum, Integer pageSize, String keyword) {
+        // 参数校验
+        if (StringUtils.isEmpty(companyId)) {
+            return ResultUtil.fail(null, "企业ID不能为空", ResultCode.FAIL);
+        }
+
+        // 分页参数默认值
+        if (pageNum == null || pageNum <= 0) {
+            pageNum = 1;
+        }
+        if (pageSize == null || pageSize <= 0) {
+            pageSize = 10;
+        }
+
+        // 校验当前用户是否在该企业中（只有企业成员才能查看企业用户列表）
+        Integer currentUserRole = companyMapper.selectUserRoleInCompany(userId, companyId);
+        if (currentUserRole == null) {
+            return ResultUtil.fail(null, "您不是该企业的成员，无权查看", ResultCode.FAIL);
+        }
+
+        // 分页查询
+        int offset = (pageNum - 1) * pageSize;
+        List<UserEntity> users = companyMapper.selectCompanyUserByKeyword(companyId, keyword, offset, pageSize);
+        Long total = companyMapper.countCompanyUserByKeyword(companyId, keyword);
+
+        return ResultUtil.success(users, total);
+    }
 }

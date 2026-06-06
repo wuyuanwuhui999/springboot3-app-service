@@ -16,15 +16,21 @@
         <result column="role" property="role"/>
     </resultMap>
 
-    <!-- 结果映射：用户实体（复用 common 模块的 UserEntity） -->
+    <!-- 结果映射：用户实体（仅映射 UserEntity 已有字段） -->
     <resultMap id="UserMap" type="com.player.common.entity.UserEntity">
         <id column="id" property="id"/>
         <result column="user_account" property="userAccount"/>
-        <result column="user_name" property="userName"/>
+        <result column="username" property="username"/>
         <result column="email" property="email"/>
         <result column="avater" property="avater"/>
-        <result column="phone" property="phone"/>
-        <result column="status" property="status"/>
+        <result column="telephone" property="telephone"/>
+        <result column="birthday" property="birthday"/>
+        <result column="sex" property="sex"/>
+        <result column="role" property="role"/>
+        <result column="sign" property="sign"/>
+        <result column="region" property="region"/>
+        <result column="disabled" property="disabled"/>
+        <result column="permission" property="permission"/>
         <result column="create_date" property="createDate"/>
         <result column="update_date" property="updateDate"/>
     </resultMap>
@@ -32,45 +38,51 @@
     <!-- 根据用户ID查询所属公司列表，并包含 code='personal' 的企业 -->
     <select id="selectCompanyListByUserId" resultMap="CompanyMap">
         SELECT
-            c.id,
-            c.name,
-            c.code,
-            c.description,
-            c.status,
-            c.create_date,
-            c.update_date,
-            c.created_by,
-            c.updated_by,
-            cu.role
+        c.id,
+        c.name,
+        c.code,
+        c.description,
+        c.status,
+        c.create_date,
+        c.update_date,
+        c.created_by,
+        c.updated_by,
+        cu.role
         FROM company c
         LEFT JOIN company_user cu ON c.id = cu.company_id AND cu.user_id = #{userId} AND cu.status = 1
         WHERE c.status = 1
-          AND (
-              cu.user_id = #{userId}
-              OR c.code = 'personal'
-          )
-        ORDER BY 
-            CASE WHEN c.code = 'personal' THEN 0 ELSE 1 END,
-            cu.role DESC
+        AND (
+        cu.user_id = #{userId}
+        OR c.code = 'personal'
+        )
+        ORDER BY
+        CASE WHEN c.code = 'personal' THEN 0 ELSE 1 END,
+        cu.role DESC
     </select>
 
     <!-- 查询公司成员列表（分页） -->
     <select id="selectCompanyUsers" resultMap="UserMap">
         SELECT
-            u.id,
-            u.user_account,
-            u.user_name,
-            u.email,
-            u.avater,
-            u.phone,
-            u.status,
-            u.create_date,
-            u.update_date
+        u.id,
+        u.user_account,
+        u.username,
+        u.email,
+        u.avater,
+        u.telephone,
+        u.birthday,
+        u.sex,
+        u.role,
+        u.sign,
+        u.region,
+        u.disabled,
+        u.permission,
+        u.create_date,
+        u.update_date
         FROM company_user cu
         INNER JOIN user u ON cu.user_id = u.id
         WHERE cu.company_id = #{companyId}
-          AND cu.status = 1
-          AND u.status = 1
+        AND cu.status = 1
+        AND u.disabled = 0
         ORDER BY cu.role DESC, cu.join_date ASC
         LIMIT #{offset}, #{pageSize}
     </select>
@@ -80,7 +92,7 @@
         SELECT COUNT(*)
         FROM company_user cu
         WHERE cu.company_id = #{companyId}
-          AND cu.status = 1
+        AND cu.status = 1
     </select>
 
     <!-- 查询用户在企业中的角色 -->
@@ -88,8 +100,8 @@
         SELECT role
         FROM company_user
         WHERE user_id = #{userId}
-          AND company_id = #{companyId}
-          AND status = 1
+        AND company_id = #{companyId}
+        AND status = 1
         LIMIT 1
     </select>
 
@@ -98,29 +110,82 @@
         SELECT COUNT(*)
         FROM company_user
         WHERE user_id = #{userId}
-          AND company_id = #{companyId}
-          AND status = 1
+        AND company_id = #{companyId}
+        AND status = 1
     </select>
 
     <!-- 添加用户到企业 -->
     <insert id="insertCompanyUser" parameterType="com.player.company.entity.CompanyUserEntity">
         INSERT INTO company_user (
-            id,
-            user_id,
-            company_id,
-            role,
-            join_date,
-            status,
-            create_by
+        id,
+        user_id,
+        company_id,
+        role,
+        join_date,
+        status,
+        create_by
         ) VALUES (
-            #{id},
-            #{userId},
-            #{companyId},
-            #{role},
-            #{joinDate},
-            #{status},
-            #{createBy}
+        #{id},
+        #{userId},
+        #{companyId},
+        #{role},
+        #{joinDate},
+        #{status},
+        #{createBy}
         )
     </insert>
+
+    <!-- 查询公司用户列表（支持关键字模糊搜索） -->
+    <select id="selectCompanyUserByKeyword" resultMap="UserMap">
+        SELECT
+        u.id,
+        u.user_account,
+        u.username,
+        u.email,
+        u.avater,
+        u.telephone,
+        u.birthday,
+        u.sex,
+        u.role,
+        u.sign,
+        u.region,
+        u.disabled,
+        u.permission,
+        u.create_date,
+        u.update_date
+        FROM company_user cu
+        INNER JOIN user u ON cu.user_id = u.id
+        WHERE cu.company_id = #{companyId}
+        AND cu.status = 1
+        AND u.disabled = 0
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
+            OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+            OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY cu.role DESC, cu.join_date ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计公司用户数量（支持关键字模糊搜索） -->
+    <select id="countCompanyUserByKeyword" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM company_user cu
+        INNER JOIN user u ON cu.user_id = u.id
+        WHERE cu.company_id = #{companyId}
+        AND cu.status = 1
+        AND u.disabled = 0
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
+            OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+            OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </select>
 
 </mapper>
