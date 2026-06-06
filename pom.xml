@@ -22,6 +22,7 @@
         <module>prompt</module>
         <module>gateway</module>
         <module>agent</module>
+        <module>company</module>
     </modules>
 
     <!-- 统一属性配置 -->

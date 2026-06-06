@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.player.company.mapper.CompanyMapper">
+
+    <!-- 结果映射：公司实体 -->
+    <resultMap id="CompanyMap" type="com.player.company.entity.CompanyEntity">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="role" property="role"/>
+    </resultMap>
+
+    <!-- 结果映射：用户实体（复用 common 模块的 UserEntity） -->
+    <resultMap id="UserMap" type="com.player.common.entity.UserEntity">
+        <id column="id" property="id"/>
+        <result column="user_account" property="userAccount"/>
+        <result column="user_name" property="userName"/>
+        <result column="email" property="email"/>
+        <result column="avater" property="avater"/>
+        <result column="phone" property="phone"/>
+        <result column="status" property="status"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_date" property="updateDate"/>
+    </resultMap>
+
+    <!-- 根据用户ID查询所属公司列表，并包含 code='personal' 的企业 -->
+    <select id="selectCompanyListByUserId" resultMap="CompanyMap">
+        SELECT
+            c.id,
+            c.name,
+            c.code,
+            c.description,
+            c.status,
+            c.create_date,
+            c.update_date,
+            c.created_by,
+            c.updated_by,
+            cu.role
+        FROM company c
+        LEFT JOIN company_user cu ON c.id = cu.company_id AND cu.user_id = #{userId} AND cu.status = 1
+        WHERE c.status = 1
+          AND (
+              cu.user_id = #{userId}
+              OR c.code = 'personal'
+          )
+        ORDER BY 
+            CASE WHEN c.code = 'personal' THEN 0 ELSE 1 END,
+            cu.role DESC
+    </select>
+
+    <!-- 查询公司成员列表（分页） -->
+    <select id="selectCompanyUsers" resultMap="UserMap">
+        SELECT
+            u.id,
+            u.user_account,
+            u.user_name,
+            u.email,
+            u.avater,
+            u.phone,
+            u.status,
+            u.create_date,
+            u.update_date
+        FROM company_user cu
+        INNER JOIN user u ON cu.user_id = u.id
+        WHERE cu.company_id = #{companyId}
+          AND cu.status = 1
+          AND u.status = 1
+        ORDER BY cu.role DESC, cu.join_date ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计公司成员总数 -->
+    <select id="countCompanyUsers" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM company_user cu
+        WHERE cu.company_id = #{companyId}
+          AND cu.status = 1
+    </select>
+
+    <!-- 查询用户在企业中的角色 -->
+    <select id="selectUserRoleInCompany" resultType="java.lang.Integer">
+        SELECT role
+        FROM company_user
+        WHERE user_id = #{userId}
+          AND company_id = #{companyId}
+          AND status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 检查用户是否已在企业中 -->
+    <select id="checkUserExistsInCompany" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM company_user
+        WHERE user_id = #{userId}
+          AND company_id = #{companyId}
+          AND status = 1
+    </select>
+
+    <!-- 添加用户到企业 -->
+    <insert id="insertCompanyUser" parameterType="com.player.company.entity.CompanyUserEntity">
+        INSERT INTO company_user (
+            id,
+            user_id,
+            company_id,
+            role,
+            join_date,
+            status,
+            create_by
+        ) VALUES (
+            #{id},
+            #{userId},
+            #{companyId},
+            #{role},
+            #{joinDate},
+            #{status},
+            #{createBy}
+        )
+    </insert>
+
+</mapper>

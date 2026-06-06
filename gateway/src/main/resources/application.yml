@@ -131,6 +131,13 @@ spring:
           filters:
             - StripPrefix=0
 
+        - id: company
+          uri: lb://company-service
+          predicates:
+            - Path=/service/company/**
+          filters:
+            - StripPrefix=0
+
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 

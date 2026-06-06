@@ -28,6 +28,7 @@ public class JwtAuthFilter implements GlobalFilter {
 
     private static final List<String> WHITE_LIST = List.of(
             "/service/user/register",
+            "/service/user/resetPassword",
             "/service/user/login",
             "/service/user/loginByEmail",
             "/service/user/vertifyUser",

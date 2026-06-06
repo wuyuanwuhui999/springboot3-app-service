@@ -36,7 +36,7 @@ public class UserEntity {
     private String birthday;
 
     @Schema(description = "性别")
-    private int sex;
+    private String sex;
 
     @Schema(description = "角色")
     private String role;
