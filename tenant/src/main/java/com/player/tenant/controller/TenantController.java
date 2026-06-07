@@ -13,9 +13,12 @@ public class TenantController {
     private ITenantService tenantService;
 
     // 查询用户信息
-    @GetMapping("/getUserTenantList")
-    public ResultEntity getUserTenantList(@RequestHeader("X-User-Id") String userId) {
-        return tenantService.getUserTenantList(userId);
+    @GetMapping("/getTenantList")
+    public ResultEntity getUserTenantList(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("companyId") String companyId
+            ) {
+        return tenantService.getTenantList(userId,companyId);
     }
 
     // 查询当前租户下的用户列表

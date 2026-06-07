@@ -20,6 +20,9 @@ public class TenantUserEntity {
     @Schema(description = "用户ID")
     private String userId;
 
+    @Schema(description = "用户帐号")
+    private String userAccount;
+
     @Schema(description = "角色类型：0-普通用户，1-租户管理员，2-超级管理员")
     private Integer roleType;
 

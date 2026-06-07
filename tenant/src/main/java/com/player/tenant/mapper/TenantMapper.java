@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface TenantMapper {
-    List<TenantEntity>getUserTenantList(String userId);
+    List<TenantEntity>getTenantList(String userId,String companyId);
 
     List<TenantUserEntity> getTenantUserList(String tenantId, String userId, int offset, int pageSize);
 

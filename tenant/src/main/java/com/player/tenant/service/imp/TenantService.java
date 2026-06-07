@@ -17,8 +17,8 @@ public class TenantService implements ITenantService {
     private TenantMapper tenantMapper;
 
     @Override
-    public ResultEntity getUserTenantList(String userId) {
-        return ResultUtil.success(tenantMapper.getUserTenantList(userId));
+    public ResultEntity getTenantList(String userId,String companyId) {
+        return ResultUtil.success(tenantMapper.getTenantList(userId,companyId));
     }
 
     @Override

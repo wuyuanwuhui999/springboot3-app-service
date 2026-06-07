@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.player.prompt.mapper.CompanyMapper">
+<mapper namespace="com.player.company.mapper.CompanyMapper">
 
     <!-- 结果映射：公司实体 -->
-    <resultMap id="CompanyMap" type="com.player.prompt.entity.CompanyEntity">
+    <resultMap id="CompanyMap" type="com.player.company.entity.CompanyEntity">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="code" property="code"/>
@@ -115,7 +115,7 @@
     </select>
 
     <!-- 添加用户到企业 -->
-    <insert id="insertCompanyUser" parameterType="com.player.prompt.entity.CompanyUserEntity">
+    <insert id="insertCompanyUser" parameterType="com.player.company.entity.CompanyUserEntity">
         INSERT INTO company_user (
         id,
         user_id,
