@@ -1,4 +1,4 @@
-package com.player.company.entity;
+package com.player.prompt.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

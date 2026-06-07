@@ -1,7 +1,7 @@
-package com.player.company.service;
+package com.player.prompt.service;
 
 import com.player.common.entity.ResultEntity;
-import com.player.company.entity.PromptEntity;
+import com.player.prompt.entity.PromptEntity;
 
 public interface IPromptService {
     ResultEntity getPrompt(String tenantId, String userId);

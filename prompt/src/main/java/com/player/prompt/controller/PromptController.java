@@ -1,8 +1,8 @@
-package com.player.company.controller;
+package com.player.prompt.controller;
 
 import com.player.common.entity.ResultEntity;
-import com.player.company.entity.PromptEntity;
-import com.player.company.service.IPromptService;
+import com.player.prompt.entity.PromptEntity;
+import com.player.prompt.service.IPromptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

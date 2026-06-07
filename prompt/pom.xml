@@ -115,7 +115,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.player.company.PromptApplication</mainClass>
+                    <mainClass>com.player.prompt.PromptApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.player.company.mapper.PromptMapper">
+<mapper namespace="com.player.prompt.mapper.PromptMapper">
 
     <select id="getPrompt">
         SELECT * FROM prompt WHERE tenant_id = #{tenantId} and user_id = #{userId} limit 1

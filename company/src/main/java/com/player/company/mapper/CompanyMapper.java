@@ -1,7 +1,7 @@
 package com.player.company.mapper;
 
-import com.player.company.entity.CompanyEntity;
-import com.player.company.entity.CompanyUserEntity;
+import com.player.prompt.entity.CompanyEntity;
+import com.player.prompt.entity.CompanyUserEntity;
 import com.player.common.entity.UserEntity;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;

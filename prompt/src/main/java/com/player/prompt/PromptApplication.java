@@ -1,4 +1,4 @@
-package com.player.company;
+package com.player.prompt;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;

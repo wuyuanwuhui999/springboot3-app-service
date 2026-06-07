@@ -1,6 +1,6 @@
-package com.player.company.mapper;
+package com.player.prompt.mapper;
 
-import com.player.company.entity.*;
+import com.player.prompt.entity.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

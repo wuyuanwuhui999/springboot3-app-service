@@ -35,7 +35,7 @@
         <spring-boot.version>3.4.5</spring-boot.version>
         <mybatis-starter.version>3.0.4</mybatis-starter.version>
         <swagger-annotations.version>2.2.15</swagger-annotations.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.34</lombok.version>
         <fastjson2.version>2.0.47</fastjson2.version>
         <jjwt.version>0.12.6</jjwt.version>
         <httpclient5.version>5.4.3</httpclient5.version>
