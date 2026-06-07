@@ -44,7 +44,8 @@
             t.name as tenant_name,
             u.username,
             u.avater,
-            u.email
+            u.email,
+            u.user_account
         FROM tenant_user tu
                  LEFT JOIN user u ON tu.user_id = u.id COLLATE utf8mb4_unicode_ci
                  LEFT JOIN tenant t ON tu.tenant_id = t.id COLLATE utf8mb4_unicode_ci

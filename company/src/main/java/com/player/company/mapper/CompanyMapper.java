@@ -69,7 +69,7 @@ public interface CompanyMapper {
      * @param pageSize 每页大小
      * @return 用户列表
      */
-    List<UserEntity> selectCompanyUserByKeyword(@Param("companyId") String companyId,
+    List<UserEntity> searchCompanyUserByKeyword(@Param("companyId") String companyId,
                                                 @Param("keyword") String keyword,
                                                 @Param("offset") Integer offset,
                                                 @Param("pageSize") Integer pageSize);

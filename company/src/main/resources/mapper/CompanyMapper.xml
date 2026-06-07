@@ -2,41 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.company.mapper.CompanyMapper">
 
-    <!-- 结果映射：公司实体 -->
-    <resultMap id="CompanyMap" type="com.player.company.entity.CompanyEntity">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="code" property="code"/>
-        <result column="description" property="description"/>
-        <result column="status" property="status"/>
-        <result column="create_date" property="createDate"/>
-        <result column="update_date" property="updateDate"/>
-        <result column="created_by" property="createdBy"/>
-        <result column="updated_by" property="updatedBy"/>
-        <result column="role" property="role"/>
-    </resultMap>
-
-    <!-- 结果映射：用户实体（仅映射 UserEntity 已有字段） -->
-    <resultMap id="UserMap" type="com.player.common.entity.UserEntity">
-        <id column="id" property="id"/>
-        <result column="user_account" property="userAccount"/>
-        <result column="username" property="username"/>
-        <result column="email" property="email"/>
-        <result column="avater" property="avater"/>
-        <result column="telephone" property="telephone"/>
-        <result column="birthday" property="birthday"/>
-        <result column="sex" property="sex"/>
-        <result column="role" property="role"/>
-        <result column="sign" property="sign"/>
-        <result column="region" property="region"/>
-        <result column="disabled" property="disabled"/>
-        <result column="permission" property="permission"/>
-        <result column="create_date" property="createDate"/>
-        <result column="update_date" property="updateDate"/>
-    </resultMap>
-
-    <!-- 根据用户ID查询所属公司列表，并包含 code='personal' 的企业 -->
-    <select id="selectCompanyListByUserId" resultMap="CompanyMap">
+    <!-- 根据用户ID查询所属公司列表 -->
+    <select id="selectCompanyListByUserId" resultType="CompanyEntity">
         SELECT
         c.id,
         c.name,
@@ -61,7 +28,7 @@
     </select>
 
     <!-- 查询公司成员列表（分页） -->
-    <select id="selectCompanyUsers" resultMap="UserMap">
+    <select id="selectCompanyUsers" resultType="com.player.common.entity.UserEntity">
         SELECT
         u.id,
         u.user_account,
@@ -135,8 +102,8 @@
         )
     </insert>
 
-    <!-- 查询公司用户列表（支持关键字模糊搜索） -->
-    <select id="selectCompanyUserByKeyword" resultMap="UserMap">
+    <!-- 查询公司用户列表（支持关键字模糊搜索）- 修正方法名和参数绑定 -->
+    <select id="searchCompanyUserByKeyword" resultType="com.player.common.entity.UserEntity">
         SELECT
         u.id,
         u.user_account,

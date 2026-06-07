@@ -128,7 +128,7 @@ public class CompanyService implements ICompanyService {
      * 查询公司用户列表（支持关键字模糊搜索）
      */
     @Override
-    public ResultEntity getCompanyUser(String userId, String companyId, Integer pageNum, Integer pageSize, String keyword) {
+    public ResultEntity searchCompanyUsers(String userId, String companyId, Integer pageNum, Integer pageSize, String keyword) {
         // 参数校验
         if (StringUtils.isEmpty(companyId)) {
             return ResultUtil.fail(null, "企业ID不能为空", ResultCode.FAIL);
@@ -150,7 +150,7 @@ public class CompanyService implements ICompanyService {
 
         // 分页查询
         int offset = (pageNum - 1) * pageSize;
-        List<UserEntity> users = companyMapper.selectCompanyUserByKeyword(companyId, keyword, offset, pageSize);
+        List<UserEntity> users = companyMapper.searchCompanyUserByKeyword(companyId, keyword, offset, pageSize);
         Long total = companyMapper.countCompanyUserByKeyword(companyId, keyword);
 
         return ResultUtil.success(users, total);

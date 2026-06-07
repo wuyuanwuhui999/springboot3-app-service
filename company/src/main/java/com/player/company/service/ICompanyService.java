@@ -39,5 +39,5 @@ public interface ICompanyService {
      * @param keyword 搜索关键字（模糊匹配 username/user_account/telephone/email）
      * @return 公司用户列表（分页）
      */
-    ResultEntity getCompanyUser(String userId, String companyId, Integer pageNum, Integer pageSize, String keyword);
+    ResultEntity searchCompanyUsers(String userId, String companyId, Integer pageNum, Integer pageSize, String keyword);
 }
