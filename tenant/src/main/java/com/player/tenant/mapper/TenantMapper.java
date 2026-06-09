@@ -10,9 +10,9 @@ import java.util.List;
 public interface TenantMapper {
     List<TenantEntity>getTenantList(String userId,String companyId);
 
-    List<TenantUserEntity> getTenantUserList(String tenantId, String userId, int offset, int pageSize);
+    List<TenantUserEntity> getTenantUserList(String tenantId, String userId, String keyword, int offset, int pageSize);
 
-    Long getTenantUserListCount(String tenantId);
+    Long getTenantUserListCount(String tenantId, String keyword);
 
     TenantUserEntity getTenantUser(String tenantId, String userId);
 

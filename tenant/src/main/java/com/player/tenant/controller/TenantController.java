@@ -26,10 +26,11 @@ public class TenantController {
     public ResultEntity getTenantUserList(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam("tenantId") String tenantId,
+            @RequestParam(name = "keyword",required = false,value = "") String keyword,
             @RequestParam("pageNum") int pageNum,
             @RequestParam("pageSize") int pageSize
     ) {
-        return tenantService.getTenantUserList(tenantId,userId,pageNum,pageSize);
+        return tenantService.getTenantUserList(tenantId,userId,keyword,pageNum,pageSize);
     }
 
     // 查询当前租户的用户信息
