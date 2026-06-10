@@ -18,7 +18,7 @@ public interface ChatMapper {
 
     List<ChatEntity>getChatHistoryByChatId(String userId, String chatId);
 
-    List<ChatModelEntity> getModelList();
+    List<ChatModelEntity> getModelList(String companyId);
 
     // 新增方法：根据模型ID查询模型配置
     ChatModelEntity getModelById(String modelId);

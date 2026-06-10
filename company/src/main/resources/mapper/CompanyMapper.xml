@@ -20,7 +20,7 @@
         WHERE c.status = 1
         AND (
         cu.user_id = #{userId}
-        OR c.code = 'personal'
+        OR c.code = #{userId}
         )
         ORDER BY
         CASE WHEN c.code = 'personal' THEN 0 ELSE 1 END,

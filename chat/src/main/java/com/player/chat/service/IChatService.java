@@ -16,7 +16,7 @@ public interface IChatService {
 
     ResultEntity getChatHistoryByChatId(String userId, String chatId);
 
-    ResultEntity getModelList();
+    ResultEntity getModelList(String companyId);
 
     ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId) throws IOException;
 

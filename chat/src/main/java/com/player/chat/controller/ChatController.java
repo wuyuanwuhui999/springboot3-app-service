@@ -47,8 +47,10 @@ public class ChatController {
     }
 
     @GetMapping("/getModelList")
-    public ResultEntity getModelList( ){
-        return chatService.getModelList();
+    public ResultEntity getModelList(
+            @RequestParam("companyId") String companyId
+    ){
+        return chatService.getModelList(companyId);
     }
 
     @PostMapping("/uploadDoc/{tenantId}/{directoryId}")

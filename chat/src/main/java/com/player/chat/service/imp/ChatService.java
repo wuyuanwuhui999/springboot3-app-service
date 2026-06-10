@@ -190,8 +190,8 @@ public class ChatService implements IChatService {
      */
 //    @Cacheable(value = "model", key = "'list'")
     @Override
-    public ResultEntity getModelList() {
-        return ResultUtil.success(chatMapper.getModelList());
+    public ResultEntity getModelList(String companyId) {
+        return ResultUtil.success(chatMapper.getModelList(companyId));
     }
 
     @Override

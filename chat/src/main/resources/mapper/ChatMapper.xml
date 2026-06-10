@@ -74,7 +74,7 @@
         id, type, api_key as apiKey, model_name as modelName,
         base_url as baseUrl, disabled, create_time as createTime, update_time as updateTime
         FROM chat_model
-        WHERE disabled = 0 OR disabled IS NULL
+        WHERE disabled = 0 OR disabled IS NULL AND company_id = #{companyId}
         ORDER BY create_time DESC
     </select>
 
