@@ -86,8 +86,10 @@ public class UserController {
     @GetMapping("/user/searchUsers")
     public ResultEntity searchUsers(
             @RequestParam(value = "keyword") String keyword,
-            @RequestParam(value = "tenantId") String tenantId
+            @RequestParam(value = "companyId") String tenantId,
+            @RequestParam(value = "pageNum") int pageNum,
+            @RequestParam(value = "pageSize") int pageSize
     ) {
-        return userService.searchUsers(keyword, tenantId);
+        return userService.searchUsers(keyword, tenantId,pageNum,pageSize);
     }
 }

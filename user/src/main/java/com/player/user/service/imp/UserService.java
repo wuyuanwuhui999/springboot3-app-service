@@ -295,14 +295,15 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResultEntity searchUsers(String keyword, String tenantId) {
+    public ResultEntity searchUsers(String keyword, String companyId, int pageNum, int pageSize) {
         // 如果关键词为空，返回空列表
         if (StringUtils.isEmpty(keyword)) {
             return ResultUtil.success(new ArrayList<>());
         }
-
+        int offset = (pageNum - 1) * pageSize;
         // 调用Mapper搜索用户
-        List<SearchUserEntity> users = userMapper.searchUsers(keyword, tenantId);
-        return ResultUtil.success(users);
+        List<SearchUserEntity> users = userMapper.searchUsers(keyword, companyId, offset, pageSize);
+        Long total = userMapper.searchUsersCount(keyword, companyId);
+        return ResultUtil.success(users,total);
     }
 }

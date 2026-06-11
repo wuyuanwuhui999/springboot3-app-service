@@ -28,5 +28,5 @@ public interface IUserService {
 
     ResultEntity loginByEmail(MailEntity mailEntity);
 
-    ResultEntity searchUsers(String keyword, String tenantId);
+    ResultEntity searchUsers(String keyword, String companyId, int pageNum, int pageSize);
 }

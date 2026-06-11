@@ -50,5 +50,7 @@ public interface UserMapper {
      * @description: 搜索用户
      * @date: 2025-09-07
      */
-    List<SearchUserEntity> searchUsers(String keyword, String tenantId);
+    List<SearchUserEntity> searchUsers(String keyword, String companyId, int offset, int pageSize);
+
+    Long searchUsersCount(String keyword, String companyId);
 }

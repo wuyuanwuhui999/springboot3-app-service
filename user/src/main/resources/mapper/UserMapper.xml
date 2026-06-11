@@ -97,13 +97,13 @@
             user.region,
             user.disabled,
             user.permission,
-            COALESCE(tu.checked, 0) as checked
+            COALESCE(cu.checked, 0) as checked
         FROM user
                  LEFT JOIN (
             SELECT user_id, 1 as checked
-            FROM tenant_user
-            WHERE tenant_id = #{tenantId} AND disabled = 0
-        ) tu ON user.id = tu.user_id
+            FROM company_user
+            WHERE company_id = #{companyId} AND disabled = 0
+        ) cu ON user.id = cu.user_id
         WHERE user.disabled = 0
           AND user.role != 'system'
           AND (
@@ -115,5 +115,24 @@
             )
         ORDER BY user.create_date DESC
             LIMIT 50
+    </select>
+
+    <select id="searchUsersCount" resultType="int">
+        SELECT COUNT(*) as total
+        FROM user
+        LEFT JOIN (
+        SELECT user_id, 1 as checked
+        FROM company_user
+        WHERE company_id = #{companyId} AND disabled = 0
+        ) cu ON user.id = cu.user_id
+        WHERE user.disabled = 0
+        AND user.role != 'system'
+        AND (
+        user.user_account LIKE CONCAT('%', #{keyword}, '%')
+        OR user.username LIKE CONCAT('%', #{keyword}, '%')
+        OR user.telephone LIKE CONCAT('%', #{keyword}, '%')
+        OR user.email LIKE CONCAT('%', #{keyword}, '%')
+        OR user.id LIKE CONCAT('%', #{keyword}, '%')
+        )
     </select>
 </mapper>
