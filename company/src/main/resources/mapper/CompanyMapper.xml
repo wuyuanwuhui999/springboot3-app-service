@@ -63,7 +63,7 @@
     </select>
 
     <!-- 查询用户在企业中的角色 -->
-    <select id="selectUserRoleInCompany" resultType="java.lang.Integer">
+    <select id="getUserRole" resultType="java.lang.Integer">
         SELECT role
         FROM company_user
         WHERE user_id = #{userId}
@@ -155,4 +155,29 @@
         </if>
     </select>
 
+    <!-- 根据公司ID查询所有部门 -->
+    <select id="getDepartments" resultType="CompanyDepartmentEntity">
+        SELECT
+        id,
+        company_id,
+        department_name,
+        description,
+        create_time
+        FROM company_department
+        WHERE company_id = #{companyId}
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 根据部门ID查询所有职位 -->
+    <select id="getPositions" resultType="CompanyPositionEntity">
+        SELECT
+        id,
+        position_name,
+        department_id,
+        description,
+        create_time
+        FROM company_position
+        WHERE department_id = #{departmentId}
+        ORDER BY create_time ASC
+    </select>
 </mapper>

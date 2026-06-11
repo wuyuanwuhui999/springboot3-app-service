@@ -40,4 +40,20 @@ public interface ICompanyService {
      * @return 公司用户列表（分页）
      */
     ResultEntity searchCompanyUsers(String userId, String companyId, Integer pageNum, Integer pageSize, String keyword);
+
+    /**
+     * 根据公司ID查询所有部门
+     * @param userId 当前登录用户ID（用于权限校验）
+     * @param companyId 企业ID
+     * @return 部门列表
+     */
+    ResultEntity getDepartments(String userId, String companyId);
+
+    /**
+     * 根据部门ID查询所有职位
+     * @param userId 当前登录用户ID（用于权限校验）
+     * @param departmentId 部门ID
+     * @return 职位列表
+     */
+    ResultEntity getPositions(String userId, String departmentId);
 }

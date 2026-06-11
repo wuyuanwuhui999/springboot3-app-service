@@ -62,4 +62,26 @@ public class CompanyController {
             @RequestParam(value = "keyword", required = false) String keyword) {
         return companyService.searchCompanyUsers(userId, companyId, pageNum, pageSize, keyword);
     }
+
+    /**
+     * 根据公司ID查询所有部门
+     */
+    @GetMapping("/getDepartments")
+    @Operation(summary = "根据公司ID查询所有部门")
+    public ResultEntity getDepartments(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("companyId") String companyId) {
+        return companyService.getDepartments(userId, companyId);
+    }
+
+    /**
+     * 根据部门ID查询所有职位
+     */
+    @GetMapping("/getPositions")
+    @Operation(summary = "根据部门ID查询所有职位")
+    public ResultEntity getPositions(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("departmentId") String departmentId) {
+        return companyService.getPositions(userId, departmentId);
+    }
 }

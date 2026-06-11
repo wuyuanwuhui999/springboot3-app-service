@@ -19,7 +19,10 @@ public class CompanyUserEntity {
     @Schema(description = "企业ID")
     private String companyId;
 
-    @Schema(description = "角色：3-企业老板，2-人事，1-管理员，0-普通成员")
+    @Schema(description = "职位id")
+    private String positionId;
+
+    @Schema(description = "角色：2-超级管理严，1-管理员，0-普通成员")
     private Integer role;
 
     @Schema(description = "加入时间")

@@ -1,6 +1,8 @@
 package com.player.company.mapper;
 
+import com.player.company.entity.CompanyDepartmentEntity;
 import com.player.company.entity.CompanyEntity;
+import com.player.company.entity.CompanyPositionEntity;
 import com.player.company.entity.CompanyUserEntity;
 import com.player.common.entity.UserEntity;
 import org.apache.ibatis.annotations.Param;
@@ -42,7 +44,7 @@ public interface CompanyMapper {
      * @param companyId 企业ID
      * @return 角色值，未找到返回null
      */
-    Integer selectUserRoleInCompany(@Param("userId") String userId,
+    Integer getUserRole(@Param("userId") String userId,
                                     @Param("companyId") String companyId);
 
     /**
@@ -56,7 +58,7 @@ public interface CompanyMapper {
 
     /**
      * 添加用户到企业
-     * @param companyUser 企业用户关联实体
+     * @param companyUserEntity 企业用户关联实体
      * @return 添加数量
      */
     Integer insertCompanyUser(CompanyUserEntity companyUserEntity);
@@ -82,4 +84,18 @@ public interface CompanyMapper {
      */
     Long countCompanyUserByKeyword(@Param("companyId") String companyId,
                                    @Param("keyword") String keyword);
+
+    /**
+     * 根据公司ID查询所有部门
+     * @param companyId 企业ID
+     * @return 部门列表
+     */
+    List<CompanyDepartmentEntity> getDepartments(@Param("companyId") String companyId);
+
+    /**
+     * 根据部门ID查询所有职位
+     * @param departmentId 部门ID
+     * @return 职位列表
+     */
+    List<CompanyPositionEntity> getPositions(@Param("departmentId") String departmentId);
 }

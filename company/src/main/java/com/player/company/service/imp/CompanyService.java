@@ -1,10 +1,12 @@
-package com.player.company.service.impl;
+package com.player.company.service.imp;
 
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import com.player.common.entity.UserEntity;
 import com.player.common.utils.ResultCode;
+import com.player.company.entity.CompanyDepartmentEntity;
 import com.player.company.entity.CompanyEntity;
+import com.player.company.entity.CompanyPositionEntity;
 import com.player.company.entity.CompanyUserEntity;
 import com.player.company.mapper.CompanyMapper;
 import com.player.company.service.ICompanyService;
@@ -19,6 +21,9 @@ import java.util.UUID;
 
 @Service
 public class CompanyService implements ICompanyService {
+
+    private static final String BOARD_DIRECTORS_DEPARTMENT_ID = "f6a7b8c9d0e142f3a4b5c6d7e8f9a0b1";
+
 
     @Autowired
     private CompanyMapper companyMapper;
@@ -55,7 +60,7 @@ public class CompanyService implements ICompanyService {
         }
 
         // 校验当前用户是否有权限查看成员列表（role > 0）
-        Integer currentUserRole = companyMapper.selectUserRoleInCompany(userId, companyId);
+        Integer currentUserRole = companyMapper.getUserRole(userId, companyId);
         if (currentUserRole == null || currentUserRole <= 0) {
             return ResultUtil.fail(null, "无权限查看该企业成员列表", ResultCode.FAIL);
         }
@@ -87,30 +92,51 @@ public class CompanyService implements ICompanyService {
         if (targetRole == null) {
             targetRole = 0;
         }
-        // 角色范围校验（0-3）
-        if (targetRole < 0 || targetRole > 3) {
-            return ResultUtil.fail(null, "角色值无效，有效范围：0-3", ResultCode.FAIL);
+        // 角色范围校验（0-1）
+        if (targetRole < 0 || targetRole > 1) {
+            return ResultUtil.fail(null, "角色值无效，有效范围：0-1", ResultCode.FAIL);
         }
 
-        // 1. 查询当前登录人在企业中的角色
-        Integer currentUserRole = companyMapper.selectUserRoleInCompany(userId, companyUser.getCompanyId());
-        if (currentUserRole == null || currentUserRole <= 0) {
-            return ResultUtil.fail(null, "当前用户无权添加成员", ResultCode.FAIL);
+        // 1. 查询当前登录人在企业中的角色信息
+        Integer currentUserRole = companyMapper.getUserRole(userId, companyUser.getCompanyId());
+        if (currentUserRole == null) {
+            return ResultUtil.fail(null, "当前用户不是该企业的成员，无权添加成员", ResultCode.FAIL);
         }
 
         // 2. 权限校验：不能添加角色 >= 自己的用户
-        //    角色等级：0(普通) < 1(管理员) < 2(人事) < 3(老板)
         if (targetRole >= currentUserRole) {
             return ResultUtil.fail(null, "无权添加角色等级高于或等于自己的用户", ResultCode.FAIL);
         }
 
-        // 3. 检查用户是否已在企业中
+        // 3. 检查要添加的职位是否属于董事会部门
+        //    如果目标职位属于董事会部门，需要校验当前用户角色是否大于1（即管理员及以上才能添加董事会用户）
+        if (companyUser.getPositionId() != null && !companyUser.getPositionId().isEmpty()) {
+            // 查询该职位所在的部门
+            CompanyPositionEntity position = companyMapper.getPositions(companyUser.getPositionId())
+                    .stream()
+                    .filter(p -> p.getId().equals(companyUser.getPositionId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (position != null) {
+                String departmentId = position.getDepartmentId();
+                // 如果是董事会部门
+                if (BOARD_DIRECTORS_DEPARTMENT_ID.equals(departmentId)) {
+                    // 检查当前用户角色是否大于1（管理员或超级管理员）
+                    if (currentUserRole == null || currentUserRole <= 1) {
+                        return ResultUtil.fail(null, "无权限添加董事会部门的用户，需要管理员或超级管理员权限");
+                    }
+                }
+            }
+        }
+
+        // 4. 检查用户是否已在企业中
         Integer exists = companyMapper.checkUserExistsInCompany(companyUser.getUserId(), companyUser.getCompanyId());
         if (exists != null && exists > 0) {
             return ResultUtil.fail(null, "该用户已存在于企业中", ResultCode.FAIL);
         }
 
-        // 4. 构建关联数据并插入
+        // 5. 构建关联数据并插入
         CompanyUserEntity newRelation = new CompanyUserEntity();
         newRelation.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         newRelation.setUserId(companyUser.getUserId());
@@ -143,7 +169,7 @@ public class CompanyService implements ICompanyService {
         }
 
         // 校验当前用户是否在该企业中（只有企业成员才能查看企业用户列表）
-        Integer currentUserRole = companyMapper.selectUserRoleInCompany(userId, companyId);
+        Integer currentUserRole = companyMapper.getUserRole(userId, companyId);
         if (currentUserRole == null) {
             return ResultUtil.fail(null, "您不是该企业的成员，无权查看", ResultCode.FAIL);
         }
@@ -154,5 +180,41 @@ public class CompanyService implements ICompanyService {
         Long total = companyMapper.countCompanyUserByKeyword(companyId, keyword);
 
         return ResultUtil.success(users, total);
+    }
+
+    /**
+     * 根据公司ID查询所有部门
+     */
+    @Override
+    public ResultEntity getDepartments(String userId, String companyId) {
+        // 参数校验
+        if (StringUtils.isEmpty(companyId)) {
+            return ResultUtil.fail(null, "企业ID不能为空", ResultCode.FAIL);
+        }
+
+        // 权限校验：检查当前用户是否是该企业的成员
+        Integer currentUserRole = companyMapper.getUserRole(userId, companyId);
+        if (currentUserRole == null) {
+            return ResultUtil.fail(null, "您不是该企业的成员，无权查看部门信息", ResultCode.FAIL);
+        }
+
+        // 查询部门列表
+        List<CompanyDepartmentEntity> departments = companyMapper.getDepartments(companyId);
+        return ResultUtil.success(departments);
+    }
+
+    /**
+     * 根据部门ID查询所有职位
+     */
+    @Override
+    public ResultEntity getPositions(String userId, String departmentId) {
+        // 参数校验
+        if (StringUtils.isEmpty(departmentId)) {
+            return ResultUtil.fail(null, "部门ID不能为空", ResultCode.FAIL);
+        }
+
+        // 查询职位列表
+        List<CompanyPositionEntity> positions = companyMapper.getPositions(departmentId);
+        return ResultUtil.success(positions);
     }
 }
