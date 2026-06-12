@@ -62,23 +62,22 @@
         AND cu.status = 1
     </select>
 
-    <!-- 查询用户在企业中的角色 -->
-    <select id="getUserRole" resultType="java.lang.Integer">
-        SELECT role
+    <!-- 根据用户ID和企业ID查询企业用户关联信息 -->
+    <select id="getCompanyUserByUserId" resultType="CompanyUserEntity">
+        SELECT
+        id,
+        user_id,
+        company_id,
+        position_id,
+        role,
+        join_date,
+        status,
+        create_by
         FROM company_user
         WHERE user_id = #{userId}
         AND company_id = #{companyId}
         AND status = 1
         LIMIT 1
-    </select>
-
-    <!-- 检查用户是否已在企业中 -->
-    <select id="checkUserExistsInCompany" resultType="java.lang.Integer">
-        SELECT COUNT(*)
-        FROM company_user
-        WHERE user_id = #{userId}
-        AND company_id = #{companyId}
-        AND status = 1
     </select>
 
     <!-- 添加用户到企业 -->

@@ -39,22 +39,13 @@ public interface CompanyMapper {
     Long countCompanyUsers(@Param("companyId") String companyId);
 
     /**
-     * 查询用户在企业中的角色
+     * 根据用户ID和企业ID查询企业用户关联信息
      * @param userId 用户ID
      * @param companyId 企业ID
-     * @return 角色值，未找到返回null
+     * @return 企业用户关联实体，未找到返回null
      */
-    Integer getUserRole(@Param("userId") String userId,
-                                    @Param("companyId") String companyId);
-
-    /**
-     * 检查用户是否已在企业中
-     * @param userId 用户ID
-     * @param companyId 企业ID
-     * @return 存在返回数量
-     */
-    Integer checkUserExistsInCompany(@Param("userId") String userId,
-                                     @Param("companyId") String companyId);
+    CompanyUserEntity getCompanyUserByUserId(@Param("userId") String userId,
+                                             @Param("companyId") String companyId);
 
     /**
      * 添加用户到企业
