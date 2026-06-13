@@ -55,4 +55,7 @@ public class UserEntity {
 
     @Schema(description = "权限")
     private int permission;
+
+    @Schema(description = "是否在企业成员中（0-否，1-是），在company模块中搜索用户的时候才用")
+    private Integer checked;
 }

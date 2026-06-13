@@ -44,7 +44,7 @@ public class CompanyService implements ICompanyService {
      * 获取公司成员列表（分页）
      */
     @Override
-    public ResultEntity getCompanyUsers(String userId, String companyId, Integer pageNum, Integer pageSize) {
+    public ResultEntity getCompanyUsers(String userId, String companyId,String keyword, Integer pageNum, Integer pageSize) {
         // 参数校验
         if (StringUtils.isEmpty(companyId)) {
             return ResultUtil.fail(null, "企业ID不能为空", ResultCode.FAIL);
@@ -66,8 +66,8 @@ public class CompanyService implements ICompanyService {
 
         // 分页查询
         int offset = (pageNum - 1) * pageSize;
-        List<UserEntity> users = companyMapper.selectCompanyUsers(companyId, offset, pageSize);
-        Long total = companyMapper.countCompanyUsers(companyId);
+        List<UserEntity> users = companyMapper.selectCompanyUsers(companyId, keyword, offset, pageSize);
+        Long total = companyMapper.countCompanyUsers(companyId,keyword);
 
         return ResultUtil.success(users, total);
     }
@@ -178,8 +178,8 @@ public class CompanyService implements ICompanyService {
 
         // 分页查询
         int offset = (pageNum - 1) * pageSize;
-        List<UserEntity> users = companyMapper.searchCompanyUserByKeyword(companyId, keyword, offset, pageSize);
-        Long total = companyMapper.countCompanyUserByKeyword(companyId, keyword);
+        List<UserEntity> users = companyMapper.searchUserByKeyword(companyId, keyword, offset, pageSize);
+        Long total = companyMapper.countUserByKeyword(companyId, keyword);
 
         return ResultUtil.success(users, total);
     }

@@ -20,7 +20,7 @@ public interface ICompanyService {
      * @param pageSize 每页大小
      * @return 成员列表（分页）
      */
-    ResultEntity getCompanyUsers(String userId, String companyId, Integer pageNum, Integer pageSize);
+    ResultEntity getCompanyUsers(String userId, String companyId,String keyword, Integer pageNum, Integer pageSize);
 
     /**
      * 添加用户到公司

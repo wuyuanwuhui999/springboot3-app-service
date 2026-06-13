@@ -27,16 +27,18 @@ public interface CompanyMapper {
      * @param pageSize 每页大小
      * @return 用户列表
      */
-    List<UserEntity> selectCompanyUsers(@Param("companyId") String companyId,
-                                        @Param("offset") Integer offset,
-                                        @Param("pageSize") Integer pageSize);
+    List<UserEntity> selectCompanyUsers(
+            @Param("companyId") String companyId,
+            @Param("keyword") String keyword,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize);
 
     /**
      * 统计公司成员总数
      * @param companyId 企业ID
      * @return 成员总数
      */
-    Long countCompanyUsers(@Param("companyId") String companyId);
+    Long countCompanyUsers(@Param("companyId") String companyId,@Param("keyword") String keyword);
 
     /**
      * 根据用户ID和企业ID查询企业用户关联信息
@@ -62,7 +64,7 @@ public interface CompanyMapper {
      * @param pageSize 每页大小
      * @return 用户列表
      */
-    List<UserEntity> searchCompanyUserByKeyword(@Param("companyId") String companyId,
+    List<UserEntity> searchUserByKeyword(@Param("companyId") String companyId,
                                                 @Param("keyword") String keyword,
                                                 @Param("offset") Integer offset,
                                                 @Param("pageSize") Integer pageSize);
@@ -73,7 +75,7 @@ public interface CompanyMapper {
      * @param keyword 搜索关键字
      * @return 用户总数
      */
-    Long countCompanyUserByKeyword(@Param("companyId") String companyId,
+    Long countUserByKeyword(@Param("companyId") String companyId,
                                    @Param("keyword") String keyword);
 
     /**

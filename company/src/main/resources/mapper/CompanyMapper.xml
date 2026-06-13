@@ -27,39 +27,62 @@
         cu.role DESC
     </select>
 
-    <!-- 查询公司成员列表（分页） -->
-    <select id="selectCompanyUsers" resultType="com.player.common.entity.UserEntity">
+    <!-- 查询公司成员列表（分页）- 添加 keyword 搜索条件 -->
+    <select id="selectCompanyUsers" resultType="com.player.company.entity.CompanyUserEntity">
         SELECT
-        u.id,
+        cu.id,
         u.user_account,
         u.username,
         u.email,
         u.avater,
         u.telephone,
-        u.birthday,
         u.sex,
-        u.role,
+        cu.role,
+        cu.position_id,
+        cp.position_name,
+        cp.department_id,
+        cd.department_name,
         u.sign,
         u.region,
-        u.disabled,
-        u.permission,
-        u.create_date,
-        u.update_date
+        cu.join_date,
+        cu.status
+        FROM company_user cu
+        INNER JOIN user u ON cu.user_id = u.id
+        LEFT JOIN company_position cp ON cu.position_id = cp.id
+        LEFT JOIN company_department cd ON cp.department_id = cd.id
+        WHERE cu.company_id = #{companyId}
+        AND cu.status = 1
+        AND u.disabled = 0
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
+            OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+            OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            OR u.id LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY cu.role DESC, cu.join_date ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计公司成员总数 - 添加 keyword 搜索条件 -->
+    <select id="countCompanyUsers" resultType="java.lang.Long">
+        SELECT COUNT(*)
         FROM company_user cu
         INNER JOIN user u ON cu.user_id = u.id
         WHERE cu.company_id = #{companyId}
         AND cu.status = 1
         AND u.disabled = 0
-        ORDER BY cu.role DESC, cu.join_date ASC
-        LIMIT #{offset}, #{pageSize}
-    </select>
-
-    <!-- 统计公司成员总数 -->
-    <select id="countCompanyUsers" resultType="java.lang.Long">
-        SELECT COUNT(*)
-        FROM company_user cu
-        WHERE cu.company_id = #{companyId}
-        AND cu.status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
+            OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+            OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            OR u.id LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
     </select>
 
     <!-- 根据用户ID和企业ID查询企业用户关联信息 -->
@@ -102,7 +125,7 @@
     </insert>
 
     <!-- 查询公司用户列表（支持关键字模糊搜索）- 修正方法名和参数绑定 -->
-    <select id="searchCompanyUserByKeyword" resultType="com.player.common.entity.UserEntity">
+    <select id="searchUserByKeyword" resultType="com.player.common.entity.UserEntity">
         SELECT
         u.id,
         u.user_account,
@@ -118,38 +141,41 @@
         u.disabled,
         u.permission,
         u.create_date,
-        u.update_date
-        FROM company_user cu
-        INNER JOIN user u ON cu.user_id = u.id
-        WHERE cu.company_id = #{companyId}
+        u.update_date,
+        CASE WHEN cu.user_id IS NOT NULL THEN 1 ELSE 0 END AS checked
+        FROM user u
+        LEFT JOIN company_user cu
+        ON cu.user_id = u.id
+        AND cu.company_id = #{companyId}
         AND cu.status = 1
-        AND u.disabled = 0
+        WHERE u.disabled = 0
+        AND u.role != 'system'
         <if test="keyword != null and keyword != ''">
             AND (
             u.username LIKE CONCAT('%', #{keyword}, '%')
             OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
             OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
             OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            OR u.id LIKE CONCAT('%', #{keyword}, '%')
             )
         </if>
-        ORDER BY cu.role DESC, cu.join_date ASC
+        ORDER BY checked DESC, u.create_date DESC
         LIMIT #{offset}, #{pageSize}
     </select>
 
     <!-- 统计公司用户数量（支持关键字模糊搜索） -->
-    <select id="countCompanyUserByKeyword" resultType="java.lang.Long">
+    <select id="countUserByKeyword" resultType="java.lang.Long">
         SELECT COUNT(*)
-        FROM company_user cu
-        INNER JOIN user u ON cu.user_id = u.id
-        WHERE cu.company_id = #{companyId}
-        AND cu.status = 1
-        AND u.disabled = 0
+        FROM user u
+        WHERE u.disabled = 0
+        AND u.role != 'system'
         <if test="keyword != null and keyword != ''">
             AND (
             u.username LIKE CONCAT('%', #{keyword}, '%')
             OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
             OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
             OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            OR u.id LIKE CONCAT('%', #{keyword}, '%')
             )
         </if>
     </select>
