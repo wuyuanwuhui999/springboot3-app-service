@@ -77,11 +77,11 @@ public class TenantController {
     // 取消用户为管理员
     @PostMapping("/addTenantUser/{tenantId}/{userId}")
     public ResultEntity addTenantUser(
-            @RequestHeader("X-User-Id") String id,
+            @RequestHeader("X-User-Id") String currentUserId,
             @PathVariable("tenantId") String tenantId,
             @PathVariable("userId") String userId
     ) {
-        return tenantService.addTenantUser(tenantId,userId,userId);
+        return tenantService.addTenantUser(tenantId,userId,currentUserId);
     }
 
     // 取消用户为管理员
