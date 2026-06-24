@@ -22,6 +22,18 @@ public class TenantController {
     }
 
     // 查询当前租户下的用户列表
+    @GetMapping("/searchUsers")
+    public ResultEntity searchUsers(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("tenantId") String tenantId,
+            @RequestParam(name = "keyword",required = false,value = "") String keyword,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("pageSize") int pageSize
+    ) {
+        return tenantService.searchUsers(tenantId,userId,keyword,pageNum,pageSize);
+    }
+
+    // 查询当前租户下的用户列表
     @GetMapping("/getTenantUserList")
     public ResultEntity getTenantUserList(
             @RequestHeader("X-User-Id") String userId,

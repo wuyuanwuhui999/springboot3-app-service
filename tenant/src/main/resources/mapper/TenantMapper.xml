@@ -10,6 +10,44 @@
         ORDER BY create_date DESC
     </select>
 
+    <select id="searchUsers" resultType="map">
+        SELECT
+        u.*,
+        IF(tu.id IS NOT NULL, 1, 0) AS checked
+        FROM user u
+        LEFT JOIN tenant_user tu
+        ON u.id = tu.user_id
+        AND tu.tenant_id = #{tenantId}
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                u.username LIKE CONCAT('%', #{keyword}, '%')
+                OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
+                OR u.email LIKE CONCAT('%', #{keyword}, '%')
+                OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY u.create_date DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="searchUsersCount" resultType="long">
+        SELECT
+        COUNT(*)
+        FROM user u
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                u.username LIKE CONCAT('%', #{keyword}, '%')
+                OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
+                OR u.email LIKE CONCAT('%', #{keyword}, '%')
+                OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
     <!-- 分页查询租户用户（关联用户表查询用户信息） -->
     <select id="getTenantUserList" resultType="TenantUserEntity">
         SELECT
@@ -25,7 +63,7 @@
         SELECT 1 FROM tenant_user admin_tu
         WHERE admin_tu.tenant_id = #{tenantId}
         AND admin_tu.user_id = #{userId}
-        AND admin_tu.role_type IN (1, 2)  -- 1-租户管理员，2-超级管理员
+        AND admin_tu.role IN (1, 2)  -- 1-租户管理员，2-超级管理员
         )
         <!-- 添加模糊搜索条件 -->
         <if test="keyword != null and keyword != ''">
@@ -78,9 +116,9 @@
         UPDATE tenant_user tu
         JOIN tenant_user admin ON admin.tenant_id = #{tenantId}
             AND admin.user_id = #{adminUserId}
-            AND admin.role_type = 2
+            AND admin.role = 2
             AND admin.disabled = 0
-        SET tu.role_type = #{roleType},
+        SET tu.role = #{role},
             tu.create_by = #{adminUserId}
         WHERE tu.tenant_id = #{tenantId}
             AND tu.user_id = #{userId}
@@ -93,7 +131,7 @@
         FROM tenant_user
         WHERE tenant_id = #{tenantId, jdbcType=VARCHAR}
         AND user_id = #{userId, jdbcType=VARCHAR}
-        AND role_type IN (1, 2) <!-- 1-租户管理员，2-超级管理员 -->
+        AND role IN (1, 2) <!-- 1-租户管理员，2-超级管理员 -->
         AND disabled = 0
     </select>
 
@@ -103,7 +141,7 @@
             id,
             tenant_id,
             user_id,
-            role_type,
+            role,
             join_date,
             create_by,
             disabled

@@ -24,7 +24,7 @@ public class TenantUserEntity {
     private String userAccount;
 
     @Schema(description = "角色类型：0-普通用户，1-租户管理员，2-超级管理员")
-    private Integer roleType;
+    private Integer role;
 
     @Schema(description = "加入时间")
     private Date joinDate;

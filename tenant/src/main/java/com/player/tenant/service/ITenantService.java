@@ -7,9 +7,11 @@ public interface ITenantService {
 
     ResultEntity getTenantUserList(String tenantId,String userId, String keyword, int pageNum, int pageSize);
 
+    ResultEntity searchUsers(String tenantId,String userId, String keyword, int pageNum, int pageSize);
+
     ResultEntity getTenantUser(String tenantId, String userId);
 
-    ResultEntity setAdmin(String tenantId, String userId,String adminUserId,int roleType);
+    ResultEntity setAdmin(String tenantId, String userId,String adminUserId,int role);
 
     ResultEntity addTenantUser(String tenantId, String userId,String adminUserId);
 

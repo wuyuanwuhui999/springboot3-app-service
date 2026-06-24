@@ -10,13 +10,17 @@ import java.util.List;
 public interface TenantMapper {
     List<TenantEntity>getTenantList(String userId,String companyId);
 
+    List<TenantUserEntity> searchUsers(String tenantId, String userId, String keyword, int offset, int pageSize);
+
+    Long searchUsersCount(String keyword);
+
     List<TenantUserEntity> getTenantUserList(String tenantId, String userId, String keyword, int offset, int pageSize);
 
     Long getTenantUserListCount(String tenantId, String keyword);
 
     TenantUserEntity getTenantUser(String tenantId, String userId);
 
-    int setAdmin(String tenantId,String userId,String adminUserId,int roleType);
+    int setAdmin(String tenantId,String userId,String adminUserId,int role);
 
     // 新增的方法
     int addTenantUser(String id,String tenantId, String userId,String adminUserId);
