@@ -10,7 +10,7 @@
         ORDER BY create_date DESC
     </select>
 
-    <select id="searchUsers" resultType="map">
+    <select id="searchUsers" resultType="com.player.common.entity.UserEntity">
         SELECT
         u.*,
         IF(tu.id IS NOT NULL, 1, 0) AS checked
