@@ -22,13 +22,13 @@ public class TenantService implements ITenantService {
     }
 
     @Override
-    public ResultEntity searchUsers(String companyId,String tenantId, String userId,String keyword,int pageNum, int pageSize) {
+    public ResultEntity searchTenantUsers(String companyId,String tenantId, String userId,String keyword,int pageNum, int pageSize) {
         // 计算分页参数
         int offset = (pageNum - 1) * pageSize;
 
         // 查询数据
-        List<TenantUserEntity> users = tenantMapper.searchUsers(companyId,tenantId, userId, keyword, offset, pageSize);
-        Long total = tenantMapper.searchUsersCount(companyId,keyword);
+        List<TenantUserEntity> users = tenantMapper.searchTenantUsers(companyId,tenantId, userId, keyword, offset, pageSize);
+        Long total = tenantMapper.searchTenantUsersCount(companyId,keyword);
         ResultEntity resultEntity = ResultUtil.success(users);
         resultEntity.setTotal(total);
         return resultEntity;
@@ -77,8 +77,7 @@ public class TenantService implements ITenantService {
 
         if (result > 0) {
             // 返回新添加的用户信息
-            TenantUserEntity newUser = tenantMapper.getTenantUser(tenantId, userId);
-            return ResultUtil.success(newUser);
+            return ResultUtil.success(result);
         } else {
             return ResultUtil.fail("添加用户失败");
         }
