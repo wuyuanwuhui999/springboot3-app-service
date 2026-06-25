@@ -22,13 +22,13 @@ public class TenantService implements ITenantService {
     }
 
     @Override
-    public ResultEntity searchUsers(String tenantId, String userId,String keyword,int pageNum, int pageSize) {
+    public ResultEntity searchUsers(String companyId,String tenantId, String userId,String keyword,int pageNum, int pageSize) {
         // 计算分页参数
         int offset = (pageNum - 1) * pageSize;
 
         // 查询数据
-        List<TenantUserEntity> users = tenantMapper.searchUsers(tenantId, userId, keyword, offset, pageSize);
-        Long total = tenantMapper.searchUsersCount(keyword);
+        List<TenantUserEntity> users = tenantMapper.searchUsers(companyId,tenantId, userId, keyword, offset, pageSize);
+        Long total = tenantMapper.searchUsersCount(companyId,keyword);
         ResultEntity resultEntity = ResultUtil.success(users);
         resultEntity.setTotal(total);
         return resultEntity;

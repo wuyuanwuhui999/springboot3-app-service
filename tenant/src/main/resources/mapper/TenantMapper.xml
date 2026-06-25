@@ -10,42 +10,62 @@
         ORDER BY create_date DESC
     </select>
 
-    <select id="searchUsers" resultType="com.player.common.entity.UserEntity">
+    <select id="searchUsers" resultType="java.util.Map">
         SELECT
-        u.*,
-        IF(tu.id IS NOT NULL, 1, 0) AS checked
-        FROM user u
-        LEFT JOIN tenant_user tu
+        u.id,
+        u.user_account,
+        u.username,
+        u.telephone,
+        u.email,
+        u.avater,
+        u.sex,
+        u.region,
+        u.create_date,
+        CASE
+        WHEN tu.id IS NOT NULL THEN 1
+        ELSE 0
+        END AS checked
+        FROM `user` u
+        LEFT JOIN `tenant_user` tu
         ON u.id = tu.user_id
         AND tu.tenant_id = #{tenantId}
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND (
-                u.username LIKE CONCAT('%', #{keyword}, '%')
-                OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
-                OR u.email LIKE CONCAT('%', #{keyword}, '%')
-                OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
-                )
-            </if>
-        </where>
-        ORDER BY u.create_date DESC
+        WHERE
+        EXISTS (
+        SELECT 1
+        FROM `company_user` cu
+        WHERE cu.user_id = u.id
+        AND cu.company_id = #{companyId}
+        )
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.user_account LIKE CONCAT('%', #{keyword}, '%')
+            OR u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+            OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
         LIMIT #{offset}, #{pageSize}
     </select>
 
-    <select id="searchUsersCount" resultType="long">
-        SELECT
-        COUNT(*)
-        FROM user u
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND (
-                u.username LIKE CONCAT('%', #{keyword}, '%')
-                OR u.user_account LIKE CONCAT('%', #{keyword}, '%')
-                OR u.email LIKE CONCAT('%', #{keyword}, '%')
-                OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
-                )
-            </if>
-        </where>
+
+    <select id="searchUsersCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM `user` u
+        WHERE
+        EXISTS (
+        SELECT 1
+        FROM `company_user` cu
+        WHERE cu.user_id = u.id
+        AND cu.company_id = #{companyId}
+        )
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.user_account LIKE CONCAT('%', #{keyword}, '%')
+            OR u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.telephone LIKE CONCAT('%', #{keyword}, '%')
+            OR u.email LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
     </select>
 
     <!-- 分页查询租户用户（关联用户表查询用户信息） -->

@@ -7,7 +7,7 @@ public interface ITenantService {
 
     ResultEntity getTenantUserList(String tenantId,String userId, String keyword, int pageNum, int pageSize);
 
-    ResultEntity searchUsers(String tenantId,String userId, String keyword, int pageNum, int pageSize);
+    ResultEntity searchUsers(String companyId,String tenantId,String userId, String keyword, int pageNum, int pageSize);
 
     ResultEntity getTenantUser(String tenantId, String userId);
 
