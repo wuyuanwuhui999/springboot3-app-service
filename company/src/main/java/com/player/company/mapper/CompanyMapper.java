@@ -83,7 +83,7 @@ public interface CompanyMapper {
      * @param companyId 企业ID
      * @return 部门列表
      */
-    List<CompanyDepartmentEntity> getDepartments(@Param("companyId") String companyId);
+    List<CompanyDepartmentEntity> getDepartments(@Param("companyId") String userId,@Param("companyId") String companyId);
 
     /**
      * 根据部门ID查询所有职位

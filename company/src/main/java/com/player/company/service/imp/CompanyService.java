@@ -201,7 +201,7 @@ public class CompanyService implements ICompanyService {
         }
 
         // 查询部门列表
-        List<CompanyDepartmentEntity> departments = companyMapper.getDepartments(companyId);
+        List<CompanyDepartmentEntity> departments = companyMapper.getDepartments(userId,companyId);
         return ResultUtil.success(departments);
     }
 

@@ -2,12 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.tenant.mapper.TenantMapper">
     <select id="getTenantList" resultType="TenantEntity">
-        SELECT * FROM tenant
+        SELECT
+        t.*,
+        tu.role
+        FROM tenant t
+        INNER JOIN tenant_user tu ON t.id = tu.tenant_id
         WHERE
-            id IN (SELECT tenant_id FROM tenant_user WHERE user_id = #{userId})
-        AND
-            company_id = #{companyId}
-        ORDER BY create_date DESC
+        tu.user_id = #{userId}
+        AND t.company_id = #{companyId}
+        ORDER BY t.create_date DESC
     </select>
 
     <select id="searchUsers" resultType="java.util.Map">

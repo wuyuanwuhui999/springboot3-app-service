@@ -183,14 +183,18 @@
     <!-- 根据公司ID查询所有部门 -->
     <select id="getDepartments" resultType="CompanyDepartmentEntity">
         SELECT
-        id,
-        company_id,
-        department_name,
-        description,
-        create_time
-        FROM company_department
-        WHERE company_id = #{companyId}
-        ORDER BY create_time ASC
+        d.id,
+        d.company_id,
+        d.department_name,
+        d.description,
+        d.create_time
+        FROM company_department d
+        INNER JOIN company_user cu
+        ON d.company_id = cu.company_id
+        AND cu.user_id = #{userId}
+        WHERE d.company_id = #{companyId}
+        AND d.role <= cu.role
+        ORDER BY d.create_time ASC
     </select>
 
     <!-- 根据部门ID查询所有职位 -->
