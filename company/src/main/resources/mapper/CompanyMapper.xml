@@ -193,7 +193,7 @@
         ON d.company_id = cu.company_id
         AND cu.user_id = #{userId}
         WHERE d.company_id = #{companyId}
-        AND d.role <= cu.role
+        AND d.role &lt;= cu.role
         ORDER BY d.create_time ASC
     </select>
 

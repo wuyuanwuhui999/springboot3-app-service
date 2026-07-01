@@ -65,7 +65,7 @@
         id, type, api_key as apiKey, model_name as modelName,
         base_url as baseUrl, disabled, create_time as createTime, update_time as updateTime
         FROM chat_model
-        WHERE id = #{modelId} AND (disabled = 0 OR disabled IS NULL)
+        WHERE id = #{modelId} AND company_id = #{companyId} AND (disabled = 0 OR disabled IS NULL)
     </select>
 
     <!-- 修改原有的getModelList查询 -->

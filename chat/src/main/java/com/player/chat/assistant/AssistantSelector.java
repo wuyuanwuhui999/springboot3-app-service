@@ -33,7 +33,7 @@ public class AssistantSelector {
         String prompt = chatParamsEntity.getShowThink() ? chatParamsEntity.getPrompt() : chatParamsEntity.getPrompt() + " /no_think";
         String chatId = chatParamsEntity.getChatId();
 
-        ChatModelEntity chatModel = chatMapper.getModelById(chatParamsEntity.getModelId());
+        ChatModelEntity chatModel = chatMapper.getModelById(chatParamsEntity.getCompanyId(),chatParamsEntity.getModelId());
 
         if (chatModel == null || chatModel.getDisabled() == 1) {
             return Flux.error(new RuntimeException("所选模型不存在或已被禁用"));

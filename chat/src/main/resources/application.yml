@@ -110,8 +110,14 @@ spring:
           max-idle: 8
           min-idle: 0
 
+  # ==================== Elasticsearch 配置（新增认证） ====================
   elasticsearch:
-    uris: http://${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9200}
+    uris: https://${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9200}
+    username: ${ELASTICSEARCH_USERNAME:elastic}
+    password: ${ELASTICSEARCH_PASSWORD:ncv7eIkwKyhXadg0zuw0}
+    connection-timeout: 60s
+    socket-timeout: 120s
+    # 以下为 vector store 专用配置（保留原有）
     initialize-schema: true
     index-name: chat_vector_index
     dimensions: 1024
@@ -143,6 +149,9 @@ logging:
     java.sql.ResultSet: DEBUG
     org.springframework.web.socket: DEBUG
     org.springframework.web.socket.handler: DEBUG
+    # 增加 ES 相关日志便于调试
+    org.elasticsearch.client: DEBUG
+    org.springframework.data.elasticsearch: DEBUG
 
 langchain4j:
   ollama:

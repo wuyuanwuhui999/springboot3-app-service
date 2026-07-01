@@ -21,7 +21,7 @@ public interface ChatMapper {
     List<ChatModelEntity> getModelList(String companyId);
 
     // 新增方法：根据模型ID查询模型配置
-    ChatModelEntity getModelById(String modelId);
+    ChatModelEntity getModelById(String companyId,String modelId);
 
     // 在ChatMapper.java中添加以下方法
     ChatModelEntity getModelByType(String modelType);
