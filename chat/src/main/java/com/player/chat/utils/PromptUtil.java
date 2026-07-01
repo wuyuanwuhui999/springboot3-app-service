@@ -7,6 +7,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
@@ -16,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 
 public class PromptUtil {
-    public static String buildContext(EmbeddingModel nomicEmbeddingModel, ElasticsearchEmbeddingStore elasticsearchEmbeddingStore, ChatParamsEntity chatParamsEntity) {
+    public static String buildContext(EmbeddingModel nomicEmbeddingModel, EmbeddingStore chromaEmbeddingStore, ChatParamsEntity chatParamsEntity) {
         // 创建过滤条件
         Embedding queryEmbedding = nomicEmbeddingModel.embed(chatParamsEntity.getPrompt()).content();
         IsEqualTo userIdFilter = new IsEqualTo("user_id", chatParamsEntity.getUserId());
@@ -27,7 +28,7 @@ public class PromptUtil {
             IsIn isIn = new IsIn("doc_id", docIds);
             filter = Filter.and(isIn, filter);
         }
-        EmbeddingSearchResult<TextSegment> relevant = elasticsearchEmbeddingStore.search(
+        EmbeddingSearchResult<TextSegment> relevant = chromaEmbeddingStore.search(
                 EmbeddingSearchRequest.builder()
                         .queryEmbedding(queryEmbedding)
                         .filter(filter)

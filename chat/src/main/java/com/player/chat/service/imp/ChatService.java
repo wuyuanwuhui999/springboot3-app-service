@@ -16,7 +16,7 @@ import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore;
+import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchRequestFailedException;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
@@ -47,8 +47,6 @@ import java.util.function.Consumer;
 @Slf4j
 @Service
 public class ChatService implements IChatService {
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Autowired
     private ChatMapper chatMapper;
@@ -56,9 +54,8 @@ public class ChatService implements IChatService {
     @Value("${spring.servlet.multipart.location}")
     private String UPLOAD_DIR;
 
-
     @Autowired
-    private ElasticsearchEmbeddingStore elasticsearchEmbeddingStore;
+    private ChromaEmbeddingStore chromaEmbeddingStore;
 
     private final EmbeddingModel nomicEmbeddingModel;
 
@@ -110,7 +107,7 @@ public class ChatService implements IChatService {
         StringBuilder responseCollector = new StringBuilder();
 
         if ("document".equals(chatParamsEntity.getType())) {
-            String context = PromptUtil.buildContext(nomicEmbeddingModel, elasticsearchEmbeddingStore, chatParamsEntity);
+            String context = PromptUtil.buildContext(nomicEmbeddingModel, chromaEmbeddingStore, chatParamsEntity);
             if (context == null || context.isEmpty()) {
                 return Flux.just("对不起，没有查询到相关文档").doOnNext(responseHandler);
             }
@@ -159,7 +156,7 @@ public class ChatService implements IChatService {
             IsEqualTo directoryFilter = new IsEqualTo("metadata.doc_id", docId);
             IsEqualTo userIdFilter = new IsEqualTo("metadata.user_id", userId);
             Filter andFilter = Filter.and(directoryFilter, userIdFilter);
-            elasticsearchEmbeddingStore.removeAll(andFilter);
+            chromaEmbeddingStore.removeAll(andFilter);
 
             // 4. 从数据库中删除记录
             long rows = chatMapper.deleteDoc(docId, userId);
@@ -329,7 +326,7 @@ public class ChatService implements IChatService {
             int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {
                 try {
-                    elasticsearchEmbeddingStore.add(embedding, textSegment);
+                    chromaEmbeddingStore.add(embedding, textSegment);
                     break;
                 } catch (ElasticsearchRequestFailedException e) {
                     if (i == maxRetries - 1) throw e;

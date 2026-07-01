@@ -69,7 +69,7 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
-      location: G:/static/chat/
+      location: /Users/wuwenqiang/Documents/static/chat
 
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
@@ -123,6 +123,11 @@ spring:
     dimensions: 1024
     host: ${ELASTICSEARCH_PORT:9200}
     similarity: cosine
+
+chroma:
+  base-url: ${CHROMA_BASE_URL:http://localhost:8000}
+  collection-name: ${CHROMA_COLLECTION_NAME:chat_vector_collection}
+  auto-create-collection: ${CHROMA_AUTO_CREATE:true}
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
