@@ -127,7 +127,7 @@ spring:
 chroma:
   base-url: ${CHROMA_BASE_URL:http://localhost:8000}
   collection-name: ${CHROMA_COLLECTION_NAME:chat_vector_collection}
-  auto-create-collection: ${CHROMA_AUTO_CREATE:true}
+  enabled: ${CHROMA_ENABLED:true}
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
