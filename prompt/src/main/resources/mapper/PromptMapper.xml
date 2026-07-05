@@ -2,11 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.prompt.mapper.PromptMapper">
 
-    <select id="getPrompt">
-        SELECT * FROM prompt WHERE tenant_id = #{tenantId} and user_id = #{userId} limit 1
+    <select id="getPrompt" resultType="PromptEntity">
+        SELECT * FROM prompt
+        WHERE tenant_id = #{tenantId} AND user_id = #{userId}
+        <if test="promptId != null and promptId != ''">
+            AND id = #{promptId}
+        </if>
+        LIMIT 1
     </select>
 
-    <insert id="insertPrompt">
+    <insert id="insertPrompt" parameterType="PromptEntity">
         INSERT INTO prompt (
             id,prompt,tenant_id,user_id,create_time,update_time
         ) VALUES (
@@ -18,163 +23,20 @@
         UPDATE prompt set prompt = #{prompt},update_time = now() where id = #{id} and user_id = #{userId}
     </update>
 
-    <select id="getPromptById" resultType="PromptEntity">
-        SELECT * FROM prompt WHERE id = #{id}
-    </select>
-
-    <select id="getPromptList" resultType="UserPromptEntity">
-        SELECT * FROM prompt_user
-        WHERE tenant_id = #{tenantId} AND created_by = #{createdBy}
-        <if test="content != null and content != ''">
-            AND content LIKE CONCAT('%', #{content}, '%')
-        </if>
-        <if test="categoryId != null and categoryId != ''">
-            AND category_id = #{categoryId}
-        </if>
-        <if test="tags != null and tags != ''">
-            AND tags LIKE CONCAT('%', #{tags}, '%')
-        </if>
-        ORDER BY create_time DESC
-    </select>
-
-    <select id="getPromptCategoryList" resultType="PromptCategoryEntity">
-        select id,category,create_time,update_time from prompt_category order by update_time desc
-    </select>
-
-    <select id="getSystemPromptCountByCategory" resultType="Long">
-        select count(*) from prompt_system where disabled=0
-        <if test="categoryId != null and categoryId != ''">
-            and categoryId = #{categoryId}
-        </if>
+    <select id="getPromptList" resultType="PromptEntity">
+        SELECT * FROM prompt
+        WHERE tenant_id = #{tenantId} AND user_id = #{userId}
         <if test="keyword != null and keyword != ''">
-            and prompt like concat('%',keyword,'%')
+            AND prompt LIKE CONCAT('%', #{keyword}, '%')
         </if>
+        ORDER BY update_time DESC LIMIT #{offset}, #{pageSize}
     </select>
 
-    <select id="getSystemPromptListByCategory" resultType="SystemPromptEntity">
-        SELECT
-            ps.id,
-            ps.category_id,
-            ps.prompt,
-            ps.disabled,
-            ps.create_time,
-            ps.update_time,
-            IF(pc.id IS NOT NULL, 1, 0) as is_collect,
-            pc.create_time
-        FROM
-            prompt_system ps
-        LEFT JOIN
-            prompt_collect pc ON ps.id = pc.prompt_id COLLATE utf8mb4_0900_ai_ci AND pc.user_id = #{userId}
-        WHERE
-            ps.disabled = 0
-        <if test="categoryId != null and categoryId != ''">
-            and ps.category_id = #{categoryId}
-        </if>
+    <select id="getPromptListCount" resultType="Long">
+        SELECT count(*) FROM prompt
+        WHERE tenant_id = #{tenantId} AND user_id = #{userId}
         <if test="keyword != null and keyword != ''">
-            and ps.prompt like concat('%',#{keyword},'%')
+            AND prompt LIKE CONCAT('%', #{keyword}, '%')
         </if>
-        ORDER BY ps.create_time DESC;
-    </select>
-
-    <insert id="insertCollectPrompt">
-        INSERT INTO prompt_collect (id, prompt_id, user_id, category_id, tenant_id, create_time, update_time)
-        SELECT
-            REPLACE(UUID(), '-', ''),
-            #{promptId},
-            #{userId},
-            ps.category_id,
-            #{tenantId},
-            NOW(),
-            NOW()
-        FROM DUAL,
-             (SELECT categoryId FROM prompt_system WHERE id = #{promptId}) ps
-        WHERE EXISTS (
-            SELECT 1 FROM tenant_user tu
-            WHERE tu.tenant_id = #{tenantId}
-              AND tu.user_id = #{userId}
-              AND tu.disabled = 0  -- 用户启用状态
-        )
-          AND NOT EXISTS (
-            SELECT 1 FROM prompt_collect
-            WHERE prompt_id = #{promptId} AND user_id = #{userId}
-        )
-    </insert>
-
-    <delete id="deleteCollectPrompt">
-        DELETE pc FROM prompt_collect pc
-        WHERE pc.prompt_id = #{promptId}
-            AND pc.user_id = #{userId}
-            AND pc.tenant_id = #{tenantId}
-        AND EXISTS (
-            SELECT 1 FROM tenant_user tu
-            WHERE tu.tenant_id = #{tenantId}
-            AND tu.user_id = #{userId}
-            AND tu.disabled = 0  -- 用户启用状态
-        )
-    </delete>
-    <select id="getMyCollectPromptCategory" resultType="PromptCategoryEntity">
-        SELECT DISTINCT
-            pc.id,
-            pc.category,
-            pc.create_time,
-            pc.update_time
-        FROM prompt_collect pcol
-                 INNER JOIN prompt_category pc ON pcol.category_id = pc.id
-        WHERE pcol.user_id = #{userId}
-          AND pcol.tenant_id = #{tenantId}
-          AND EXISTS (
-            SELECT 1 FROM tenant_user tu
-            WHERE tu.tenant_id = #{tenantId}
-              AND tu.user_id = #{userId}
-              AND tu.disabled = 0  -- 用户启用状态
-        )
-        ORDER BY pc.create_time DESC
-    </select>
-
-    <select id="getMyCollectPromptList" resultType="SystemPromptEntity">
-        SELECT
-        pc.id,
-        pc.prompt_id,
-        pc.user_id,
-        pc.category_id,
-        pc.create_time,
-        pc.update_time,
-        ps.prompt,
-        ps.disabled
-        FROM prompt_collect pc
-        INNER JOIN prompt_system ps ON pc.prompt_id = ps.id COLLATE utf8mb4_general_ci
-        WHERE pc.user_id = #{userId}
-        AND pc.tenant_id = #{tenantId}
-        <if test="categoryId != null and categoryId != ''">
-            AND pc.category_id = #{categoryId}
-        </if>
-        AND EXISTS (
-        SELECT 1 FROM tenant_user tu
-        WHERE tu.tenant_id = #{tenantId} COLLATE utf8mb4_general_ci
-        AND tu.user_id = #{userId} COLLATE utf8mb4_general_ci
-        AND tu.disabled = 0
-        )
-        ORDER BY pc.create_time DESC
-        LIMIT #{start}, #{pageSize}
-    </select>
-
-    <select id="getMyCollectPromptCount" resultType="Long">
-        SELECT
-            count(id)
-        FROM prompt_collect
-        WHERE
-            category_id = #{categoryId}
-          AND user_id = #{userId}
-          AND tenant_id = #{tenantId}
-          AND EXISTS (
-            SELECT 1 FROM tenant_user tu
-            WHERE tu.tenant_id = #{tenantId}
-              AND tu.user_id = #{userId}
-              AND tu.disabled = 0  -- 用户启用状态
-        )
-    </select>
-
-    <select id="getDefaultPromptByTenantId" resultType="DetaultPromptEntity">
-        SELECT * FROM prompt_default WHERE tenant_id = #{tenantId}
     </select>
 </mapper>

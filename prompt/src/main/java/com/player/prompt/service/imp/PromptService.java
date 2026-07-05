@@ -19,8 +19,8 @@ public class PromptService implements IPromptService {
     private PromptMapper promptMapper;
 
     @Override
-    public ResultEntity getPrompt(String tenantId, String userId) {
-        PromptEntity promptEntity = promptMapper.getPrompt(tenantId,userId);
+    public ResultEntity getPrompt(String userId,String tenantId,String promptId) {
+        PromptEntity promptEntity = promptMapper.getPrompt(userId,tenantId,promptId);
         if(promptEntity == null){
             promptEntity = new PromptEntity();
             promptEntity.setTenantId(tenantId);
@@ -62,62 +62,27 @@ public class PromptService implements IPromptService {
     }
 
     @Override
-    public ResultEntity getPromptById(String id, String userId,String tenantId) {
+    public ResultEntity insertPrompt(PromptEntity promptEntity, String userId) {
         try {
-            UserPromptEntity prompt = promptMapper.getPromptById(id, tenantId, userId);
-            if (prompt != null) {
-                return ResultUtil.success(prompt, "查询提示词成功");
-            } else {
-                return ResultUtil.fail("提示词不存在或无权查看");
-            }
+
+            promptEntity.setUserId(userId);
+            promptEntity.setUpdateTime(new Date());
+            promptMapper.insertPrompt(promptEntity);
+            return ResultUtil.success("插入提示词成功");
         } catch (Exception e) {
-            return ResultUtil.fail("查询提示词异常：" + e.getMessage());
+            return ResultUtil.fail("插入提示词异常：" + e.getMessage());
         }
     }
 
     @Override
-    public ResultEntity getPromptList(String userId,String tenantId, String content, String industry, String tags) {
+    public ResultEntity getPromptList(String userId,String tenantId, String keyword,int pageSize,int pageNum) {
         try {
-            List<UserPromptEntity> promptList = promptMapper.getPromptList(tenantId, userId, content, industry, tags);
+            int offset = (pageNum - 1) * pageSize;
+            List<PromptEntity> promptList = promptMapper.getPromptList(tenantId, userId, keyword,pageSize,offset);
+            promptMapper.getPromptListCount(tenantId, userId, keyword);
             return ResultUtil.success(promptList, "查询提示词列表成功");
         } catch (Exception e) {
             return ResultUtil.fail("查询提示词列表异常：" + e.getMessage());
         }
-    }
-    @Override
-    public ResultEntity getPromptCategoryList(){
-        return  ResultUtil.success(promptMapper.getPromptCategoryList());
-    }
-
-    @Override
-    public ResultEntity getSystemPromptListByCategory(String categoryId,String keyword,String userId,int pageNum,int pageSize){
-        int start = (pageNum-1)*pageSize;
-        return  ResultUtil.success(promptMapper.getSystemPromptListByCategory(categoryId,keyword,userId,start,pageSize),promptMapper.getSystemPromptCountByCategory(categoryId, keyword));
-    }
-
-    @Override
-    public ResultEntity insertCollectPrompt(String tenantId,String promptId,String userId){
-        return  ResultUtil.success(promptMapper.insertCollectPrompt(promptId,userId));
-    }
-
-    @Override
-    public ResultEntity deleteCollectPrompt(String tenantId,String promptId,String userId){
-        return  ResultUtil.success(promptMapper.deleteCollectPrompt(promptId,userId));
-    }
-
-    @Override
-    public ResultEntity getMyCollectPromptCategory(String tenantId,String userId) {
-        return ResultUtil.success(promptMapper.getMyCollectPromptCategory(tenantId,userId));
-    }
-
-    @Override
-    public ResultEntity getMyCollectPromptList(String tenantId,String categoryId, String userId, int pageNUm, int pageSize) {
-        int start = (pageNUm-1)*pageSize;
-        return ResultUtil.success(promptMapper.getMyCollectPromptList(tenantId,categoryId, userId, start, pageSize),promptMapper.getMyCollectPromptCount(tenantId,categoryId,userId));
-    }
-
-    @Override
-    public ResultEntity getDefaultPromptByTenantId(String tenantId) {
-        return ResultUtil.success(promptMapper.getDefaultPromptByTenantId(tenantId));
     }
 }
