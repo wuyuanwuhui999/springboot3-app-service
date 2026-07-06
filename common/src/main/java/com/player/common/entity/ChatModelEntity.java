@@ -28,4 +28,10 @@ public class ChatModelEntity {
 
     @Schema(description = "更新时间")
     private String updateTime;
+
+    @Schema(description = "创建人ID")
+    private String createdBy;
+
+    @Schema(description = "所属公司ID")
+    private String companyId;
 }

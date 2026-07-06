@@ -9,6 +9,7 @@ import com.player.chat.mapper.ChatMapper;
 import com.player.chat.service.IChatService;
 import com.player.chat.utils.PromptUtil;
 import com.player.common.entity.ChatDocEntity;
+import com.player.common.entity.ChatModelEntity;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 
@@ -29,7 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
@@ -187,8 +187,10 @@ public class ChatService implements IChatService {
      */
 //    @Cacheable(value = "model", key = "'list'")
     @Override
-    public ResultEntity getModelList(String companyId) {
-        return ResultUtil.success(chatMapper.getModelList(companyId));
+    public ResultEntity getModelList(String companyId, String keyword) {
+        // keyword 可为 null 或空字符串，Mapper 中会做判断
+        List<ChatModelEntity> modelList = chatMapper.getModelList(companyId, keyword);
+        return ResultUtil.success(modelList);
     }
 
     @Override
@@ -441,4 +443,143 @@ public class ChatService implements IChatService {
         return ResultUtil.success(docListByDirId);
     }
 
+    @Override
+    public ResultEntity addModel(String userId, String companyId, ChatModelEntity chatModelEntity) {
+        // 1. 参数校验
+        if (companyId == null || companyId.isEmpty()) {
+            return ResultUtil.fail(null, "公司ID不能为空");
+        }
+        if (chatModelEntity == null) {
+            return ResultUtil.fail(null, "模型信息不能为空");
+        }
+        if (chatModelEntity.getModelName() == null || chatModelEntity.getModelName().isEmpty()) {
+            return ResultUtil.fail(null, "模型名称不能为空");
+        }
+        if (chatModelEntity.getType() == null || chatModelEntity.getType().isEmpty()) {
+            return ResultUtil.fail(null, "模型类型不能为空");
+        }
+        if (chatModelEntity.getBaseUrl() == null || chatModelEntity.getBaseUrl().isEmpty()) {
+            return ResultUtil.fail(null, "API地址不能为空");
+        }
+
+        // 2. 权限校验
+        ResultEntity permissionCheck = checkAdminPermission(userId, companyId);
+        if (permissionCheck != null) {
+            return permissionCheck;
+        }
+
+        // 3. 设置默认值
+        if (chatModelEntity.getDisabled() == null) {
+            chatModelEntity.setDisabled(0);
+        }
+
+        // 4. 生成ID并保存
+        chatModelEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+        chatModelEntity.setCreatedBy(userId);
+        chatModelEntity.setCompanyId(companyId);
+
+        int result = chatMapper.insertModel(chatModelEntity);
+        if (result > 0) {
+            return ResultUtil.success(chatModelEntity, "模型添加成功");
+        }
+        return ResultUtil.fail(null, "模型添加失败");
+    }
+
+    /**
+     * 检查用户是否为管理员
+     * @param userId 用户ID
+     * @param companyId 公司ID
+     * @return true-是管理员，false-不是管理员
+     */
+    private boolean isAdmin(String userId, String companyId) {
+        if (userId == null || userId.isEmpty() || companyId == null || companyId.isEmpty()) {
+            return false;
+        }
+        Integer role = chatMapper.getCompanyUserRole(userId, companyId);
+        return role != null && role > 0;
+    }
+
+    /**
+     * 校验管理员权限，无权限时返回错误结果
+     * @param userId 用户ID
+     * @param companyId 公司ID
+     * @return 无权限时返回 ResultEntity 错误结果，有权限时返回 null
+     */
+    private ResultEntity checkAdminPermission(String userId, String companyId) {
+        if (userId == null || userId.isEmpty()) {
+            return ResultUtil.fail(null, "用户ID不能为空");
+        }
+        if (companyId == null || companyId.isEmpty()) {
+            return ResultUtil.fail(null, "公司ID不能为空");
+        }
+        if (!isAdmin(userId, companyId)) {
+            return ResultUtil.fail(null, "无权限操作，需要管理员或超级管理员权限");
+        }
+        return null; // 校验通过
+    }
+
+    @Override
+    public ResultEntity updateModel(String userId, String companyId, ChatModelEntity chatModelEntity) {
+        // 1. 参数校验
+        if (companyId == null || companyId.isEmpty()) {
+            return ResultUtil.fail(null, "公司ID不能为空");
+        }
+        if (chatModelEntity == null || chatModelEntity.getId() == null || chatModelEntity.getId().isEmpty()) {
+            return ResultUtil.fail(null, "模型ID不能为空");
+        }
+
+        // 2. 权限校验
+        ResultEntity permissionCheck = checkAdminPermission(userId, companyId);
+        if (permissionCheck != null) {
+            return permissionCheck;
+        }
+
+        // 3. 检查模型是否存在且属于该公司
+        ChatModelEntity existingModel = chatMapper.getModelByIdForAuth(chatModelEntity.getId(), companyId);
+        if (existingModel == null) {
+            return ResultUtil.fail(null, "模型不存在或不属于该公司");
+        }
+
+        // 4. 保留不可修改的字段
+        chatModelEntity.setCompanyId(companyId);
+        chatModelEntity.setCreatedBy(existingModel.getCreatedBy());
+
+        int result = chatMapper.updateModel(chatModelEntity);
+        if (result > 0) {
+            // 重新查询最新数据返回
+            ChatModelEntity updatedModel = chatMapper.getModelByIdForAuth(chatModelEntity.getId(), companyId);
+            return ResultUtil.success(updatedModel, "模型更新成功");
+        }
+        return ResultUtil.fail(null, "模型更新失败");
+    }
+
+    @Override
+    public ResultEntity deleteModel(String userId, String companyId, String modelId) {
+        // 1. 参数校验
+        if (companyId == null || companyId.isEmpty()) {
+            return ResultUtil.fail(null, "公司ID不能为空");
+        }
+        if (modelId == null || modelId.isEmpty()) {
+            return ResultUtil.fail(null, "模型ID不能为空");
+        }
+
+        // 2. 权限校验
+        ResultEntity permissionCheck = checkAdminPermission(userId, companyId);
+        if (permissionCheck != null) {
+            return permissionCheck;
+        }
+
+        // 3. 检查模型是否存在且属于该公司
+        ChatModelEntity existingModel = chatMapper.getModelByIdForAuth(modelId, companyId);
+        if (existingModel == null) {
+            return ResultUtil.fail(null, "模型不存在或不属于该公司");
+        }
+
+        // 4. 逻辑删除
+        int result = chatMapper.deleteModel(modelId, companyId);
+        if (result > 0) {
+            return ResultUtil.success(true, "模型删除成功");
+        }
+        return ResultUtil.fail(null, "模型删除失败");
+    }
 }

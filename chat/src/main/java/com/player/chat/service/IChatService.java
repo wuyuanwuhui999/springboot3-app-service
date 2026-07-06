@@ -2,6 +2,7 @@ package com.player.chat.service;
 
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.entity.DirectoryEntity;
+import com.player.common.entity.ChatModelEntity;
 import com.player.common.entity.ResultEntity;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
@@ -16,7 +17,7 @@ public interface IChatService {
 
     ResultEntity getChatHistoryByChatId(String userId, String chatId);
 
-    ResultEntity getModelList(String companyId);
+    ResultEntity getModelList(String companyId, String keyword);
 
     ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId) throws IOException;
 
@@ -35,4 +36,19 @@ public interface IChatService {
     ResultEntity deleteDir(String userId, long directoryId);
 
     ResultEntity getDocListByDirId(String userId,String tenantId,String directoryId);
+
+    /**
+     * 新增模型
+     */
+    ResultEntity addModel(String userId, String companyId, ChatModelEntity chatModelEntity);
+
+    /**
+     * 更新模型
+     */
+    ResultEntity updateModel(String userId, String companyId, ChatModelEntity chatModelEntity);
+
+    /**
+     * 删除模型
+     */
+    ResultEntity deleteModel(String userId, String companyId, String modelId);
 }

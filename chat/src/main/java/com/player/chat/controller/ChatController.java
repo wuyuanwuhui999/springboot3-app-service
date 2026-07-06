@@ -3,6 +3,7 @@ package com.player.chat.controller;
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.entity.DirectoryEntity;
 import com.player.chat.service.IChatService;
+import com.player.common.entity.ChatModelEntity;
 import com.player.common.entity.ResultEntity;
 import com.player.common.utils.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,10 @@ public class ChatController {
 
     @GetMapping("/getModelList")
     public ResultEntity getModelList(
-            @RequestParam("companyId") String companyId
+            @RequestParam("companyId") String companyId,
+            @RequestParam(value = "keyword", required = false) String keyword
     ){
-        return chatService.getModelList(companyId);
+        return chatService.getModelList(companyId,keyword);
     }
 
     @PostMapping("/uploadDoc/{tenantId}/{directoryId}")
@@ -120,5 +122,41 @@ public class ChatController {
             @RequestHeader("X-User-Id") String userId
     ) {
         return chatService.deleteDir(userId,directoryId);
+    }
+
+    /**
+     * 新增模型
+     */
+    @PostMapping("/model/add")
+    public ResultEntity addModel(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("companyId") String companyId,
+            @RequestBody ChatModelEntity chatModelEntity
+    ) {
+        return chatService.addModel(userId, companyId, chatModelEntity);
+    }
+
+    /**
+     * 更新模型
+     */
+    @PutMapping("/model/update")
+    public ResultEntity updateModel(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("companyId") String companyId,
+            @RequestBody ChatModelEntity chatModelEntity
+    ) {
+        return chatService.updateModel(userId, companyId, chatModelEntity);
+    }
+
+    /**
+     * 删除模型（逻辑删除）
+     */
+    @DeleteMapping("/model/delete/{modelId}")
+    public ResultEntity deleteModel(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam("companyId") String companyId,
+            @PathVariable("modelId") String modelId
+    ) {
+        return chatService.deleteModel(userId, companyId, modelId);
     }
 }

@@ -71,10 +71,21 @@
     <!-- 修改原有的getModelList查询 -->
     <select id="getModelList" resultType="com.player.common.entity.ChatModelEntity">
         SELECT
-        id, type, api_key as apiKey, model_name as modelName,
-        base_url as baseUrl, disabled, create_time as createTime, update_time as updateTime
+        id,
+        type,
+        api_key AS apiKey,
+        model_name AS modelName,
+        base_url AS baseUrl,
+        disabled,
+        create_time AS createTime,
+        update_time AS updateTime,
+        created_by AS createdBy,
+        company_id AS companyId
         FROM chat_model
-        WHERE disabled = 0 OR disabled IS NULL AND company_id = #{companyId}
+        WHERE company_id = #{companyId}
+        <if test="keyword != null and keyword != ''">
+            AND model_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
         ORDER BY create_time DESC
     </select>
 
@@ -202,5 +213,83 @@
     <select id="getDocListByDirId" resultType="com.player.common.entity.ChatDocEntity">
         SELECT * FROM chat_doc WHERE user_id = #{userId} and tenant_id = #{tenantId} and directory_id = #{directoryId}
     </select>
+
+    <insert id="insertModel" parameterType="com.player.common.entity.ChatModelEntity">
+        INSERT INTO chat_model (
+        id,
+        type,
+        api_key,
+        model_name,
+        base_url,
+        disabled,
+        create_time,
+        update_time,
+        created_by,
+        company_id
+        ) VALUES (
+        #{id},
+        #{type},
+        #{apiKey},
+        #{modelName},
+        #{baseUrl},
+        #{disabled, jdbcType=INTEGER},
+        NOW(),
+        NOW(),
+        #{createdBy},
+        #{companyId}
+        )
+    </insert>
+
+    <!-- 更新模型 -->
+    <update id="updateModel" parameterType="com.player.common.entity.ChatModelEntity">
+        UPDATE chat_model
+        SET
+        type = #{type},
+        api_key = #{apiKey},
+        model_name = #{modelName},
+        base_url = #{baseUrl},
+        disabled = #{disabled, jdbcType=INTEGER},
+        update_time = NOW()
+        WHERE id = #{id}
+        AND company_id = #{companyId}
+    </update>
+
+    <!-- 删除模型（逻辑删除） -->
+    <update id="deleteModel">
+        UPDATE chat_model
+        SET disabled = 1,
+        update_time = NOW()
+        WHERE id = #{id}
+        AND company_id = #{companyId}
+    </update>
+
+    <!-- 根据ID查询模型（用于权限校验） -->
+    <select id="getModelByIdForAuth" resultType="com.player.common.entity.ChatModelEntity">
+        SELECT
+        id,
+        type,
+        api_key AS apiKey,
+        model_name AS modelName,
+        base_url AS baseUrl,
+        disabled,
+        create_time AS createTime,
+        update_time AS updateTime,
+        created_by AS createdBy,
+        company_id AS companyId
+        FROM chat_model
+        WHERE id = #{id}
+        AND company_id = #{companyId}
+    </select>
+
+    <!-- 查询用户在指定公司的角色 -->
+    <select id="getCompanyUserRole" resultType="java.lang.Integer">
+        SELECT role
+        FROM company_user
+        WHERE user_id = #{userId}
+        AND company_id = #{companyId}
+        AND status = 1
+        LIMIT 1
+    </select>
+
 </mapper>
 
