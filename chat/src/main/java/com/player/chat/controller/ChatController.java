@@ -127,7 +127,7 @@ public class ChatController {
     /**
      * 新增模型
      */
-    @PostMapping("/model/add")
+    @PostMapping("/addModel")
     public ResultEntity addModel(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam("companyId") String companyId,
@@ -139,7 +139,7 @@ public class ChatController {
     /**
      * 更新模型
      */
-    @PutMapping("/model/update")
+    @PutMapping("/updateModel")
     public ResultEntity updateModel(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam("companyId") String companyId,
@@ -151,7 +151,7 @@ public class ChatController {
     /**
      * 删除模型（逻辑删除）
      */
-    @DeleteMapping("/model/delete/{modelId}")
+    @DeleteMapping("/deleteModel/{modelId}")
     public ResultEntity deleteModel(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam("companyId") String companyId,
