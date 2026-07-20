@@ -60,15 +60,15 @@ public class MusicController {
 
     // 根据歌手id获取歌手专辑
     @Cacheable(value = "music", key = "'musicByAuthor:' + #authorId + ':' + #authorName + ':' + #pageNum + ':' + #pageSize + ':' + #userId")
-    @GetMapping("/music/getMusicListByAuthor")
-    public ResultEntity getMusicListByAuthor(
+    @GetMapping("/music/getMusicListByAuthorId")
+    public ResultEntity getMusicListByAuthorId(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "pageNum", required = true) int pageNum,
             @RequestParam(name = "pageSize", required = true) int pageSize,
             @RequestParam(name = "authorName", required = false) String authorName,
             @RequestParam(name = "authorId", required = false) int authorId
     ) {
-        return musicService.getMusicListByAuthor(userId, authorId, authorName, pageNum, pageSize);
+        return musicService.getMusicListByAuthorId(userId, authorId, authorName, pageNum, pageSize);
     }
 
     // 获取用户收藏歌手

@@ -75,10 +75,10 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicListByAuthor(String userId,int authorId,String authorName, int pageNum, int pageSize) {
+    public ResultEntity getMusicListByAuthorId(String userId,int authorId,String authorName, int pageNum, int pageSize) {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthor(userId,authorId,authorName, start, pageSize));
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthorId(userId,authorId,authorName, start, pageSize));
         Long singerTotal = musicMapper.getMusicListByAuthorTotal(authorId,authorName);
         resultEntity.setTotal(singerTotal);
         return resultEntity;

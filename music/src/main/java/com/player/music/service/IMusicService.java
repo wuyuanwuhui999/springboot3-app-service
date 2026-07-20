@@ -18,7 +18,7 @@ public interface IMusicService {
 
     ResultEntity getMusicAuthorListByCategoryId(String userId,int categoryId, int pageNum, int pageSize);
 
-    ResultEntity getMusicListByAuthor(String token, int authorId,String authorName, int pageNum, int pageSize);
+    ResultEntity getMusicListByAuthorId(String token, int authorId,String authorName, int pageNum, int pageSize);
 
     ResultEntity getFavoriteAuthor(String token,int pageNum, int pageSize);
 

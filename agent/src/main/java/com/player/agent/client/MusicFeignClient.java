@@ -65,8 +65,8 @@ public interface MusicFeignClient {
             @RequestParam(name = "pageSize",required = true) int pageSize
     );
 
-    @GetMapping("/service/music/getMusicListByAuthor")
-    ResultEntity getMusicListByAuthor(
+    @GetMapping("/service/music/getMusicListByAuthorId")
+    ResultEntity getMusicListByAuthorId(
             @RequestParam(name = "authorId",required = false) int authorId,
             @RequestParam(name = "authorName",required = false) String authorName,
             @RequestHeader("X-User-Id") String userId,

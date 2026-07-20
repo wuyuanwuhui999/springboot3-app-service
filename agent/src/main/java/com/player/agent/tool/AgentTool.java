@@ -86,14 +86,14 @@ public class AgentTool {
     }
 
     @Tool(description = "查询歌手的所有歌曲")
-    public List<MusicEntity> getMusicListByAuthor(
+    public List<MusicEntity> getMusicListByAuthorId(
             @ToolParam(description = "用户ID") String userId,
             @ToolParam(description = "页码，从1开始") int pageNum,
             @ToolParam(description = "每页条数") int pageSize,
             @ToolParam(description = "歌手名称（可选）") String authorName
     ) {
         try {
-            ResultEntity result = musicFeignClient.getMusicListByAuthor(
+            ResultEntity result = musicFeignClient.getMusicListByAuthorId(
                     0, authorName, userId, pageNum, pageSize
             );
             if (result != null && result.getData() instanceof List) {
@@ -163,7 +163,7 @@ public class AgentTool {
                 // 提取歌手名
                 String authorName = extractAuthorName(userQuery);
                 if (authorName != null) {
-                    List<MusicEntity> songs = getMusicListByAuthor(userId, 1, 20, authorName);
+                    List<MusicEntity> songs = getMusicListByAuthorId(userId, 1, 20, authorName);
                     return formatMusicList(songs, authorName + " 的歌曲");
                 }
             }
@@ -208,7 +208,7 @@ public class AgentTool {
             // 按歌手偏好推荐
             String topAuthor = getTopPreference(authorPref);
             if (topAuthor != null) {
-                List<MusicEntity> authorSongs = getMusicListByAuthor(userId, 1, 5, topAuthor);
+                List<MusicEntity> authorSongs = getMusicListByAuthorId(userId, 1, 5, topAuthor);
                 recommendations.addAll(authorSongs);
             }
 

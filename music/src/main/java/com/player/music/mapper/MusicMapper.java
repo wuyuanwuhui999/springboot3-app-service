@@ -11,7 +11,7 @@ import java.util.List;
 public interface MusicMapper {
     MusicEntity getKeywordMusic();
 
-    List<MusicEntity> getMusicClassify();
+    List<MusicClassifyEntity> getMusicClassify();
 
     List<MusicEntity> getMusicListByClassifyId(int classifyId,int start,int pageSize,String userId);
 
@@ -21,7 +21,7 @@ public interface MusicMapper {
 
     Long getMusicAuthorTotal(int categoryId);
 
-    List<MusicEntity> getMusicListByAuthor(String userId,int authorId,String authorName, int start, int pageSize);
+    List<MusicEntity> getMusicListByAuthorId(String userId,int authorId,String authorName, int start, int pageSize);
 
     Long getMusicListByAuthorTotal(int authorId,String authorName);
 

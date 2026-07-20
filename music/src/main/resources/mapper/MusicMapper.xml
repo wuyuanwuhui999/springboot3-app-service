@@ -102,7 +102,7 @@
         </if>
     </select>
 
-    <select id="getMusicListByAuthor" resultType="MusicEntity">
+    <select id="getMusicListByAuthorId" resultType="MusicEntity">
     	SELECT
         t1.*,
         ( CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END ) AS is_like
