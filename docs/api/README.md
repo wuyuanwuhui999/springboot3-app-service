@@ -142,7 +142,7 @@
 | 方法 | 接口 | 作用 |
 |------|------|------|
 | GET | /service/prompt/getPrompt | 查提示词 |
-| DELETE | /service/prompt/deletePrompt/{tenantId}/{id} | 删除提示词 |
+| DELETE | /service/prompt/deletePrompt/{promptId}/{tenantId} | 删除提示词 |
 | PUT | /service/prompt/updatePrompt | 更新提示词 |
 | PUT | /service/prompt/insertPrompt | 新增提示词 |
 | GET | /service/prompt/getPromptList | 分页提示词列表 |

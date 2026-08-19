@@ -22,11 +22,11 @@ public class PromptController {
         return promptService.getPrompt(userId,tenantId,promptId);
     }
 
-    @DeleteMapping("/deletePrompt/{tenantId}/{id}")
-    public ResultEntity deletePrompt(@PathVariable String id,
+    @DeleteMapping("/deletePrompt/{promptId}/{tenantId}")
+    public ResultEntity deletePrompt(@PathVariable String promptId,
                                      @PathVariable String tenantId,
                                      @RequestHeader("X-User-Id") String userId) {
-        return promptService.deletePrompt(id, userId,tenantId);
+        return promptService.deletePrompt(promptId, userId, tenantId);
     }
 
     @PutMapping("/updatePrompt")

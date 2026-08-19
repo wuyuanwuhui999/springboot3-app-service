@@ -15,7 +15,7 @@
 | 方法 | 接口 | 作用 | 鉴权 |
 |------|------|------|------|
 | GET | /service/prompt/getPrompt | 查提示词 | 需 |
-| DELETE | /service/prompt/deletePrompt/{tenantId}/{id} | 删除提示词 | 需 |
+| DELETE | /service/prompt/deletePrompt/{promptId}/{tenantId} | 删除提示词 | 需 |
 | PUT | /service/prompt/updatePrompt | 更新提示词 | 需 |
 | PUT | /service/prompt/insertPrompt | 新增提示词 | 需 |
 | GET | /service/prompt/getPromptList | 分页提示词列表 | 需 |
@@ -28,8 +28,8 @@
 - 出参：ResultEntity，data 为提示词
 
 ### 2. 删除提示词
-- 接口：`DELETE /service/prompt/deletePrompt/{tenantId}/{id}`
-- 入参：`X-User-Id`（Header）+ Path：`tenantId`、`id`
+- 接口：`DELETE /service/prompt/deletePrompt/{promptId}/{tenantId}`
+- 入参：`X-User-Id`（Header）+ Path：`promptId`、`tenantId`
 - 出参：ResultEntity
 
 ### 3. 更新提示词
