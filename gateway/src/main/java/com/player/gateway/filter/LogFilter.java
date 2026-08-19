@@ -74,36 +74,30 @@ public class LogFilter implements GlobalFilter, Ordered {
                         modifiedExchange.getResponse(), logEntity))
                 .build();
 
-        // 异步保存请求日志（不阻塞主请求）
-        CompletableFuture.runAsync(() -> {
-            try {
-                logService.saveRequestLog(logEntity);
-            } catch (Exception e) {
-                System.err.println("Failed to save request log: " + e.getMessage());
-                // 这里可以添加更详细的错误处理，比如写入错误日志文件
-            }
-        }, taskExecutor);
+        // 异步保存请求日志（不阻塞主请求）—— 改为在 doFinally 中、请求/响应信息齐全后单次保存，
+        // 避免原来「先 saveRequestLog 插入、后 updateResponseInfo 更新」两步异步的竞态导致 response_body 为 null
 
         return chain.filter(responseExchange).doFinally(signalType -> {
             Instant endTime = Instant.now();
             long executeTime = Duration.between(startTime, endTime).toMillis();
 
-            String responseStatus = String.valueOf(finalExchange.getResponse().getStatusCode() != null ?
+            // 响应信息：responseBody 已由 cacheResponseAndRecordLog 在 writeWith 时写入 logEntity
+            logEntity.setExecuteTime(executeTime);
+            logEntity.setResponseStatus(finalExchange.getResponse().getStatusCode() != null ?
                     finalExchange.getResponse().getStatusCode().value() : 500);
-
-            String responseHeaders = extractHeaders(finalExchange.getResponse().getHeaders());
+            logEntity.setResponseHeaders(extractHeaders(finalExchange.getResponse().getHeaders()));
 
             // 如果是敏感路径，不记录响应体
-            String responseBody = isSensitivePath ? "[SENSITIVE_PATH]" : logEntity.getResponseBody();
+            if (isSensitivePath) {
+                logEntity.setResponseBody("[SENSITIVE_PATH]");
+            }
 
-            // 异步更新响应信息（不阻塞响应流）
+            // 请求 + 响应信息齐全后，单次异步保存完整日志
             CompletableFuture.runAsync(() -> {
                 try {
-                    logService.updateResponseInfo(requestId, responseStatus,
-                            responseBody, responseHeaders, executeTime, null);
+                    logService.saveRequestLog(logEntity);
                 } catch (Exception e) {
-                    System.err.println("Failed to update response log: " + e.getMessage());
-                    // 这里可以添加更详细的错误处理
+                    System.err.println("Failed to save request log: " + e.getMessage());
                 }
             }, taskExecutor);
         });
@@ -111,7 +105,8 @@ public class LogFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -100;
+        // 必须晚于 JwtAuthFilter（@Order(-1)）执行，否则读取 X-User-Id 时尚未注入，日志 user_id 会为空
+        return 0;
     }
 
     /**

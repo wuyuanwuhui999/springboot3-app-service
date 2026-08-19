@@ -77,22 +77,20 @@ public class CachedBodyRequestUtil {
         return new ServerHttpResponseDecorator(response) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                if (body instanceof Flux) {
-                    Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
-                    return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
-                        StringBuilder sb = new StringBuilder();
-                        dataBuffers.forEach(dataBuffer -> {
-                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                            dataBuffer.read(bytes);
-                            DataBufferUtils.release(dataBuffer);
-                            sb.append(new String(bytes, StandardCharsets.UTF_8));
-                        });
-                        String responseBody = sb.toString();
-                        logEntity.setResponseBody(responseBody.length() > 5000 ? responseBody.substring(0, 5000) : responseBody);
-                        return response.bufferFactory().wrap(responseBody.getBytes(StandardCharsets.UTF_8));
-                    }));
-                }
-                return super.writeWith(body);
+                // 使用 Flux.from 兼容 Flux/Mono 等任意 Publisher（原来只判断 instanceof Flux，
+                // 当响应体是 Mono 时会漏捕获，导致日志 response_body 为 null）
+                return super.writeWith(Flux.from(body).buffer().map(dataBuffers -> {
+                    StringBuilder sb = new StringBuilder();
+                    dataBuffers.forEach(dataBuffer -> {
+                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                        dataBuffer.read(bytes);
+                        DataBufferUtils.release(dataBuffer);
+                        sb.append(new String(bytes, StandardCharsets.UTF_8));
+                    });
+                    String responseBody = sb.toString();
+                    logEntity.setResponseBody(responseBody.length() > 5000 ? responseBody.substring(0, 5000) : responseBody);
+                    return response.bufferFactory().wrap(responseBody.getBytes(StandardCharsets.UTF_8));
+                }));
             }
         };
     }
