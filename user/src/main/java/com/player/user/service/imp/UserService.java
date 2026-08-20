@@ -6,10 +6,12 @@ import com.player.common.entity.UserEntity;
 import com.player.common.utils.Common;
 import com.player.common.utils.JwtToken;
 import com.player.common.utils.ResultCode;
+import com.player.user.entity.LoginLogEntity;
 import com.player.user.entity.MailEntity;
 import com.player.user.entity.PasswordEntity;
 import com.player.user.entity.ResetPasswordEntity;
 import com.player.user.entity.SearchUserEntity;
+import com.player.user.mapper.LoginLogMapper;
 import com.player.user.mapper.UserMapper;
 import com.player.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -54,6 +62,12 @@ public class UserService implements IUserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private LoginLogMapper loginLogMapper;
+
+    @Autowired
+    private Executor taskExecutor;
+
     /**
      * @author: wuwenqiang
      * @description: 获取用户数据
@@ -69,6 +83,8 @@ public class UserService implements IUserService {
 
         if (userEntity != null) {
              newToken = JwtToken.createToken(userEntity,secret);
+             // 异步记录登录日志（进入 App 首先调用 getUserData，成功即视为一次登录）
+             recordLoginLog(userEntity.getId(), "getUserData");
         }
 
         return ResultUtil.success(userEntity, null, newToken);
@@ -91,6 +107,8 @@ public class UserService implements IUserService {
             // 注意：登录接口仍然需要生成token，因为这是认证过程
             String token = JwtToken.createToken(resultUserEntity,secret);//生成新的token
             redisTemplate.opsForValue().set(token, "1",30, TimeUnit.DAYS);// token保存到redis中，有效期30天
+            // 异步记录登录日志
+            recordLoginLog(resultUserEntity.getId(), "login");
             return ResultUtil.success(resultUserEntity, "登录成功", token);// 返回用户信息和token给用户
         } else {// 没有查询到用户信息登录失败，用户账号密码错误
             return ResultUtil.fail(null, "登录失败，账号或密码错误", ResultCode.FAIL);
@@ -305,5 +323,48 @@ public class UserService implements IUserService {
         List<SearchUserEntity> users = userMapper.searchUsers(keyword, companyId, offset, pageSize);
         Long total = userMapper.searchUsersCount(keyword, companyId);
         return ResultUtil.success(users,total);
+    }
+
+    /**
+     * 异步记录登录日志（不阻塞接口）
+     */
+    private void recordLoginLog(String userId, String loginType) {
+        // 必须在异步线程外同步获取客户端 IP（异步线程内无请求上下文）
+        final String ip = getClientIp();
+        CompletableFuture.runAsync(() -> {
+            try {
+                LoginLogEntity log = new LoginLogEntity();
+                log.setUserId(userId);
+                log.setIp(ip);
+                log.setLoginType(loginType);
+                loginLogMapper.insertLoginLog(log);
+            } catch (Exception e) {
+                System.err.println("Failed to save login log: " + e.getMessage());
+            }
+        }, taskExecutor);
+    }
+
+    /**
+     * 获取客户端真实 IP
+     */
+    private String getClientIp() {
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs == null) {
+                return "";
+            }
+            HttpServletRequest request = attrs.getRequest();
+            String ip = request.getHeader("X-Forwarded-For");
+            if (ip != null && !ip.isEmpty()) {
+                return ip.split(",")[0].trim();
+            }
+            ip = request.getHeader("X-Real-IP");
+            if (ip != null && !ip.isEmpty()) {
+                return ip;
+            }
+            return request.getRemoteAddr();
+        } catch (Exception e) {
+            return "";
+        }
     }
 }
