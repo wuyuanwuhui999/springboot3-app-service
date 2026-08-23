@@ -66,7 +66,7 @@ public class MusicController {
             @RequestParam(name = "pageNum", required = true) int pageNum,
             @RequestParam(name = "pageSize", required = true) int pageSize,
             @RequestParam(name = "authorName", required = false) String authorName,
-            @RequestParam(name = "authorId", required = false) int authorId
+            @RequestParam(name = "authorId", required = false) String authorId
     ) {
         return musicService.getMusicListByAuthorId(userId, authorId, authorName, pageNum, pageSize);
     }
@@ -269,7 +269,7 @@ public class MusicController {
     public ResultEntity getRecommendMusic(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "musicId", required = false) Integer musicId,
-            @RequestParam(name = "authorId", required = false) Integer authorId
+            @RequestParam(name = "authorId", required = false) String authorId
     ) {
         return musicService.getRecommendMusic(musicId, authorId, userId);
     }

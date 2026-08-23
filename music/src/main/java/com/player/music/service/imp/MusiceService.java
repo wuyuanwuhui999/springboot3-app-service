@@ -77,7 +77,7 @@ public class MusiceService implements IMusicService {
     }
 
     @Override
-    public ResultEntity getMusicListByAuthorId(String userId,int authorId,String authorName, int pageNum, int pageSize) {
+    public ResultEntity getMusicListByAuthorId(String userId,String authorId,String authorName, int pageNum, int pageSize) {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
         ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByAuthorId(userId,authorId,authorName, start, pageSize));
@@ -318,7 +318,7 @@ public class MusiceService implements IMusicService {
      * @return: ResultEntity
      */
     @Override
-    public ResultEntity getRecommendMusic(Integer musicId, Integer authorId, String userId) {
+    public ResultEntity getRecommendMusic(Integer musicId, String authorId, String userId) {
         if (musicId != null && authorId != null) {
             return ResultUtil.fail(null, "musicId 和 authorId 互斥，只能传一个");
         }
@@ -345,7 +345,7 @@ public class MusiceService implements IMusicService {
                 list = musicMapper.getRecommendMusicByLabels(musicId, labels, userId, 0, 5);
             } else {
                 // label 无值：按该歌曲作者查询，排除当前歌曲
-                int aid = music.getAuthorId() != null ? music.getAuthorId().intValue() : 0;
+                String aid = music.getAuthorId() != null ? music.getAuthorId() : "";
                 list = musicMapper.getRecommendMusicByAuthorId(aid, musicId, userId, 0, 5);
             }
         } else {

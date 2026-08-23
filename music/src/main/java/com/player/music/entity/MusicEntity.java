@@ -26,7 +26,7 @@ public class MusicEntity {
     private String authorName;
 
     @Schema(description = "歌手id")
-    private Long authorId;
+    private String authorId;
 
     @Schema(description = "专辑")
     private String albumName;

@@ -22,9 +22,9 @@ public interface MusicMapper {
 
     Long getMusicAuthorTotal(int categoryId);
 
-    List<MusicEntity> getMusicListByAuthorId(String userId,int authorId,String authorName, int start, int pageSize);
+    List<MusicEntity> getMusicListByAuthorId(String userId,String authorId,String authorName, int start, int pageSize);
 
-    Long getMusicListByAuthorTotal(int authorId,String authorName);
+    Long getMusicListByAuthorTotal(String authorId,String authorName);
 
     List<MusicAuthorEntity> getFavoriteAuthor(String userId, int start, int pageSize);
 
@@ -84,5 +84,5 @@ public interface MusicMapper {
 
     List<MusicEntity> getRecommendMusicByLabels(@Param("musicId") int musicId, @Param("labels") List<String> labels, @Param("userId") String userId, @Param("start") int start, @Param("pageSize") int pageSize);
 
-    List<MusicEntity> getRecommendMusicByAuthorId(@Param("authorId") int authorId, @Param("excludeMusicId") int excludeMusicId, @Param("userId") String userId, @Param("start") int start, @Param("pageSize") int pageSize);
+    List<MusicEntity> getRecommendMusicByAuthorId(@Param("authorId") String authorId, @Param("excludeMusicId") int excludeMusicId, @Param("userId") String userId, @Param("start") int start, @Param("pageSize") int pageSize);
 }
