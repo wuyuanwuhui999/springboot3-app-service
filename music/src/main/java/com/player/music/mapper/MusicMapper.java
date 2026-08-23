@@ -2,6 +2,7 @@ package com.player.music.mapper;
 
 import com.player.common.entity.LogEntity;
 import com.player.music.entity.*;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -78,4 +79,10 @@ public interface MusicMapper {
     List<MusicEntity> queryMusic(String songName, String authorName, String albumName, String language, Date publishStart, String label, int pageNum, int pageSize);
 
     Long queryMusicCount(String songName, String authorName, String albumName, String language, Date publishStart, String label);
+
+    MusicEntity getMusicById(int musicId);
+
+    List<MusicEntity> getRecommendMusicByLabels(@Param("musicId") int musicId, @Param("labels") List<String> labels, @Param("userId") String userId, @Param("start") int start, @Param("pageSize") int pageSize);
+
+    List<MusicEntity> getRecommendMusicByAuthorId(@Param("authorId") int authorId, @Param("excludeMusicId") int excludeMusicId, @Param("userId") String userId, @Param("start") int start, @Param("pageSize") int pageSize);
 }

@@ -263,4 +263,14 @@ public class MusicController {
     ) {
         return musicService.insertMusicFavorite(userId, musicId, musicFavoriteEntityList);
     }
+
+    // 猜你喜欢：根据 musicId 或 authorId 推荐音乐（前5条）
+    @GetMapping("/music/getRecommendMusic")
+    public ResultEntity getRecommendMusic(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam(name = "musicId", required = false) Integer musicId,
+            @RequestParam(name = "authorId", required = false) Integer authorId
+    ) {
+        return musicService.getRecommendMusic(musicId, authorId, userId);
+    }
 }

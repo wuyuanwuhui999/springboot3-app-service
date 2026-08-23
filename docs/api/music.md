@@ -37,6 +37,7 @@
 | PUT | /service/music/updateFavoriteDirectory | 更新收藏夹名称 | 需 |
 | GET | /service/music/isMusicFavorite/{musicId} | 是否已收藏 | 需 |
 | POST | /service/music/insertMusicFavorite/{musicId} | 添加到收藏夹 | 需 |
+| GET | /service/music/getRecommendMusic | 猜你喜欢（前5条） | 需 |
 
 ## 接口详情
 
@@ -154,6 +155,12 @@
 - 接口：`POST /service/music/insertMusicFavorite/{musicId}`
 - 入参：`X-User-Id`（Header）+ Path：`musicId` + Body（List\<MusicFavoriteEntity\>，每个元素含 `favoriteId`）
 - 出参：ResultEntity
+
+### 24. 猜你喜欢
+- 接口：`GET /service/music/getRecommendMusic`
+- 作用：根据 musicId 或 authorId 推荐音乐（前5条）。传 musicId 时按该歌曲 label（逗号分隔多标签，任一命中）推荐、排除当前歌曲，label 为空则按该歌作者推荐；传 authorId 时按作者推荐。两者互斥。
+- 入参：`X-User-Id`（Header）+ Query：`musicId`（可选，与 authorId 互斥）、`authorId`（可选，与 musicId 互斥）
+- 出参：ResultEntity，data 为音乐列表（前5条，含 isLike），`total` 为条数
 
 ## 请求体实体字段
 

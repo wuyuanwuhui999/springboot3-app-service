@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 import com.player.common.entity.UserEntity;
+import com.player.music.entity.MusicEntity;
 import com.player.music.entity.MusicFavoriteDirectoryEntity;
 import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -307,5 +309,52 @@ public class MusiceService implements IMusicService {
     @Override
     public ResultEntity isMusicFavorite(String userId,Long musicId) {
         return ResultUtil.success(musicMapper.isMusicFavorite(userId,musicId));
+    }
+
+    /**
+     * @author: wuwenqiang
+     * @methodsName: getRecommendMusic
+     * @description: 猜你喜欢：根据 musicId 或 authorId 推荐音乐（前5条）
+     * @return: ResultEntity
+     */
+    @Override
+    public ResultEntity getRecommendMusic(Integer musicId, Integer authorId, String userId) {
+        if (musicId != null && authorId != null) {
+            return ResultUtil.fail(null, "musicId 和 authorId 互斥，只能传一个");
+        }
+        if (musicId == null && authorId == null) {
+            return ResultUtil.fail(null, "必须传入 musicId 或 authorId 其中一个");
+        }
+
+        List<MusicEntity> list;
+        if (musicId != null) {
+            // 传入 musicId：查该歌曲的 label 和 author_id
+            MusicEntity music = musicMapper.getMusicById(musicId);
+            if (music == null) {
+                return ResultUtil.success(new ArrayList<>());
+            }
+            if (music.getLabel() != null && !music.getLabel().trim().isEmpty()) {
+                // label 有值：按标签匹配（逗号分隔），排除当前歌曲
+                List<String> labels = new ArrayList<>();
+                for (String l : music.getLabel().split(",")) {
+                    String t = l.trim();
+                    if (!t.isEmpty()) {
+                        labels.add(t);
+                    }
+                }
+                list = musicMapper.getRecommendMusicByLabels(musicId, labels, userId, 0, 5);
+            } else {
+                // label 无值：按该歌曲作者查询，排除当前歌曲
+                int aid = music.getAuthorId() != null ? music.getAuthorId().intValue() : 0;
+                list = musicMapper.getRecommendMusicByAuthorId(aid, musicId, userId, 0, 5);
+            }
+        } else {
+            // 传入 authorId：按作者查询，不排除
+            list = musicMapper.getRecommendMusicByAuthorId(authorId, 0, userId, 0, 5);
+        }
+
+        ResultEntity resultEntity = ResultUtil.success(list);
+        resultEntity.setTotal((long) list.size());
+        return resultEntity;
     }
 }

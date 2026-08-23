@@ -63,4 +63,6 @@ public interface IMusicService {
 
     ResultEntity isMusicFavorite(String token, Long musicId);
 
+    ResultEntity getRecommendMusic(Integer musicId, Integer authorId, String userId);
+
 }

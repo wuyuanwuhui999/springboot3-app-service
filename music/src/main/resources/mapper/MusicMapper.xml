@@ -500,5 +500,34 @@
         AND label LIKE CONCAT('%', #{label}, '%')
     </if>
 </select>
+
+<!-- 猜你喜欢：根据音乐ID查询音乐（用于获取 label 和 author_id） -->
+<select id="getMusicById" resultType="MusicEntity">
+    SELECT * FROM music WHERE id = #{musicId}
+</select>
+
+<!-- 猜你喜欢：按标签匹配（FIND_IN_SET 任一标签命中），排除当前歌曲 -->
+<select id="getRecommendMusicByLabels" resultType="MusicEntity">
+    SELECT t1.*, (CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like
+    FROM music t1
+    LEFT JOIN music_like t2 ON t1.id = t2.music_id AND t2.user_id = #{userId}
+    WHERE t1.is_publish = 1 AND t1.id != #{musicId} AND (
+        <foreach collection="labels" item="label" separator=" OR ">
+            FIND_IN_SET(#{label}, t1.label) &gt; 0
+        </foreach>
+    )
+    ORDER BY t1.update_time DESC
+    LIMIT #{start}, #{pageSize}
+</select>
+
+<!-- 猜你喜欢：按作者查询，excludeMusicId 传 0 表示不排除 -->
+<select id="getRecommendMusicByAuthorId" resultType="MusicEntity">
+    SELECT t1.*, (CASE WHEN t2.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like
+    FROM music t1
+    LEFT JOIN music_like t2 ON t1.id = t2.music_id AND t2.user_id = #{userId}
+    WHERE t1.is_publish = 1 AND t1.author_id = #{authorId} AND t1.id != #{excludeMusicId}
+    ORDER BY t1.update_time DESC
+    LIMIT #{start}, #{pageSize}
+</select>
 </mapper>
 
