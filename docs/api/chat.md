@@ -38,83 +38,227 @@
 - 作用：发起 AI 对话，流式返回结果
 - 入参：`X-User-Id`（Header）+ Body（ChatParamsEntity）
 - 出参：流式文本（非 ResultEntity）
+- 出参示例：
+（流式文本，非 ResultEntity）示例输出：`你好！我是 AI 助手，很高兴为您服务。`
 
 ### 2. 分页聊天历史
 - 接口：`GET /service/chat/getChatHistory`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`、`tenantId`
 - 出参：ResultEntity，data 为历史列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"userId":"uuid","chatId":"chat-xxx","modelId":"deepseek-chat","prompt":"你好","responseContent":"你好！有什么可以帮你？","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 3. 按会话查历史
 - 接口：`GET /service/chat/getChatHistoryByChatId`
 - 入参：`X-User-Id`（Header）+ Query：`chatId`
 - 出参：ResultEntity，data 为该会话消息列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"userId":"uuid","chatId":"chat-xxx","modelId":"deepseek-chat","prompt":"你好","responseContent":"你好！有什么可以帮你？","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 4. 模型列表
 - 接口：`GET /service/chat/getModelList`
 - 入参：Query：`companyId`（必填）、`keyword`（可选，按模型名模糊搜索）
 - 出参：ResultEntity，data 为模型列表
+- 出参示例：
+```json
+{
+  "data": [{"id":"model-xxx","companyId":"company-xxx","type":"deepseek","modelName":"deepseek-chat","baseUrl":"https://api.deepseek.com","apiKey":"sk-xxx","disabled":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 5. 上传文档
 - 接口：`POST /service/chat/uploadDoc/{tenantId}/{directoryId}`
 - 入参：`X-User-Id`（Header）+ Path：`tenantId`、`directoryId` + Form：`file`（文件）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 6. 按目录查文档
 - 接口：`GET /service/chat/getDocListByDirId`
 - 入参：`X-User-Id`（Header）+ Query：`tenantId`、`directoryId`
 - 出参：ResultEntity，data 为文档列表
+- 出参示例：
+```json
+{
+  "data": [{"id":"doc-xxx","name":"文档.pdf","ext":"pdf","userId":"uuid","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 7. 查文档列表
 - 接口：`GET /service/chat/getDocList`
 - 入参：`X-User-Id`（Header）+ Query：`tenantId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": [{"id":"doc-xxx","name":"文档.pdf","ext":"pdf","userId":"uuid","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 8. 删除文档
 - 接口：`DELETE /service/chat/deleteDoc/{docId}`
 - 入参：`X-User-Id`（Header）+ Path：`docId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 9. 目录列表
 - 接口：`GET /service/chat/getDirectoryList`
 - 入参：`X-User-Id`（Header）+ Query：`tenantId`
 - 出参：ResultEntity，data 为目录列表
+- 出参示例：
+```json
+{
+  "data": [{"id":"dir-xxx","directory":"我的文档","userId":"uuid","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 10. 创建目录
 - 接口：`POST /service/chat/createDir`
 - 入参：`X-User-Id`（Header）+ Body（DirectoryEntity：`directory`、`tenantId`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 11. 重命名目录
 - 接口：`PUT /service/chat/renameDir`
 - 入参：`X-User-Id`（Header）+ Body（DirectoryEntity：`id`、`directory`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 12. 删除目录
 - 接口：`PUT /service/chat/deleteDir/{directoryId}`
 - 入参：`X-User-Id`（Header）+ Query：`id`（目录 ID）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 - 注意：路径变量 `directoryId` 未使用，实际用 Query 参数 `id`
 
 ### 13. 新增模型
 - 接口：`POST /service/chat/addModel`
 - 入参：`X-User-Id`（Header）+ Query：`companyId` + Body（ChatModelEntity）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 14. 更新模型
 - 接口：`PUT /service/chat/updateModel`
 - 入参：`X-User-Id`（Header）+ Query：`companyId` + Body（ChatModelEntity）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 15. 删除模型（逻辑删除）
 - 接口：`DELETE /service/chat/deleteModel/{modelId}`
 - 入参：`X-User-Id`（Header）+ Query：`companyId` + Path：`modelId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 16. WebSocket 聊天
 - 接口：`WS /service/chat/ws/chat`
 - 作用：WebSocket 方式 AI 对话（流式）
 - 入参：`?token=<token>`（查询参数，由网关注入 `X-User-Id`）；消息体通过 send 发送（JSON：prompt、chatId、modelId、docIds 等）
 - 出参：流式文本消息
+- 出参示例：
+（流式文本，非 ResultEntity）示例输出：`你好！我是 AI 助手。`
 
 ## 请求体实体字段
 

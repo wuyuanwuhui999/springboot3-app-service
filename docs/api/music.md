@@ -45,122 +45,362 @@
 - 接口：`GET /service/music/getKeywordMusic`
 - 入参：无
 - 出参：ResultEntity，data 为音乐列表
+- 出参示例：
+```json
+{
+  "data": {"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0},
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 2. 音乐分类
 - 接口：`GET /service/music/getMusicClassify`
 - 入参：无
 - 出参：ResultEntity，data 为分类列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"classifyName":"热门","cover":"https://example.com/cover.jpg","classifyRank":1}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 3. 按分类取音乐列表
 - 接口：`GET /service/music/getMusicListByClassifyId`
 - 入参：`X-User-Id`（Header）+ Query：`classifyId`、`pageNum`、`pageSize`、`isRedis`（默认 0）
 - 出参：ResultEntity，data 为音乐列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 4. 按分类取歌手
 - 接口：`GET /service/music/getMusicAuthorListByCategoryId`
 - 入参：`X-User-Id`（Header）+ Query：`categoryId`、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为歌手列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"authorId":6051570,"authorName":"周杰伦","avatar":"https://example.com/avatar.jpg","categoryId":1,"rank":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 5. 按歌手取专辑
 - 接口：`GET /service/music/getMusicListByAuthorId`
 - 入参：`X-User-Id`（Header）+ Query：`authorId`（可选）、`authorName`（可选）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为音乐列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 6. 收藏的歌手
 - 接口：`GET /service/music/getFavoriteAuthor`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为歌手列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"authorId":6051570,"authorName":"周杰伦","avatar":"https://example.com/avatar.jpg","categoryId":1,"rank":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 7. 收藏歌手
 - 接口：`POST /service/music/insertFavoriteAuthor/{authorId}`
 - 入参：`X-User-Id`（Header）+ Path：`authorId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 8. 取消收藏歌手
 - 接口：`DELETE /service/music/deleteFavoriteAuthor/{authorId}`
 - 入参：`X-User-Id`（Header）+ Path：`authorId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 9. 播放记录
 - 接口：`GET /service/music/getMusicRecord`
 - 入参：`X-User-Id`（Header）+ Query：`startDate`（可选）、`endDate`（可选）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为记录列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"musicId":1,"userId":"uuid","platform":"app","version":"1.0.0","device":"iPhone","times":3}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 10. 插入播放记录
 - 接口：`POST /service/music/insertMusicRecord`
 - 入参：`X-User-Id`（Header）+ Body（MusicRecordEntity：`platform`、`device`、`version`、`musicId`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 11. 点赞音乐
 - 接口：`POST /service/music/insertMusicLike/{id}`
 - 入参：`X-User-Id`（Header）+ Path：`id`（音乐 ID）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 12. 取消点赞音乐
 - 接口：`DELETE /service/music/deleteMusicLike/{id}`
 - 入参：`X-User-Id`（Header）+ Path：`id`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 13. 点赞的音乐
 - 接口：`GET /service/music/getMusicLike`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为音乐列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 14. 搜索音乐
 - 接口：`GET /service/music/searchMusic`
 - 入参：`X-User-Id`（Header）+ Query：`keyword`、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为音乐列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 15. 多条件查询音乐
 - 接口：`GET /service/music/queryMusic`
 - 入参（Query，均可选）：`songName`、`authorName`、`albumName`、`language`、`publishStart`、`label`、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为音乐列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 16. 歌手分类
 - 接口：`GET /service/music/getMusicAuthorCategory`
 - 入参：无
 - 出参：ResultEntity，data 为歌手分类列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"categoryName":"华语","rank":1}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 17. 收藏夹列表
 - 接口：`GET /service/music/getFavoriteDirectory`
 - 入参：`X-User-Id`（Header）+ Query：`musicId`
 - 出参：ResultEntity，data 为收藏夹列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"name":"我的收藏","userId":"uuid","total":10,"checked":0,"cover":"https://example.com/cover.jpg"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 18. 创建收藏夹
 - 接口：`POST /service/music/insertFavoriteDirectory`
 - 入参：`X-User-Id`（Header）+ Body（MusicFavoriteDirectoryEntity：`name`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": {"id":1,"name":"我的收藏","userId":"uuid","total":10,"checked":0,"cover":"https://example.com/cover.jpg"},
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 19. 删除收藏夹
 - 接口：`DELETE /service/music/deleteFavoriteDirectory/{favoriteId}`
 - 入参：`X-User-Id`（Header）+ Path：`favoriteId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 20. 收藏夹音乐
 - 接口：`GET /service/music/getMusicListByFavoriteId`
 - 入参：`X-User-Id`（Header）+ Query：`favoriteId`（可选）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为音乐列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 21. 更新收藏夹名称
 - 接口：`PUT /service/music/updateFavoriteDirectory`
 - 入参：`X-User-Id`（Header）+ Body（MusicFavoriteDirectoryEntity：`id`、`name`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 22. 是否已收藏
 - 接口：`GET /service/music/isMusicFavorite/{musicId}`
 - 入参：`X-User-Id`（Header）+ Path：`musicId`
 - 出参：ResultEntity，data 为 1（已收藏）/ 0（未收藏）
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 23. 添加到收藏夹
 - 接口：`POST /service/music/insertMusicFavorite/{musicId}`
 - 入参：`X-User-Id`（Header）+ Path：`musicId` + Body（List\<MusicFavoriteEntity\>，每个元素含 `favoriteId`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 24. 猜你喜欢
 - 接口：`GET /service/music/getRecommendMusic`
 - 作用：根据 musicId 或 authorId 推荐音乐（前5条）。传 musicId 时按该歌曲 label（逗号分隔多标签，任一命中）推荐、排除当前歌曲，label 为空则按该歌作者推荐；传 authorId 时按作者推荐。两者互斥。
 - 入参：`X-User-Id`（Header）+ Query：`musicId`（可选，与 authorId 互斥）、`authorId`（可选，与 musicId 互斥）
 - 出参：ResultEntity，data 为音乐列表（前5条，含 isLike），`total` 为条数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"songName":"晴天","authorId":"6051570","authorName":"周杰伦","albumName":"叶惠美","cover":"https://example.com/cover.jpg","playUrl":"https://example.com/play.mp3","label":"流行,伤感","isHot":1,"isLike":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 5,
+  "token": null
+}
+```
 
 ## 请求体实体字段
 

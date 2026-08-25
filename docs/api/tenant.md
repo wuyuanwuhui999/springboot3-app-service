@@ -29,41 +29,121 @@
 - 接口：`GET /service/tenant/getTenantList`
 - 入参：`X-User-Id`（Header）+ Query：`companyId`
 - 出参：ResultEntity，data 为租户列表
+- 出参示例：
+```json
+{
+  "data": [{"id":"tenant-xxx","companyId":"company-xxx","name":"示例租户","code":"DEMO","description":"...","status":1}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 2. 搜索租户用户
 - 接口：`GET /service/tenant/searchTenantUsers`
 - 入参：`X-User-Id`（Header）+ Query：`companyId`、`tenantId`、`keyword`（可选）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为用户列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":"uuid","userAccount":"user123","username":"昵称","telephone":"13800138000","email":"user@example.com","avater":"https://example.com/avatar.jpg","birthday":"1990-01-01","sex":"0","role":"admin","sign":"个性签名","region":"广东","disabled":0,"permission":1}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 3. 租户用户列表
 - 接口：`GET /service/tenant/getTenantUserList`
 - 入参：`X-User-Id`（Header）+ Query：`tenantId`、`keyword`（可选）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为用户列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":"uuid","userAccount":"user123","username":"昵称","telephone":"13800138000","email":"user@example.com","avater":"https://example.com/avatar.jpg","birthday":"1990-01-01","sex":"0","role":"admin","sign":"个性签名","region":"广东","disabled":0,"permission":1}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 4. 当前租户用户信息
 - 接口：`GET /service/tenant/getTenantUser`
 - 入参：`X-User-Id`（Header）+ Query：`tenantId`
 - 出参：ResultEntity，data 为当前用户在租户中的信息
+- 出参示例：
+```json
+{
+  "data": {"id":"uuid","tenantId":"tenant-xxx","userId":"uuid","role":0,"joinDate":"2024-01-01 12:00:00","disabled":0},
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 5. 设为管理员
 - 接口：`PUT /service/tenant/addAdmin/{tenantId}/{userId}`
 - 入参：`X-User-Id`（Header，当前操作人）+ Path：`tenantId`、`userId`（被设置的用户）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 6. 取消管理员
 - 接口：`PUT /service/tenant/cancelAdmin/{tenantId}/{userId}`
 - 入参：`X-User-Id`（Header，当前操作人）+ Path：`tenantId`、`userId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 7. 添加租户用户
 - 接口：`POST /service/tenant/addTenantUser/{tenantId}/{userId}`
 - 入参：`X-User-Id`（Header，当前操作人）+ Path：`tenantId`、`userId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 8. 删除租户用户
 - 接口：`DELETE /service/tenant/deleteTenantUser/{tenantId}/{userId}`
 - 入参：`X-User-Id`（Header，当前操作人）+ Path：`tenantId`、`userId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ## 涉及的表结构
 

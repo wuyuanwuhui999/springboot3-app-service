@@ -27,30 +27,72 @@
 - 作用：按类型（MUSIC/MOVIE）分页查询朋友圈，含点赞、评论嵌套数据
 - 入参（Query）：`pageSize`、`pageNum`、`type`（MUSIC 或 MOVIE）
 - 出参：ResultEntity，data 为 CircleEntity 列表（含 circleLikes、circleComments），`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"relationId":1,"content":"分享一首好听的歌","imgs":"https://example.com/1.jpg","type":"music","userId":"uuid","permission":1,"createTime":"2024-01-01 12:00:00","circleLikes":0,"circleComments":0}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 2. 文章评论/收藏/浏览数
 - 接口：`GET /service/circle/getCircleArticleCount`
 - 作用：查询某条朋友圈的评论数、收藏数、浏览数
 - 入参（Query）：`id`（朋友圈文章 ID）
 - 出参：ResultEntity，data 为 `{commentCount, favoriteCount, viewCount}`
+- 出参示例：
+```json
+{
+  "data": {"commentCount":1,"favoriteCount":2,"viewCount":3},
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 3. 发布朋友圈
 - 接口：`POST /service/circle/insertCircle`
 - 作用：发布文字/图片朋友圈（图片 base64 保存到磁盘），并广播 WebSocket 消息
 - 入参：`X-User-Id`（Header）+ Body（CircleEntity：`content`、`imgs`、`relationId`、`type`、`permission`）
 - 出参：ResultEntity，data 为新记录 ID
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 4. 最近更新数量
 - 接口：`GET /service/circle/getCircleByLastUpdateTime`
 - 作用：查询指定时间之后新增的朋友圈数量
 - 入参（Query）：`lastUpdateTime`、`type`
 - 出参：ResultEntity，data 为数量
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 5. WebSocket 广播
 - 接口：`WS /service/circle/ws`
 - 作用：连接后加入广播池；收到消息广播给所有连接；发布朋友圈时服务端广播"有一条新消息"
 - 入参：`?token=<token>`
 - 出参：文本消息
+- 出参示例：
+（流式文本，非 ResultEntity）示例输出：`消息内容`
 
 ## 请求体实体字段
 

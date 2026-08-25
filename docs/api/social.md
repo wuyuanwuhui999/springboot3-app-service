@@ -29,41 +29,121 @@
 - 接口：`GET /service/social/getCommentCount`
 - 入参（Query）：`relationId`（关联资源 ID）、`type`（资源类型）
 - 出参：ResultEntity，data 为评论总数
+- 出参示例：
+```json
+{
+  "data": 5,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 2. 一级评论列表
 - 接口：`GET /service/social/getTopCommentList`
 - 入参（Query）：`relationId`、`type`、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为一级评论列表（含回复），`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"content":"很好听","relationId":1,"type":"music","userId":"uuid","parentId":0,"topId":0,"createTime":"2024-01-01 12:00:00","replyList":[]}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 3. 新增评论
 - 接口：`POST /service/social/insertComment`
 - 入参：`X-User-Id`（Header）+ Body（CommentEntity：`content`、`parentId`、`topId`、`relationId`、`type`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 4. 删除评论
 - 接口：`DELETE /service/social/deleteComment/{id}`
 - 入参：`X-User-Id`（Header）+ Path：`id`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 5. 回复列表
 - 接口：`GET /service/social/getReplyCommentList`
 - 入参（Query）：`topId`（顶级评论 ID）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为回复列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"content":"很好听","relationId":1,"type":"music","userId":"uuid","parentId":0,"topId":0,"createTime":"2024-01-01 12:00:00","replyList":[]}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 6. 点赞/收藏
 - 接口：`POST /service/social/saveLike`
 - 入参：`X-User-Id`（Header）+ Body（LikeEntity：`relationId`、`type`）
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 7. 取消点赞
 - 接口：`DELETE /service/social/deleteLike`
 - 入参：`X-User-Id`（Header）+ Query：`relationId`、`type`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 8. 是否已点赞
 - 接口：`GET /service/social/isLike`
 - 入参：`X-User-Id`（Header）+ Query：`relationId`、`type`
 - 出参：ResultEntity，data 为 1（已点赞）/ 0（未点赞）
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ## 请求体实体字段
 

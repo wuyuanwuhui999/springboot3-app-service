@@ -24,12 +24,24 @@
 - 作用：查询当前用户的智能体聊天历史
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为历史列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"userId":"uuid","chatId":"chat-xxx","modelId":"deepseek-chat","prompt":"你好","responseContent":"你好！有什么可以帮你？","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 2. WebSocket 智能体对话
 - 接口：`WS /service/agent/ws/chat`
 - 作用：WebSocket 方式智能体对话（流式）
 - 入参：`?token=<token>`（查询参数，网关注入 `X-User-Id`）；消息体通过 send 发送（JSON）
 - 出参：流式文本消息
+- 出参示例：
+（流式文本，非 ResultEntity）示例输出：`你好！我是 AI 助手。`
 
 ## 涉及的表结构
 

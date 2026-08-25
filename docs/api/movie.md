@@ -44,116 +44,346 @@
 - 接口：`GET /service/movie/findClassify`
 - 入参：无
 - 出参：ResultEntity，data 为分类列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"classify":"电影","category":"banner","pageName":"首页","sourceName":"本地","status":"1"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 2. 按类型获取推荐影片
 - 接口：`GET /service/movie/getKeyWord`
 - 入参（Query）：`classify`（分类，如 电影/电视剧）
 - 出参：ResultEntity，data 为影片列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 3. 用户使用统计
 - 接口：`GET /service/movie/getUserMsg`
 - 入参：`X-User-Id`（Header）
 - 出参：ResultEntity，data 为 {使用天数、关注数、观看记录数、浏览记录数}
+- 出参示例：
+```json
+{
+  "data": {"useDays":30,"followCount":1,"viewRecordCount":10,"playRecordCount":5},
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 4. 按大类查所有小类
 - 接口：`GET /service/movie/getAllCategoryByClassify`
 - 入参（Query）：`classify`
 - 出参：ResultEntity，data 为小类列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"category":"动作","classify":"电影"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 5. 按页面查展示小类
 - 接口：`GET /service/movie/getAllCategoryListByPageName`
 - 入参（Query）：`pageName`（页面名称）
 - 出参：ResultEntity，data 为小类列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"category":"banner","classify":"电影"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 6. 查大类中的小类
 - 接口：`GET /service/movie/getCategoryList`
 - 入参（Query）：`classify`、`category`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 7. 按分类取前 20 条
 - 接口：`GET /service/movie/getTopMovieList`
 - 入参（Query）：`classify`、`category`（可选）
 - 出参：ResultEntity，data 为电影列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 8. 多条件搜索
 - 接口：`GET /service/movie/search`
 - 入参（Query）：`classify`、`category`、`label`、`star`、`director`、`keyword`（均可选）、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为电影列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 9. 演员列表
 - 接口：`GET /service/movie/getStar/{movieId}`
 - 入参（Path）：`movieId`
 - 出参：ResultEntity，data 为演员列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"starName":"吴京","img":"https://example.com/star.jpg","role":"主演","movieId":1}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 10. 播放地址
 - 接口：`GET /service/movie/getMovieUrl`
 - 入参（Query）：`movieId`
 - 出参：ResultEntity，data 为播放地址
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieId":1,"label":"第1集","url":"https://example.com/play.m3u8","playGroup":"1","sourceName":"本地"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 11. 播放记录
 - 接口：`GET /service/movie/getPlayRecord`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为记录列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieId":1,"userId":"uuid","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ### 12. 保存播放记录
 - 接口：`POST /service/movie/savePlayRecord/{movieId}`
 - 入参：`X-User-Id`（Header）+ Path：`movieId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 13. 浏览记录
 - 接口：`GET /service/movie/getViewRecord`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieId":1,"userId":"uuid","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 14. 保存浏览记录
 - 接口：`POST /service/movie/saveViewRecord/{movieId}`
 - 入参：`X-User-Id`（Header）+ Path：`movieId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 15. 收藏列表
 - 接口：`GET /service/movie/getFavoriteList`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 16. 保存收藏
 - 接口：`POST /service/movie/saveFavorite/{movieId}`
 - 入参：`X-User-Id`（Header）+ Path：`movieId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 17. 删除收藏
 - 接口：`DELETE /service/movie/deleteFavorite/{movieId}`
 - 入参：`X-User-Id`（Header）+ Path：`movieId`
 - 出参：ResultEntity
+- 出参示例：
+```json
+{
+  "data": null,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 18. 是否已收藏
 - 接口：`GET /service/movie/isFavorite`
 - 入参：`X-User-Id`（Header）+ Query：`movieId`
 - 出参：ResultEntity，data 为 1（已收藏）/ 0（未收藏）
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 19. 猜你想看
 - 接口：`GET /service/movie/getYourLikes`
 - 入参（Query）：`labels`（标签，多个用 / 分隔）、`classify`
 - 出参：ResultEntity，data 为电影列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 20. 推荐电影
 - 接口：`GET /service/movie/getRecommend`
 - 入参（Query）：`classify`
 - 出参：ResultEntity，data 为电影列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 21. 电影详情
 - 接口：`GET /service/movie/getMovieDetail/{movieId}`
 - 入参（Path）：`movieId`
 - 出参：ResultEntity，data 为电影详情
+- 出参示例：
+```json
+{
+  "data": {"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"},
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 22. 类型相似电影
 - 接口：`GET /service/movie/getMovieListByType`
 - 入参（Query）：`types`（类型，多个用空格分隔）、`classify`
 - 出参：ResultEntity，data 为电影列表
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"movieName":"流浪地球","director":"郭帆","star":"吴京,屈楚萧","type":"科幻","countryLanguage":"中国/汉语","img":"https://example.com/img.jpg","classify":"电影","isRecommend":"1","score":"9.0","duration":"120","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": null,
+  "token": null
+}
+```
 
 ### 23. 搜索历史
 - 接口：`GET /service/movie/getSearchHistory`
 - 入参：`X-User-Id`（Header）+ Query：`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为搜索历史列表，`total` 为总数
+- 出参示例：
+```json
+{
+  "data": [{"id":1,"keyword":"流浪地球","userId":"uuid","createTime":"2024-01-01 12:00:00"}],
+  "status": "SUCCESS",
+  "msg": null,
+  "total": 100,
+  "token": null
+}
+```
 
 ## 涉及的表结构
 
