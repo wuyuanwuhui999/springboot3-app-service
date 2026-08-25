@@ -67,3 +67,32 @@
 **CircleEntity（列表返回时，含扩展字段）**
 
 列表返回的 data 每项还包含：`id`、`userId`、`username`、`useravater`、`createTime`、`updateTime`、音乐字段（`musicSongName`/`musicAudioId`/`musicAuthorName`/`musicAlbumName`/`musicCover`/`musicPlayUrl`/`musicLocalPlayUrl`/`musicLyrics`）或电影字段（`movieId`/`movieName`/`movieDirector`/`movieStar`/`movieType`/`movieCountryLanguage`/`movieViewingState`/`movieReleaseTime`/`movieImg`/`movieClassify`/`movieLocalImg`/`movieScore`），以及 `circleLikes`（点赞列表）、`circleComments`（评论列表，含嵌套 replyList）。
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. circle
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| relation_id | int | 是 |  | 关联音乐或电影的id |
+| content | varchar(3000) | 是 |  | 内容 |
+| imgs | varchar(1000) | 是 |  | 图片，多张用分号隔开 |
+| type | varchar(255) | 是 |  | 类型 |
+| user_id | varchar(32) | 是 |  | 用户id |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| permission | int | 是 |  | 权限，0私密，1公开 |
+
+### 2. circle_record
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| circle_id | int | 是 |  |  |
+| user_id | varchar(32) | 是 |  |  |
+| create_time | datetime(6) | 是 |  |  |
+| update_time | datetime(6) | 是 |  |  |
+

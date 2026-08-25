@@ -152,3 +152,64 @@
 | baseUrl | String | API 基础路径 |
 | disabled | Integer | 是否禁用（0 启用 / 1 禁用） |
 | companyId | String | 所属公司 id |
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. chat_doc（用户上传的RAG文档）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 文档id |
+| tenant_id | varchar(32) | 否 | 索引 | 租户ID |
+| directory_id | varchar(255) | 是 |  | 租户id |
+| name | varchar(255) | 是 |  | 文档原标题 |
+| ext | varchar(255) | 是 |  | 文档格式 |
+| user_id | varchar(32) | 是 |  | 用户id |
+| create_time | datetime | 是 |  | 更新时间 |
+| update_time | datetime | 是 |  | 修改时间 |
+
+### 2. chat_doc_directory（按照目录查询文档）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(64) | 否 | 主键 | 租户id |
+| user_id | varchar(64) | 是 |  | 用户id |
+| directory | varchar(255) | 否 |  | 目录 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| tenant_id | varchar(32) | 是 |  | 租户id |
+
+### 3. chat_history（ai会话记录）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| user_id | varchar(64) | 是 |  | 用户id |
+| tenant_id | varchar(255) | 是 |  | 租户id |
+| model_id | varchar(64) | 是 |  | 模型名称 |
+| files | varchar(1000) | 是 |  | 文件 |
+| chat_id | varchar(128) | 是 |  | 会话id |
+| prompt | varchar(10000) | 是 |  | 用户提示词 |
+| system_prompt | text | 是 |  | 系统提示词 |
+| think_content | text | 是 |  | 思考内容 |
+| response_content | text | 是 |  | 正文 |
+| content | text | 是 |  | 回复内容 |
+| create_time | datetime | 是 |  | 创建时间 |
+
+### 4. chat_model
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 主键 |
+| company_id | varchar(32) | 否 |  | 企业id |
+| type | varchar(255) | 是 |  | 大模型类型，ollama本地大模型/deepseek/tongyi在线大模型 |
+| api_key | varchar(255) | 是 |  | 在线大模型的api_key,ollama本地大模型则为空 |
+| model_name | varchar(255) | 是 |  | 模型名称 |
+| base_url | varchar(255) | 是 |  | 大模型api路径 |
+| disabled | int | 是 |  | 是否禁用，0/1 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| created_by | varchar(255) | 是 |  | 创建人 |
+

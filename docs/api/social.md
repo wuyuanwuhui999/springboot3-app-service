@@ -83,3 +83,33 @@
 |------|------|------|
 | relationId | Long | 关联资源 ID |
 | type | String | 资源类型 |
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. social_comment（社交评论）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| content | varchar(255) | 是 |  | 评论内容 |
+| parent_id | int | 是 |  | 评论父级id |
+| top_id | int | 是 |  | 一级评论 |
+| relation_id | int | 否 |  | 文章id |
+| type | varchar(32) | 是 |  | 类型 |
+| user_id | varchar(32) | 是 |  | 用户id |
+| create_time | datetime | 是 |  | 创建时间 |
+| udate_time | datetime | 是 |  | 更新时间 |
+
+### 2. social_like（点赞的影片）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| type | varchar(255) | 是 |  | 类型 |
+| relation_id | varchar(11) | 否 |  | 关联id |
+| user_id | varchar(255) | 是 |  | 用户名，这这个表不需要，为了跟记录叫和收藏表的结构一致 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+

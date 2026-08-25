@@ -115,3 +115,39 @@
 | region | String | 地区 |
 | disabled | int | 是否禁用 |
 | permission | int | 权限 |
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. user（用户表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 |  | 主键id |
+| user_account | varchar(32) | 否 |  | 账号 |
+| password | varchar(255) | 否 |  | 密码 |
+| create_date | varchar(255) | 否 |  | 创建时间 |
+| update_date | datetime | 否 |  | 更新时间 |
+| username | varchar(255) | 否 |  | 昵称 |
+| telephone | varchar(20) | 否 |  | 电话 |
+| email | varchar(255) | 否 |  | 邮箱 |
+| avater | varchar(255) | 是 |  | 头像地址 |
+| birthday | varchar(16) | 是 |  | 出生年月日 |
+| sex | varchar(1) | 是 |  | 性别，0:男，1:女 |
+| role | varchar(255) | 是 |  | 角色 |
+| sign | varchar(255) | 是 |  | 个性签名 |
+| region | varchar(255) | 是 |  | 地区 |
+| disabled | int | 是 |  | 是否禁用，0表示不不禁用，1表示禁用 |
+| permission | int | 是 |  | 权限大小 |
+
+### 2. login_log（登录日志表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | bigint | 否 | 主键 | 主键ID（自增） |
+| user_id | varchar(50) | 是 | 索引 | 用户ID |
+| ip | varchar(50) | 是 |  | 登录IP |
+| login_type | varchar(50) | 是 |  | 登录类型：register/login/getUserData |
+| create_time | datetime | 是 | 索引 | 登录时间 |
+

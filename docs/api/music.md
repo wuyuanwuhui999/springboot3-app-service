@@ -188,3 +188,147 @@
 |------|------|------|
 | favoriteId | Long | 收藏夹 id |
 | musicId | Long | 音乐 id |
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. music（音乐主表id）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| album_id | int | 是 |  | 歌曲id |
+| song_name | varchar(1000) | 是 |  | 歌曲名称 |
+| author_id | varchar(255) | 是 |  | 歌手id |
+| author_name | varchar(255) | 是 |  | 作者名称 |
+| album_name | varchar(255) | 是 |  | 专辑名称 |
+| version | varchar(255) | 是 |  | 版本 |
+| language | varchar(255) | 是 |  | 语言 |
+| publish_date | datetime(6) | 是 |  | 发布日期 |
+| wide_audio_id | int | 是 |  | 宽度音频id |
+| is_publish | int | 是 |  | 是否发布 |
+| big_pack_id | int | 是 |  | 大型集合id |
+| final_id | int | 是 |  | 最终id |
+| audio_id | int | 是 |  | 音频id |
+| similar_audio_id | int | 是 |  | 相似的音乐id |
+| is_hot | int | 是 |  | 是否热门 |
+| album_audio_id | int | 是 |  | 歌曲音频id |
+| audio_group_id | int | 是 |  | 专辑id |
+| cover | varchar(255) | 是 |  | 歌曲图片 |
+| play_url | varchar(255) | 是 |  | 网络播放地址 |
+| local_play_url | varchar(255) | 是 |  | 本地播放地址 |
+| source_name | varchar(255) | 是 |  | 播放源 |
+| source_url | varchar(1000) | 是 |  | 播放地址 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| label | varchar(255) | 是 |  | 标签 |
+| lyrics | text | 是 |  | 歌词 |
+| permission | int | 是 |  | 播放权限 |
+
+### 2. music_like
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 |  主键 |
+| music_id | int | 否 |  |  |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| user_id | varchar(255) | 是 |  | 用户id |
+
+### 3. music_classify
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| classify_id | int | 是 |  |  |
+| music_id | int | 是 |  | 歌曲id |
+| audio_rank | int | 是 |  | 歌曲排名，数值越大越靠前 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+
+### 4. music_classify_relation
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| classify_name | varchar(255) | 是 |  | 标签 |
+| permission | int | 是 |  | 权限 |
+| classify_rank | int | 是 |  | 分类排序，数值越大越靠前 |
+| cover | varchar(255) | 是 |  | 图标 |
+| disabled | int | 是 |  | 是否启用 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+
+### 5. music_favorite_directory
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键id |
+| name | varchar(255) | 是 |  | 收藏夹名称 |
+| user_id | varchar(255) | 否 |  | 用户id |
+| create_time | datetime | 否 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+
+### 6. music_favorite_list
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键id |
+| music_id | int | 是 |  | 音乐id |
+| favorite_id | int | 是 | 索引 | 收藏夹id |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+
+### 7. music_record
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| music_id | int | 是 |  | 音乐id |
+| user_id | varchar(64) | 是 |  | 用户id |
+| platform | varchar(255) | 是 |  | 平台 |
+| device | varchar(255) | 是 |  | 设备型号 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| version | varchar(255) | 是 |  | app版本 |
+
+### 8. music_author_category（音乐歌手分类）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| category_name | varchar(255) | 是 |  | 分类名称 |
+| rank | int | 是 |  | 排名 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| disabled | int | 是 |  | 是否禁用 0:启用，1禁用 |
+
+### 9. music_authors（歌手表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| author_id | int | 是 |  | 歌手id |
+| author_name | varchar(255) | 是 |  | 歌手名称 |
+| category_id | int | 是 |  | 分类id |
+| is_publish | int | 是 |  | 是否发布 |
+| avatar | varchar(255) | 是 |  | 头像 |
+| type | int | 是 |  | 类型 |
+| country | varchar(255) | 是 |  | 国家 |
+| birthday | varchar(255) | 是 |  | 生日 |
+| identity | int | 是 |  | 身份 |
+| rank | int | 是 |  | 歌手排名 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 修改时间 |
+
+### 10. music_author_like（用户喜欢的歌手）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 |  主键 |
+| author_id | int | 否 |  | 歌手id |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| user_id | varchar(255) | 是 |  | 用户id |
+

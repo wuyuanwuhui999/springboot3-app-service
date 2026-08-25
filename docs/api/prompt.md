@@ -59,3 +59,19 @@
 | userId | String | 用户 id |
 | createTime | Date | 创建时间 |
 | updateTime | Date | 更新时间 |
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. prompt
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 主键 |
+| prompt | varchar(255) | 否 |  |  |
+| tenant_id | varchar(32) | 否 | 主键 |  |
+| user_id | varchar(32) | 否 | 主键 |  |
+| create_time | datetime | 是 |  |  |
+| update_time | datetime | 是 |  |  |
+

@@ -74,3 +74,57 @@
 | telephone | String | 电话 |
 | email | String | 邮箱 |
 | status | Integer | 状态（0 禁用 / 1 正常） |
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. company（企业表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(50) | 否 | 主键 | 企业ID |
+| name | varchar(100) | 否 |  | 企业名称 |
+| code | varchar(50) | 否 | 唯一 | 企业编码 |
+| description | varchar(255) | 是 |  | 企业描述 |
+| status | tinyint | 否 |  | 状态：0-禁用，1-启用 |
+| create_date | datetime | 否 |  | 创建时间 |
+| update_date | datetime | 是 |  | 更新时间 |
+| created_by | varchar(32) | 否 |  | 创建人ID |
+| updated_by | varchar(32) | 是 |  | 更新人ID |
+
+### 2. company_department（企业部门表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 部门ID(UUID) |
+| company_id | varchar(50) | 否 | 索引 | 所属企业ID |
+| department_name | varchar(50) | 否 |  | 部门名称 |
+| description | varchar(255) | 是 |  | 部门描述 |
+| create_time | datetime | 否 |  | 创建时间 |
+| role | int | 是 |  | 查询部门需要当前登录人的角色 |
+
+### 3. company_position（企业职位表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 职位ID(UUID) |
+| position_name | varchar(50) | 否 |  | 职位名称 |
+| department_id | varchar(32) | 是 | 索引 | 所属部门ID |
+| description | varchar(255) | 是 |  | 职位描述 |
+| create_time | datetime | 否 |  | 创建时间 |
+
+### 4. company_user（用户企业关联表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 主键ID |
+| user_id | varchar(32) | 否 | 索引 | 用户ID |
+| company_id | varchar(50) | 否 | 索引 | 企业ID |
+| is_default | tinyint | 否 |  | 是否默认企业：0-否，1-是 |
+| role | varchar(50) | 是 |  | 在企业中的角色（3：企业老板，2：人事，1:管理员，0：普通成员） |
+| position_id | varchar(32) | 是 |  | 职位ID |
+| join_date | datetime | 否 |  | 加入时间 |
+| status | tinyint | 否 |  | 状态：0-禁用，1-正常 |
+| create_by | varchar(32) | 否 |  | 创建人ID |
+

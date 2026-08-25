@@ -30,3 +30,40 @@
 - 作用：WebSocket 方式智能体对话（流式）
 - 入参：`?token=<token>`（查询参数，网关注入 `X-User-Id`）；消息体通过 send 发送（JSON）
 - 出参：流式文本消息
+
+## 涉及的表结构
+
+> 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
+
+### 1. chat_model
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | 主键 |
+| company_id | varchar(32) | 否 |  | 企业id |
+| type | varchar(255) | 是 |  | 大模型类型，ollama本地大模型/deepseek/tongyi在线大模型 |
+| api_key | varchar(255) | 是 |  | 在线大模型的api_key,ollama本地大模型则为空 |
+| model_name | varchar(255) | 是 |  | 模型名称 |
+| base_url | varchar(255) | 是 |  | 大模型api路径 |
+| disabled | int | 是 |  | 是否禁用，0/1 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |
+| created_by | varchar(255) | 是 |  | 创建人 |
+
+### 2. chat_history（ai会话记录）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | int | 否 | 主键 | 主键 |
+| user_id | varchar(64) | 是 |  | 用户id |
+| tenant_id | varchar(255) | 是 |  | 租户id |
+| model_id | varchar(64) | 是 |  | 模型名称 |
+| files | varchar(1000) | 是 |  | 文件 |
+| chat_id | varchar(128) | 是 |  | 会话id |
+| prompt | varchar(10000) | 是 |  | 用户提示词 |
+| system_prompt | text | 是 |  | 系统提示词 |
+| think_content | text | 是 |  | 思考内容 |
+| response_content | text | 是 |  | 正文 |
+| content | text | 是 |  | 回复内容 |
+| create_time | datetime | 是 |  | 创建时间 |
+
