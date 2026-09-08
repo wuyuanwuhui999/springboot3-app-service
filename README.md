@@ -2,7 +2,7 @@
 
 由于密钥丢失，原地址 https://github.com/wuyuanwuhui99/springboot-app-service  将不在更新，迁移到新地址
 
-有springboot2.0.1+jdk8升级到springboot3.4.5+jdk17
+有springboot2.0.1+jdk8升级到springboot3.4.5+jdk21
 
 新增AI智能聊天模块和AI智能体，基于spring ai/langchain4j使用ollama调用本地deepseek-r1:8b/qwen3:8b大语言模型，支持模型切换，支持RAG文档查询和文档上传   
 
