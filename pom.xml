@@ -42,7 +42,7 @@
         <mysql-connector.version>8.0.33</mysql-connector.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <logback-classic.version>1.5.21</logback-classic.version>
-        <spring-ai.version>1.1.2</spring-ai.version>
+        <spring-ai.version>1.1.8</spring-ai.version>
         <langchain4j.version>1.20.0-beta30</langchain4j.version>
         <langchain4j-elasticsearch.version>1.20.0-beta30</langchain4j-elasticsearch.version>
         <langchain4j-core.version>1.20.0</langchain4j-core.version>
@@ -50,7 +50,7 @@
         <spring-ai-starter-vector-store-redis.version>1.0.0</spring-ai-starter-vector-store-redis.version>
         <pdfbox.version>3.0.5</pdfbox.version>
         <tika-core.version>3.2.0</tika-core.version>
-        <spring-ai-starter-model-ollama>1.0.0</spring-ai-starter-model-ollama>
+        <spring-ai-starter-model-ollama>1.1.8</spring-ai-starter-model-ollama>
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
         <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
