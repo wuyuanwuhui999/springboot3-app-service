@@ -255,7 +255,8 @@
 ### 16. WebSocket 聊天
 - 接口：`WS /service/chat/ws/chat`
 - 作用：WebSocket 方式 AI 对话（流式）
-- 入参：`?token=<token>`（查询参数，由网关注入 `X-User-Id`）；消息体通过 send 发送（JSON：prompt、chatId、modelId、docIds 等）
+- 入参：`?token=<token>`（查询参数，由网关注入 `X-User-Id`）；消息体通过 send 发送（JSON：promptId、chatId、modelId、docIds 等）
+- promptId 说明：可选参数；传了则按 promptId、tenantId、userId 查 prompt 表，取 prompt 字段作为用户提示词；未查到记录时返回「找不到提示词」
 - 出参：流式文本消息
 - 出参示例：
 （流式文本，非 ResultEntity）示例输出：`你好！我是 AI 助手。`
@@ -266,7 +267,7 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| prompt | String | 提示词/问题 |
+| promptId | String | 提示词ID（可选，传了则查 prompt 表取提示词） |
 | docIds | List\<String\> | 文档 id 列表 |
 | systemPrompt | String | 系统提示词 |
 | chatId | String | 会话 id |

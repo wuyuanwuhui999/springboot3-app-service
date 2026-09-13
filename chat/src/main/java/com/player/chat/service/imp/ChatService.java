@@ -98,12 +98,21 @@ public class ChatService implements IChatService {
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setUserId(userId);
         chatEntity.setChatId(chatParamsEntity.getChatId());
+
+        // 解析 promptId → 用户提示词（传了 promptId 则查 prompt 表取 prompt 字段作为用户提示词）
+        if (chatParamsEntity.getPromptId() != null && !chatParamsEntity.getPromptId().isEmpty()) {
+            String promptContent = chatMapper.getPrompt(userId, chatParamsEntity.getTenantId(), chatParamsEntity.getPromptId());
+            if (promptContent == null) {
+                return Flux.just("找不到提示词").doOnNext(responseHandler);
+            }
+            chatParamsEntity.setPrompt(promptContent);
+        }
+
         chatEntity.setPrompt(chatParamsEntity.getPrompt());
         chatEntity.setSystemPrompt(chatParamsEntity.getSystemPrompt()); // 添加 systemPrompt
         chatEntity.setModelId(chatParamsEntity.getModelId());
         chatEntity.setTenantId(chatParamsEntity.getTenantId());
         chatEntity.setContent(""); // Initialize empty content
-
         StringBuilder responseCollector = new StringBuilder();
 
         if ("document".equals(chatParamsEntity.getType())) {

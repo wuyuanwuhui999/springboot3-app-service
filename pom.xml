@@ -32,7 +32,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <!-- 依赖版本 -->
-        <spring-boot.version>3.4.5</spring-boot.version>
+        <spring-boot.version>3.5.16</spring-boot.version>
         <mybatis-starter.version>3.0.4</mybatis-starter.version>
         <swagger-annotations.version>2.2.15</swagger-annotations.version>
         <lombok.version>1.18.34</lombok.version>
@@ -53,14 +53,14 @@
         <spring-ai-starter-model-ollama>1.1.8</spring-ai-starter-model-ollama>
         <pinecone-client.version>5.1.0</pinecone-client.version>
         <jackson-core.version>2.19.1</jackson-core.version>
-        <spring-boot-starter-logging.version>3.5.5</spring-boot-starter-logging.version>
+        <spring-boot-starter-logging.version>3.5.16</spring-boot-starter-logging.version>
         <org.springframework.cloud.version>4.3.0</org.springframework.cloud.version>
-        <spring-boot-starter-actuator.version>3.4.5</spring-boot-starter-actuator.version>
+        <spring-boot-starter-actuator.version>3.5.16</spring-boot-starter-actuator.version>
         <spring-cloud-starter-gateway.version>4.2.6</spring-cloud-starter-gateway.version>
         <com.alibaba.cloud.version>2025.0.0.0</com.alibaba.cloud.version>
         <jedis.version>6.0.0</jedis.version>
         <spring-beans.version>6.2.14</spring-beans.version>
-        <spring-boot-starter-data-mongodb-reactive.version>3.4.13</spring-boot-starter-data-mongodb-reactive.version>
+        <spring-boot-starter-data-mongodb-reactive.version>3.5.16</spring-boot-starter-data-mongodb-reactive.version>
     </properties>
 
     <!-- 依赖管理（统一版本，子模块按需引入） -->

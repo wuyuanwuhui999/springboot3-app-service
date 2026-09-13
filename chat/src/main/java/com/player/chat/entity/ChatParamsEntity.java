@@ -7,7 +7,10 @@ import java.util.ArrayList;
 
 @Data
 public class ChatParamsEntity {
-    @Schema(description = "提示词")
+    @Schema(description = "提示词ID")
+    private String promptId;
+
+    @Schema(description = "提示词（根据 promptId 解析后的内容）")
     private String prompt;
 
     @Schema(description = "文档id")

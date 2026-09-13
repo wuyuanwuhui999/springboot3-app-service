@@ -23,6 +23,11 @@ public interface ChatMapper {
 
     ChatModelEntity getModelById(String companyId, String modelId);
 
+    /**
+     * 根据 userId、tenantId、promptId 查询提示词内容（chat WebSocket 使用）
+     */
+    String getPrompt(String userId, String tenantId, String promptId);
+
     ChatModelEntity getModelByType(String modelType);
 
     void saveDoc(ChatDocEntity chatDocEntity);

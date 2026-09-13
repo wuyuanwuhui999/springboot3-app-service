@@ -39,7 +39,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 return;
             }
             String companyId = (String) payload.get("companyId");
-            String prompt = (String) payload.get("prompt");
+            String promptId = (String) payload.get("promptId");
             String chatId = (String) payload.get("chatId");
             String modelId = (String) payload.get("modelId");
             String tenantId = (String) payload.get("tenantId");
@@ -49,7 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatParamsEntity.setUserId(userId);
             chatParamsEntity.setChatId(chatId);
             chatParamsEntity.setModelId(modelId);
-            chatParamsEntity.setPrompt(prompt);
+            chatParamsEntity.setPromptId(promptId);
             chatParamsEntity.setShowThink(showThink);
             chatParamsEntity.setTenantId(tenantId);
             chatParamsEntity.setCompanyId(companyId);
