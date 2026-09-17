@@ -297,5 +297,134 @@
         LIMIT 1
     </select>
 
+    <!-- ==================== 工具调用（tenant/company 权限操作） ==================== -->
+
+    <!-- 根据用户标识（用户ID / 用户账号 / 用户名）精确匹配用户ID -->
+    <select id="getUserIdsByIdentifier" resultType="String">
+        SELECT id
+        FROM `user`
+        WHERE disabled = 0
+          AND (id = #{identifier}
+               OR user_account = #{identifier}
+               OR username = #{identifier})
+    </select>
+
+    <!-- 检查操作者是否为指定租户的超级管理员（role=2） -->
+    <select id="checkTenantSuperAdmin" resultType="int">
+        SELECT COUNT(*)
+        FROM tenant_user
+        WHERE tenant_id = #{tenantId}
+          AND user_id = #{userId}
+          AND role = 2
+          AND disabled = 0
+    </select>
+
+    <!-- 检查操作者是否为指定租户的管理员或超级管理员（role IN (1,2)） -->
+    <select id="checkTenantAdmin" resultType="int">
+        SELECT COUNT(*)
+        FROM tenant_user
+        WHERE tenant_id = #{tenantId}
+          AND user_id = #{userId}
+          AND role IN (1, 2)
+          AND disabled = 0
+    </select>
+
+    <!-- 检查操作者是否为指定租户的成员（未禁用） -->
+    <select id="checkTenantMember" resultType="int">
+        SELECT COUNT(*)
+        FROM tenant_user
+        WHERE tenant_id = #{tenantId}
+          AND user_id = #{userId}
+          AND disabled = 0
+    </select>
+
+    <!-- 查询用户在指定租户中的角色，不在租户中返回 null -->
+    <select id="getTenantUserRole" resultType="java.lang.Integer">
+        SELECT role
+        FROM tenant_user
+        WHERE tenant_id = #{tenantId}
+          AND user_id = #{userId}
+          AND disabled = 0
+        LIMIT 1
+    </select>
+
+    <!-- 设置用户在租户中的角色（SQL 内部强制操作者为超级管理员 role=2，防越权） -->
+    <update id="setTenantUserRole">
+        UPDATE tenant_user tu
+        JOIN tenant_user admin
+            ON admin.tenant_id = #{tenantId}
+           AND admin.user_id = #{adminUserId}
+           AND admin.role = 2
+           AND admin.disabled = 0
+        SET tu.role = #{role},
+            tu.create_by = #{adminUserId}
+        WHERE tu.tenant_id = #{tenantId}
+          AND tu.user_id = #{userId}
+          AND tu.disabled = 0
+    </update>
+
+    <!-- 添加用户到租户（SQL 内部强制操作者为管理员 role IN (1,2)，防越权） -->
+    <insert id="addTenantUser">
+        INSERT INTO tenant_user (id, tenant_id, user_id, role, join_date, create_by, disabled)
+        SELECT #{id}, #{tenantId}, #{userId}, 0, NOW(), #{adminUserId}, 0
+        FROM dual
+        WHERE EXISTS (
+            SELECT 1 FROM tenant_user admin
+            WHERE admin.tenant_id = #{tenantId}
+              AND admin.user_id = #{adminUserId}
+              AND admin.role IN (1, 2)
+              AND admin.disabled = 0
+        )
+        AND NOT EXISTS (
+            SELECT 1 FROM tenant_user tu
+            WHERE tu.tenant_id = #{tenantId}
+              AND tu.user_id = #{userId}
+        )
+    </insert>
+
+    <!-- 从租户移除用户（SQL 内部强制操作者为管理员 role IN (1,2)，且不能移除自己） -->
+    <delete id="deleteTenantUser">
+        DELETE tu
+        FROM tenant_user tu
+        JOIN tenant_user admin
+            ON admin.tenant_id = #{tenantId}
+           AND admin.user_id = #{adminUserId}
+           AND admin.role IN (1, 2)
+           AND admin.disabled = 0
+        WHERE tu.tenant_id = #{tenantId}
+          AND tu.user_id = #{userId}
+          AND tu.user_id != #{adminUserId}
+    </delete>
+
+    <!-- 统计租户内的有效成员数 -->
+    <select id="countTenantUsers" resultType="Long">
+        SELECT COUNT(*)
+        FROM tenant_user
+        WHERE tenant_id = #{tenantId}
+          AND disabled = 0
+    </select>
+
+    <!-- 统计公司内的有效员工数 -->
+    <select id="countCompanyEmployees" resultType="Long">
+        SELECT COUNT(*)
+        FROM company_user
+        WHERE company_id = #{companyId}
+          AND status = 1
+    </select>
+
+    <!-- 从公司移除员工（SQL 内部强制操作者为管理员 role>=1，且不能移除自己） -->
+    <delete id="deleteCompanyUser">
+        DELETE cu
+        FROM company_user cu
+        JOIN company_user admin
+            ON admin.company_id = #{companyId}
+           AND admin.user_id = #{adminUserId}
+           AND admin.role &gt;= 1
+           AND admin.status = 1
+        WHERE cu.company_id = #{companyId}
+          AND cu.user_id = #{userId}
+          AND cu.user_id != #{adminUserId}
+    </delete>
+
 </mapper>
 

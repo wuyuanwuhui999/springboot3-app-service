@@ -55,6 +55,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             chatParamsEntity.setCompanyId(companyId);
             chatParamsEntity.setType((String) payload.get("type"));
             chatParamsEntity.setLanguage((String) payload.get("language"));
+            chatParamsEntity.setUseTool((Boolean) payload.get("useTool"));
             chatParamsEntity.setSystemPrompt((String) payload.get("systemPrompt"));
 
             if("document".equals(chatParamsEntity.getType())){

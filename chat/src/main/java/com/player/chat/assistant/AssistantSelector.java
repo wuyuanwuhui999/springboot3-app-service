@@ -3,6 +3,7 @@ package com.player.chat.assistant;
 
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.mapper.ChatMapper;
+import com.player.chat.tool.ChatTool;
 import com.player.common.entity.ChatModelEntity;
 import dev.langchain4j.http.client.spring.restclient.SpringRestClientBuilder;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
@@ -45,10 +46,22 @@ public class AssistantSelector {
             systemPrompt = "你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。\n";
         }
         try {
-            Assistant assistant = AiServices.builder(Assistant.class)
+            AiServices<Assistant> aiServices = AiServices.builder(Assistant.class)
                     .streamingChatModel(getStreamingChatModel(chatModel))
-                    .chatMemoryProvider(chatMemoryProvider)
-                    .build();
+                    .chatMemoryProvider(chatMemoryProvider);
+
+            // 是否启用工具调用（useTool=true 时注入租户/公司管理工具）
+            if (Boolean.TRUE.equals(chatParamsEntity.getUseTool())) {
+                ChatTool chatTool = new ChatTool(
+                        chatMapper,
+                        chatParamsEntity.getUserId(),
+                        chatParamsEntity.getTenantId(),
+                        chatParamsEntity.getCompanyId()
+                );
+                aiServices = aiServices.tools(chatTool);
+            }
+
+            Assistant assistant = aiServices.build();
             return assistant.chat(chatId, prompt, language, systemPrompt);
         } catch (Exception e) {
             return Flux.error(new RuntimeException("获取模型服务失败: " + e.getMessage()));

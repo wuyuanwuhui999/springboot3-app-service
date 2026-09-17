@@ -79,4 +79,61 @@ public interface ChatMapper {
      * @return 角色值：2-超级管理员，1-管理员，0-普通成员，null表示不在该公司
      */
     Integer getCompanyUserRole(String userId, String companyId);
+
+    // ==================== 工具调用（tenant/company 权限操作） ====================
+
+    /**
+     * 根据用户标识（用户ID / 用户账号 user_account / 用户名）精确匹配用户ID
+     */
+    List<String> getUserIdsByIdentifier(String identifier);
+
+    /**
+     * 检查操作者是否为指定租户的超级管理员（role=2）
+     */
+    int checkTenantSuperAdmin(String tenantId, String userId);
+
+    /**
+     * 检查操作者是否为指定租户的管理员或超级管理员（role IN (1,2)）
+     */
+    int checkTenantAdmin(String tenantId, String userId);
+
+    /**
+     * 检查操作者是否为指定租户的成员（未禁用）
+     */
+    int checkTenantMember(String tenantId, String userId);
+
+    /**
+     * 查询用户在指定租户中的角色，不在租户中返回 null
+     */
+    Integer getTenantUserRole(String tenantId, String userId);
+
+    /**
+     * 设置用户在租户中的角色（SQL 内部强制操作者为超级管理员 role=2，防越权）
+     */
+    int setTenantUserRole(String tenantId, String userId, String adminUserId, int role);
+
+    /**
+     * 添加用户到租户（SQL 内部强制操作者为管理员 role IN (1,2)，防越权）
+     */
+    int addTenantUser(String id, String tenantId, String userId, String adminUserId);
+
+    /**
+     * 从租户移除用户（SQL 内部强制操作者为管理员 role IN (1,2)，且不能移除自己）
+     */
+    int deleteTenantUser(String tenantId, String userId, String adminUserId);
+
+    /**
+     * 统计租户内的有效成员数
+     */
+    Long countTenantUsers(String tenantId);
+
+    /**
+     * 统计公司内的有效员工数
+     */
+    Long countCompanyEmployees(String companyId);
+
+    /**
+     * 从公司移除员工（SQL 内部强制操作者为管理员 role>=1，且不能移除自己）
+     */
+    int deleteCompanyUser(String companyId, String userId, String adminUserId);
 }

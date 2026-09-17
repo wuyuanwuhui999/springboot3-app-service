@@ -42,4 +42,7 @@ public class ChatParamsEntity {
 
     @Schema(description = "语言，zh/cn")
     private String language;
+
+    @Schema(description = "是否使用工具调用：true-启用租户/公司管理工具，false/null-纯对话")
+    private Boolean useTool;
 }
