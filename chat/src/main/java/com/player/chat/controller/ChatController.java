@@ -55,14 +55,21 @@ public class ChatController {
         return chatService.getModelList(companyId,keyword);
     }
 
+    @GetMapping("/getSplitMethods")
+    public ResultEntity getSplitMethods() {
+        return chatService.getSplitMethods();
+    }
+
     @PostMapping("/uploadDoc/{tenantId}/{directoryId}")
     public ResultEntity uploadDoc(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("X-User-Id") String userId,
             @PathVariable("tenantId") String tenantId,
-            @PathVariable("directoryId") String directoryId
+            @PathVariable("directoryId") String directoryId,
+            @RequestParam(value = "splitMethod", required = false, defaultValue = "recursive") String splitMethod,
+            @RequestParam(value = "chunkSize", required = false) Integer chunkSize
     ) throws IOException {
-        return chatService.uploadDoc(file,userId,tenantId,directoryId);
+        return chatService.uploadDoc(file,userId,tenantId,directoryId,splitMethod,chunkSize);
     }
 
     @GetMapping("/getDocListByDirId")

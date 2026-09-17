@@ -13,8 +13,15 @@ import com.player.common.entity.ChatModelEntity;
 import com.player.common.entity.ResultEntity;
 import com.player.common.entity.ResultUtil;
 
+import com.player.common.utils.FileTypeUtil;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.DocumentSplitter;
+import dev.langchain4j.data.document.splitter.DocumentByCharacterSplitter;
+import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
+import dev.langchain4j.data.document.splitter.DocumentByRegexSplitter;
+import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
@@ -25,6 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -34,15 +44,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,6 +79,27 @@ public class ChatService implements IChatService {
     public ChatService(EmbeddingModel nomicEmbeddingModel,AssistantSelector assistantSelector) {
         this.nomicEmbeddingModel = nomicEmbeddingModel;
         this.assistantSelector = assistantSelector;
+    }
+
+    /**
+     * 允许上传的文档扩展名白名单（小写，含点号）
+     * 新增支持的文档类型时，只需在此集合中追加一个元素即可，无需改动业务判断逻辑
+     */
+    private static final Set<String> ALLOWED_DOC_EXTENSIONS = Set.of(".pdf", ".txt", ".docx", ".doc");
+
+    /**
+     * RAG 文档转向量的分割方式枚举（前端通过 getSplitMethods 接口获取，上传时通过 splitMethod 传入）
+     */
+    private static final List<Map<String, String>> SPLIT_METHODS = List.of(
+            Map.of("value", "recursive", "label", "递归字符分割（推荐）", "description", "按段落、句子、字符递归切分，兼顾语义完整性"),
+            Map.of("value", "paragraph", "label", "按段落分割", "description", "按空行/段落边界切分"),
+            Map.of("value", "sentence", "label", "按句子分割", "description", "按句号、感叹号、问号等句子边界切分"),
+            Map.of("value", "fixed", "label", "固定长度分割", "description", "按固定字符数切分")
+    );
+
+    @Override
+    public ResultEntity getSplitMethods() {
+        return ResultUtil.success(SPLIT_METHODS);
     }
 
     @Override
@@ -203,73 +239,65 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize) throws IOException {
         // 1. 基础验证
         if (file.isEmpty()) {
             return ResultUtil.fail(null, "文件不能为空");
         }
 
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null ||
-                (!originalFilename.toLowerCase().endsWith(".pdf") &&
-                        !originalFilename.toLowerCase().endsWith(".txt"))) {
-            return ResultUtil.fail("只能上传pdf和txt的文档");
+        String ext = FileTypeUtil.getFileExtension(originalFilename);
+        if (!ALLOWED_DOC_EXTENSIONS.contains(ext)) {
+            return ResultUtil.fail("只能上传 " + String.join("、", ALLOWED_DOC_EXTENSIONS) + " 格式的文档");
+        }
+
+        // fixed 分割方式需要用户提供 chunkSize 参数
+        if ("fixed".equals(splitMethod) && (chunkSize == null || chunkSize <= 0)) {
+            return ResultUtil.fail("fixed 分割方式需要提供有效的 chunkSize 参数");
         }
 
         try {
             // 2. 读取文件内容
             byte[] fileBytes = file.getBytes();
-            String content;
             String docId = UUID.randomUUID().toString().replace("-", "");
             String fileExtension = PromptUtil.getFileExtension(file);
 
-            // 3. 分块处理文档
+            // 3. 提取完整文本（pdf/docx/doc/txt）
+            String fullText;
             if (originalFilename.toLowerCase().endsWith(".pdf")) {
-                try (PDDocument pdfDocument = Loader.loadPDF(fileBytes)) {
-                    PDFTextStripper stripper = new PDFTextStripper();
-                    int totalPages = pdfDocument.getNumberOfPages();
-
-                    // 分页处理PDF（每3页一批，避免过大请求）
-                    int batchSize = 3;
-                    for (int page = 1; page <= totalPages; page += batchSize) {
-                        int endPage = Math.min(page + batchSize - 1, totalPages);
-                        stripper.setStartPage(page);
-                        stripper.setEndPage(endPage);
-
-                        String batchContent = stripper.getText(pdfDocument);
-                        processContentBatch(
-                                batchContent,
-                                originalFilename,
-                                userId,
-                                docId,
-                                page,
-                                endPage,
-                                directoryId,
-                                tenantId,
-                                totalPages,         // total pages
-                                fileExtension       // file type
-                        );
-                    }
-                }
+                fullText = extractPdfText(fileBytes);
+            } else if (originalFilename.toLowerCase().endsWith(".docx")) {
+                fullText = extractDocxText(fileBytes);
+            } else if (originalFilename.toLowerCase().endsWith(".doc")) {
+                fullText = extractDocText(fileBytes);
             } else {
-                // 处理TXT文件（每5000字符一批）
-                content = new String(fileBytes, StandardCharsets.UTF_8);
-                int chunkSize = 5000;
-                for (int i = 0; i < content.length(); i += chunkSize) {
-                    String chunk = content.substring(i, Math.min(i + chunkSize, content.length()));
-                    processContentBatch(
-                            chunk,
-                            originalFilename,
-                            userId,
-                            docId,
-                            1,
-                            1,
-                            directoryId,
-                            tenantId,
-                            1,                 // total pages (1 for txt)
-                            fileExtension      // file type
-                    );
-                }
+                fullText = new String(fileBytes, StandardCharsets.UTF_8);
+            }
+
+            if (fullText == null || fullText.trim().isEmpty()) {
+                return ResultUtil.fail("无法从文档提取文本内容");
+            }
+
+            // 4. 按用户选择的分割方式切分
+            List<String> chunks = splitContent(fullText, splitMethod, chunkSize);
+            if (chunks.isEmpty()) {
+                return ResultUtil.fail("分割后无有效文本");
+            }
+
+            // 5. 逐块存储到向量库
+            for (int i = 0; i < chunks.size(); i++) {
+                processContentBatch(
+                        chunks.get(i),
+                        originalFilename,
+                        userId,
+                        docId,
+                        i + 1,
+                        i + 1,
+                        directoryId,
+                        tenantId,
+                        chunks.size(),
+                        fileExtension
+                );
             }
 
             // 4. 保存文件到本地
@@ -303,6 +331,69 @@ public class ChatService implements IChatService {
             log.error("未知错误: {}", e.getMessage());
             return ResultUtil.fail("系统错误");
         }
+    }
+
+    /**
+     * 提取 PDF 文本
+     */
+    private String extractPdfText(byte[] fileBytes) throws IOException {
+        try (PDDocument pdfDocument = Loader.loadPDF(fileBytes)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            return stripper.getText(pdfDocument);
+        }
+    }
+
+    /**
+     * 提取 DOCX 文本（Apache POI）
+     */
+    private String extractDocxText(byte[] fileBytes) throws IOException {
+        try (XWPFDocument document = new XWPFDocument(new ByteArrayInputStream(fileBytes))) {
+            StringBuilder sb = new StringBuilder();
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                String text = paragraph.getText();
+                if (text != null && !text.trim().isEmpty()) {
+                    sb.append(text).append("\n\n");
+                }
+            }
+            return sb.toString();
+        }
+    }
+
+    /**
+     * 提取 DOC（老格式）文本（Apache POI HWPF）
+     */
+    private String extractDocText(byte[] fileBytes) throws IOException {
+        try (HWPFDocument document = new HWPFDocument(new ByteArrayInputStream(fileBytes))) {
+            return document.getDocumentText();
+        }
+    }
+
+    /**
+     * 根据分割方式把文本切分为多个片段
+     */
+    private List<String> splitContent(String content, String splitMethod, Integer chunkSize) {
+        DocumentSplitter splitter;
+        switch (splitMethod == null ? "recursive" : splitMethod) {
+            case "paragraph":
+                splitter = new DocumentByParagraphSplitter(1000, 100);
+                break;
+            case "sentence":
+                splitter = new DocumentByRegexSplitter("[。！？；]", "", 800, 100);
+                break;
+            case "fixed":
+                int cs = (chunkSize != null && chunkSize > 0) ? chunkSize : 1000;
+                splitter = new DocumentByCharacterSplitter(cs, 0);
+                break;
+            case "recursive":
+            default:
+                splitter = DocumentSplitters.recursive(1000, 200);
+                break;
+        }
+        List<TextSegment> segments = splitter.split(Document.from(content));
+        return segments.stream()
+                .map(TextSegment::text)
+                .filter(t -> t != null && !t.trim().isEmpty())
+                .collect(Collectors.toList());
     }
 
     private void processContentBatch(

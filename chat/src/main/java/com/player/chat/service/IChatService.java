@@ -19,7 +19,12 @@ public interface IChatService {
 
     ResultEntity getModelList(String companyId, String keyword);
 
-    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId) throws IOException;
+    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize) throws IOException;
+
+    /**
+     * 获取文档分割方式枚举列表（发给前端）
+     */
+    ResultEntity getSplitMethods();
 
     ResultEntity getDocList(String userId,String tenantId);
 

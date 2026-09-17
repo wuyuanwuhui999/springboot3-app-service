@@ -18,6 +18,7 @@
 | GET | /service/chat/getChatHistory | 分页聊天历史 | 需 |
 | GET | /service/chat/getChatHistoryByChatId | 按会话查历史 | 需 |
 | GET | /service/chat/getModelList | 模型列表 | 否 |
+| GET | /service/chat/getSplitMethods | 分割方式枚举 | 否 |
 | POST | /service/chat/uploadDoc/{tenantId}/{directoryId} | 上传文档 | 需 |
 | GET | /service/chat/getDocListByDirId | 按目录查文档 | 需 |
 | GET | /service/chat/getDocList | 查文档列表 | 需 |
@@ -88,7 +89,7 @@
 
 ### 5. 上传文档
 - 接口：`POST /service/chat/uploadDoc/{tenantId}/{directoryId}`
-- 入参：`X-User-Id`（Header）+ Path：`tenantId`、`directoryId` + Form：`file`（文件）
+- 入参：`X-User-Id`（Header）+ Path：`tenantId`、`directoryId` + Form：`file`（文件，支持 pdf/docx/doc/txt）+ Query：`splitMethod`（可选，分割方式，默认 recursive）、`chunkSize`（可选，splitMethod=fixed 时必填，自定义块大小）
 - 出参：ResultEntity
 - 出参示例：
 ```json
@@ -98,6 +99,24 @@
   "msg": null,
   "total": null,
   "token": null
+}
+```
+
+### 获取分割方式枚举
+- 接口：`GET /service/chat/getSplitMethods`
+- 作用：返回 RAG 文档转向量的分割方式枚举（前端通过此接口获取枚举，上传文档时把 splitMethod 传回）
+- 入参：无
+- 出参：ResultEntity，data 为分割方式列表
+- 出参示例：
+```json
+{
+  "data": [
+    {"value":"recursive","label":"递归字符分割（推荐）","description":"按段落、句子、字符递归切分，兼顾语义完整性"},
+    {"value":"paragraph","label":"按段落分割","description":"按空行/段落边界切分"},
+    {"value":"sentence","label":"按句子分割","description":"按句号、感叹号、问号等句子边界切分"},
+    {"value":"fixed","label":"固定长度分割","description":"按固定字符数切分"}
+  ],
+  "status":"SUCCESS","msg":null,"total":null,"token":null
 }
 ```
 
