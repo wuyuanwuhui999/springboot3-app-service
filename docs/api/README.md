@@ -94,7 +94,7 @@
 | GET | /service/chat/getChatHistory | 分页聊天历史 |
 | GET | /service/chat/getChatHistoryByChatId | 按会话查历史 |
 | GET | /service/chat/getModelList | 模型列表 |
-| POST | /service/chat/uploadDoc/{tenantId}/{directoryId} | 上传文档 |
+| POST | /service/chat/uploadDoc | 上传文档 |
 | GET | /service/chat/getDocListByDirId | 按目录查文档 |
 | GET | /service/chat/getDocList | 查文档列表 |
 | DELETE | /service/chat/deleteDoc/{docId} | 删除文档 |
