@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequestMapping(value="/service/chat")
 @RestController
@@ -99,12 +100,13 @@ public class ChatController {
         return chatService.deleteDoc(docId,userId);
     }
 
-    @PutMapping("/updateDocPermission/{docId}")
+    @PutMapping("/updateDocPermission")
     public ResultEntity updateDocPermission(
-            @PathVariable("docId") String docId,
-            @RequestParam("permission") String permission,
+            @RequestBody Map<String, String> body,
             @RequestHeader("X-User-Id") String userId
     ) {
+        String docId = body.get("docId");
+        String permission = body.get("permission");
         return chatService.updateDocPermission(docId,userId,permission);
     }
 
