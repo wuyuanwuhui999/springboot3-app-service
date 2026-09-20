@@ -26,6 +26,9 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import dev.langchain4j.store.embedding.elasticsearch.ElasticsearchRequestFailedException;
+import dev.langchain4j.store.embedding.EmbeddingMatch;
+import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
+import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import lombok.extern.slf4j.Slf4j;
@@ -197,6 +200,83 @@ public class ChatService implements IChatService {
         } catch (IOException e) {
             log.error("删除文档失败", e);
             return ResultUtil.fail(null, "删除文档失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResultEntity updateDocPermission(String docId, String userId, String permission) {
+        // 1. 校验权限值
+        if (permission == null || !(permission.equals("private") || permission.equals("tenant") || permission.equals("company"))) {
+            return ResultUtil.fail(null, "无效的文档权限");
+        }
+
+        // 2. 校验文档属于当前用户（防止越权修改他人文档）
+        ChatDocEntity doc = chatMapper.getDocById(docId, userId);
+        if (doc == null) {
+            return ResultUtil.fail(null, "文档不存在或无权修改");
+        }
+
+        try {
+            // 3. 更新数据库
+            int rows = chatMapper.updateDocPermission(docId, userId, permission);
+            if (rows <= 0) {
+                return ResultUtil.fail(null, "文档不存在或无权修改");
+            }
+
+            // 4. 同步更新向量库 metadata 中的 permission 字段
+            updateDocPermissionInVector(docId, userId, permission);
+
+            return ResultUtil.success(rows, "文档权限更新成功");
+        } catch (Exception e) {
+            log.error("更新文档权限失败", e);
+            return ResultUtil.fail(null, "更新文档权限失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 同步更新向量库中该文档所有分块的 permission 元数据。
+     * 采用「查询 + 删除 + 重加」方式，复用原有 embedding，仅修改 metadata。
+     */
+    private void updateDocPermissionInVector(String docId, String userId, String newPermission) {
+        try {
+            Filter filter = Filter.and(
+                    new IsEqualTo("doc_id", docId),
+                    new IsEqualTo("user_id", userId)
+            );
+
+            // 查询该文档的所有分块（filter 已限定 doc_id + user_id，查询向量仅用于排序）
+            Embedding queryEmbedding = nomicEmbeddingModel.embed(docId).content();
+            EmbeddingSearchResult<TextSegment> result = chromaEmbeddingStore.search(
+                    EmbeddingSearchRequest.builder()
+                            .queryEmbedding(queryEmbedding)
+                            .filter(filter)
+                            .maxResults(1000)
+                            .build()
+            );
+
+            List<Embedding> embeddings = new ArrayList<>();
+            List<TextSegment> segments = new ArrayList<>();
+            for (EmbeddingMatch<TextSegment> match : result.matches()) {
+                TextSegment segment = match.embedded();
+                if (segment == null) {
+                    continue;
+                }
+                Metadata newMetadata = segment.metadata().copy().put("permission", newPermission);
+                segments.add(TextSegment.from(segment.text(), newMetadata));
+                embeddings.add(match.embedding());
+            }
+
+            if (segments.isEmpty()) {
+                log.warn("向量库中未找到文档 {} 的分块，跳过向量元数据更新", docId);
+                return;
+            }
+
+            // 删除旧分块并重新写入（复用原 embedding，仅 metadata 变更）
+            chromaEmbeddingStore.removeAll(filter);
+            chromaEmbeddingStore.addAll(embeddings, segments);
+            log.info("向量库文档 {} 权限已更新为 {}（{} 个分块）", docId, newPermission, segments.size());
+        } catch (Exception e) {
+            log.error("更新向量库文档权限失败", e);
         }
     }
 

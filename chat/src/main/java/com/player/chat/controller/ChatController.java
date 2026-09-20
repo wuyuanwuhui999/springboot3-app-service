@@ -99,6 +99,15 @@ public class ChatController {
         return chatService.deleteDoc(docId,userId);
     }
 
+    @PutMapping("/updateDocPermission/{docId}")
+    public ResultEntity updateDocPermission(
+            @PathVariable("docId") String docId,
+            @RequestParam("permission") String permission,
+            @RequestHeader("X-User-Id") String userId
+    ) {
+        return chatService.updateDocPermission(docId,userId,permission);
+    }
+
     @GetMapping("/getDirectoryList")
     public ResultEntity getDirectoryList(
             @RequestParam("tenantId") String tenantId,

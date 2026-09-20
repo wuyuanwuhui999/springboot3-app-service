@@ -32,6 +32,8 @@ public interface IChatService {
 
     ResultEntity deleteDoc(String docId, String userId);
 
+    ResultEntity updateDocPermission(String docId, String userId, String permission);
+
     ResultEntity getDirectoryList(String userId,String tenantId);
 
     ResultEntity createDir(DirectoryEntity directoryEntity);

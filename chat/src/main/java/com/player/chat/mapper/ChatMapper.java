@@ -43,6 +43,11 @@ public interface ChatMapper {
 
     long deleteDoc(String docId, String userId);
 
+    /**
+     * 更新文档权限（仅限自己的文档）
+     */
+    int updateDocPermission(String docId, String userId, String permission);
+
     List<DirectoryEntity> getDirectoryList(String userId, String tenantId);
 
     long isDirExist(String userId, String directory);

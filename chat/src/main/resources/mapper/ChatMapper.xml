@@ -124,6 +124,22 @@
         SELECT company_id FROM tenant WHERE id = #{tenantId} LIMIT 1
     </select>
 
+    <!-- 根据文档ID和用户ID查询文档（用于权限校验，防止越权操作他人文档） -->
+    <select id="getDocById" resultType="com.player.common.entity.ChatDocEntity">
+        SELECT * FROM chat_doc WHERE id = #{docId} AND user_id = #{userId} LIMIT 1
+    </select>
+
+    <!-- 删除文档（仅限自己的文档） -->
+    <delete id="deleteDoc">
+        DELETE FROM chat_doc WHERE id = #{docId} AND user_id = #{userId}
+    </delete>
+
+    <!-- 更新文档权限（仅限自己的文档） -->
+    <update id="updateDocPermission">
+        UPDATE chat_doc SET permission = #{permission}, update_time = now()
+        WHERE id = #{docId} AND user_id = #{userId}
+    </update>
+
     <!-- 获取目录列表 -->
     <select id="getDirectoryList" resultType="DirectoryEntity">
         SELECT
