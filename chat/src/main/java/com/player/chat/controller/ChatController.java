@@ -67,9 +67,10 @@ public class ChatController {
             @PathVariable("tenantId") String tenantId,
             @PathVariable("directoryId") String directoryId,
             @RequestParam(value = "splitMethod", required = false, defaultValue = "recursive") String splitMethod,
-            @RequestParam(value = "chunkSize", required = false) Integer chunkSize
+            @RequestParam(value = "chunkSize", required = false) Integer chunkSize,
+            @RequestParam(value = "permission", required = false, defaultValue = "private") String permission
     ) throws IOException {
-        return chatService.uploadDoc(file,userId,tenantId,directoryId,splitMethod,chunkSize);
+        return chatService.uploadDoc(file,userId,tenantId,directoryId,splitMethod,chunkSize,permission);
     }
 
     @GetMapping("/getDocListByDirId")
@@ -84,9 +85,10 @@ public class ChatController {
     @GetMapping("/getDocList")
     public ResultEntity getDocList(
             @RequestHeader("X-User-Id") String userId,
-            @RequestParam("tenantId") String tenantId
+            @RequestParam("tenantId") String tenantId,
+            @RequestParam(value = "permission", required = false) String permission
     ) {
-        return chatService.getDocList(userId,tenantId);
+        return chatService.getDocList(userId,tenantId,permission);
     }
 
     @DeleteMapping("/deleteDoc/{docId}")

@@ -28,11 +28,16 @@ public interface ChatMapper {
      */
     String getPrompt(String userId, String tenantId, String promptId);
 
+    /**
+     * 根据租户ID查询所属公司ID（文档向量检索「公司内公开」过滤使用）
+     */
+    String getCompanyIdByTenantId(String tenantId);
+
     ChatModelEntity getModelByType(String modelType);
 
     void saveDoc(ChatDocEntity chatDocEntity);
 
-    List<ChatDocEntity> getDocList(String userId, String tenantId);
+    List<ChatDocEntity> getDocList(String userId, String tenantId, String permission);
 
     ChatDocEntity getDocById(String docId, String userId);
 

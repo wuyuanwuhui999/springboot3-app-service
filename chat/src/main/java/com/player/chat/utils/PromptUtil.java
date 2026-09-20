@@ -18,11 +18,34 @@ import java.util.ArrayList;
 
 public class PromptUtil {
     public static String buildContext(EmbeddingModel nomicEmbeddingModel, EmbeddingStore chromaEmbeddingStore, ChatParamsEntity chatParamsEntity) {
-        // 创建过滤条件
+        // 创建过滤条件（可访问范围 OR）：自己的文档 / 租户内公开 / 公司内公开
         Embedding queryEmbedding = nomicEmbeddingModel.embed(chatParamsEntity.getPrompt()).content();
-        IsEqualTo userIdFilter = new IsEqualTo("user_id", chatParamsEntity.getUserId());
-        IsEqualTo tenantIdFilter = new IsEqualTo("tenant_id", chatParamsEntity.getTenantId());
-        Filter filter = Filter.and(userIdFilter, tenantIdFilter);
+
+        String userId = chatParamsEntity.getUserId();
+        String tenantId = chatParamsEntity.getTenantId();
+        String companyId = chatParamsEntity.getCompanyId();
+
+        // 自己的文档（该租户下）
+        Filter ownDocsFilter = Filter.and(
+                new IsEqualTo("user_id", userId),
+                new IsEqualTo("tenant_id", tenantId)
+        );
+        // 租户内公开
+        Filter tenantPublicFilter = Filter.and(
+                new IsEqualTo("permission", "tenant"),
+                new IsEqualTo("tenant_id", tenantId)
+        );
+        Filter filter = Filter.or(ownDocsFilter, tenantPublicFilter);
+
+        // 公司内公开（companyId 存在时）
+        if (companyId != null && !companyId.isEmpty()) {
+            Filter companyPublicFilter = Filter.and(
+                    new IsEqualTo("permission", "company"),
+                    new IsEqualTo("company_id", companyId)
+            );
+            filter = Filter.or(filter, companyPublicFilter);
+        }
+
         ArrayList<String> docIds = chatParamsEntity.getDocIds();
         if(docIds != null && docIds.size() != 0){
             IsIn isIn = new IsIn("doc_id", docIds);

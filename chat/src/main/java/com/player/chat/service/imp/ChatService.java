@@ -226,7 +226,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission) throws IOException {
         // 1. 基础验证
         if (file.isEmpty()) {
             return ResultUtil.fail(null, "文件不能为空");
@@ -242,6 +242,14 @@ public class ChatService implements IChatService {
         if ("fixed".equals(splitMethod) && (chunkSize == null || chunkSize <= 0)) {
             return ResultUtil.fail("fixed 分割方式需要提供有效的 chunkSize 参数");
         }
+
+        // 文档权限只能是 private/tenant/company，非法值回退为 private（私密）
+        if (permission == null || !(permission.equals("private") || permission.equals("tenant") || permission.equals("company"))) {
+            permission = "private";
+        }
+
+        // 根据租户查询所属公司ID（用于「公司内公开」文档的向量检索过滤）
+        String companyId = chatMapper.getCompanyIdByTenantId(tenantId);
 
         try {
             // 2. 读取文件内容
@@ -283,7 +291,9 @@ public class ChatService implements IChatService {
                         directoryId,
                         tenantId,
                         chunks.size(),
-                        fileExtension
+                        fileExtension,
+                        permission,
+                        companyId
                 );
             }
 
@@ -303,6 +313,7 @@ public class ChatService implements IChatService {
             chatDocEntity.setId(docId);
             chatDocEntity.setTenantId(tenantId);
             chatDocEntity.setDirectoryId(directoryId);
+            chatDocEntity.setPermission(permission);
 
             chatMapper.saveDoc(chatDocEntity);
 
@@ -393,7 +404,9 @@ public class ChatService implements IChatService {
             String directoryId,
             String tenantId,
             int totalPages,
-            String fileType
+            String fileType,
+            String permission,
+            String companyId
     ) {
         try {
             TextSegment textSegment = TextSegment.from(content);
@@ -411,6 +424,9 @@ public class ChatService implements IChatService {
             metadata.put("page", String.valueOf(totalPages)); // 总页数
             metadata.put("type", fileType);
             metadata.put("tenant_id", tenantId);
+            // 文档权限 + 所属公司（用于「租户内公开 / 公司内公开」向量检索过滤）
+            metadata.put("permission", permission);
+            metadata.put("company_id", companyId);
             // 带重试机制的存储
             int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {
@@ -436,8 +452,8 @@ public class ChatService implements IChatService {
      * @date: 2025-07-24 21:23
      */
     @Override
-    public ResultEntity getDocList(String userId,String tenantId) {
-        return ResultUtil.success(chatMapper.getDocList(userId,tenantId));
+    public ResultEntity getDocList(String userId,String tenantId,String permission) {
+        return ResultUtil.success(chatMapper.getDocList(userId,tenantId,permission));
     }
 
     /**

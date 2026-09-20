@@ -96,7 +96,7 @@
     </select>
 
     <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
-        insert into chat_doc(id,name,ext,user_id,directory_id,tenant_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{directoryId},#{tenantId},now(),now())
+        insert into chat_doc(id,name,ext,user_id,directory_id,tenant_id,permission,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{directoryId},#{tenantId},#{permission},now(),now())
     </insert>
 
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
@@ -113,7 +113,15 @@
         WHERE
             cd.user_id = #{userId}
             AND cd.tenant_id = #{tenantId}
+            <if test="permission != null and permission != ''">
+                AND cd.permission = #{permission}
+            </if>
             AND EXISTS ( SELECT 1 FROM tenant_user tu WHERE tu.tenant_id = #{tenantId} AND tu.user_id = #{userId} AND tu.disabled = 0 )
+    </select>
+
+    <!-- 根据租户ID查询所属公司ID -->
+    <select id="getCompanyIdByTenantId" resultType="String">
+        SELECT company_id FROM tenant WHERE id = #{tenantId} LIMIT 1
     </select>
 
     <!-- 获取目录列表 -->

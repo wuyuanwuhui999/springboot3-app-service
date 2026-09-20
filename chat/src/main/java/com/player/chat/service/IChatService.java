@@ -19,14 +19,14 @@ public interface IChatService {
 
     ResultEntity getModelList(String companyId, String keyword);
 
-    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize) throws IOException;
+    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission) throws IOException;
 
     /**
      * 获取文档分割方式枚举列表（发给前端）
      */
     ResultEntity getSplitMethods();
 
-    ResultEntity getDocList(String userId,String tenantId);
+    ResultEntity getDocList(String userId,String tenantId,String permission);
 
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 

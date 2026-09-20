@@ -21,6 +21,8 @@ public class ChatDocEntity {
     private String ext;
     @Schema(description = "用户id")
     private String userId;
+    @Schema(description = "文档权限：private-私密，tenant-租户内公开，company-公司内公开")
+    private String permission;
     @Schema(description = "创建时间")
     private Date createTime;
     @Schema(description = "更新时间")
