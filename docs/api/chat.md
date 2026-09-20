@@ -89,7 +89,7 @@
 
 ### 5. 上传文档
 - 接口：`POST /service/chat/uploadDoc`
-- 入参：`X-User-Id`（Header）+ Query：`tenantId`（可选，默认 personal）、`directoryId`（可选，默认 public）、`splitMethod`（可选，分割方式，默认 recursive）、`chunkSize`（可选，splitMethod=fixed 时必填，自定义块大小）、`permission`（可选，文档权限，默认 private）+ Form：`file`（文件，支持 pdf/docx/doc/txt）
+- 入参：`X-User-Id`（Header）+ Form：`tenantId`（可选，默认 personal）、`directoryId`（可选，默认 public）、`splitMethod`（可选，分割方式，默认 recursive）、`chunkSize`（可选，splitMethod=fixed 时必填，自定义块大小）、`permission`（可选，文档权限，默认 private）、`file`（文件，支持 pdf/docx/doc/txt）
 - 出参：ResultEntity
 - 出参示例：
 ```json

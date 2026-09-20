@@ -7,6 +7,7 @@ import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -24,10 +25,15 @@ public class CachedBodyRequestUtil {
      * 缓存请求体并记录到日志
      */
     public static ServerHttpRequest cacheBodyAndRecordLog(ServerHttpRequest request, LogEntity logEntity) {
-        // 如果是GET请求或没有body，直接返回
+        // 如果是GET/HEAD请求、没有body、或 multipart/form-data（文件上传）直接返回，
+        // 避免读取二进制 body 造成流损坏（multipart 的二进制文件不能按 UTF-8 字符串往返）
         if (HttpMethod.GET.equals(request.getMethod()) ||
                 HttpMethod.HEAD.equals(request.getMethod()) ||
-                request.getHeaders().getContentLength() <= 0) {
+                request.getHeaders().getContentLength() <= 0 ||
+                isMultipart(request)) {
+            if (isMultipart(request)) {
+                logEntity.setRequestBody("[multipart/form-data]");
+            }
             return request;
         }
 
@@ -68,6 +74,14 @@ public class CachedBodyRequestUtil {
                         });
             }
         };
+    }
+
+    /**
+     * 判断是否为 multipart/form-data（文件上传）请求
+     */
+    private static boolean isMultipart(ServerHttpRequest request) {
+        MediaType contentType = request.getHeaders().getContentType();
+        return contentType != null && "multipart".equalsIgnoreCase(contentType.getType());
     }
 
     /**
