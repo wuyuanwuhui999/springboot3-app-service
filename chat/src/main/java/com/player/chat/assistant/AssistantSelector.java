@@ -4,13 +4,16 @@ package com.player.chat.assistant;
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.mapper.ChatMapper;
 import com.player.chat.tool.ChatTool;
+import com.player.chat.utils.PromptUtil;
 import com.player.common.entity.ChatModelEntity;
 import dev.langchain4j.http.client.spring.restclient.SpringRestClientBuilder;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -29,9 +32,37 @@ public class AssistantSelector {
     @Autowired
     private ChatMemoryProvider chatMemoryProvider;
 
+    @Autowired
+    private EmbeddingModel nomicEmbeddingModel;
+
+    @Autowired
+    private ChromaEmbeddingStore chromaEmbeddingStore;
+
     public Flux<String> selectAssistant(ChatParamsEntity chatParamsEntity) {
+        // 解析 promptId → 用户提示词（传了 promptId 则查 prompt 表取 prompt 字段作为用户提示词）
+        if (chatParamsEntity.getPromptId() != null && !chatParamsEntity.getPromptId().isEmpty()) {
+            String promptContent = chatMapper.getPrompt(
+                    chatParamsEntity.getUserId(),
+                    chatParamsEntity.getTenantId(),
+                    chatParamsEntity.getPromptId());
+            if (promptContent == null) {
+                return Flux.just("找不到提示词");
+            }
+            chatParamsEntity.setPrompt(promptContent);
+        }
+
+        // 文档类型：从向量库检索相关内容作为上下文
+        String prompt = chatParamsEntity.getPrompt();
+        if ("document".equals(chatParamsEntity.getType())) {
+            String context = PromptUtil.buildContext(nomicEmbeddingModel, chromaEmbeddingStore, chatParamsEntity);
+            if (context == null || context.isEmpty()) {
+                return Flux.just("对不起，没有查询到相关文档");
+            }
+            prompt = context;
+        }
+
         String language = "zh".equals(chatParamsEntity.getLanguage()) ? "请用中文回答" : "Please respond in English";
-        String prompt = chatParamsEntity.getShowThink() ? chatParamsEntity.getPrompt() : chatParamsEntity.getPrompt() + " /no_think";
+        prompt = chatParamsEntity.getShowThink() ? prompt : prompt + " /no_think";
         String chatId = chatParamsEntity.getChatId();
 
         ChatModelEntity chatModel = chatMapper.getModelById(chatParamsEntity.getCompanyId(),chatParamsEntity.getModelId());

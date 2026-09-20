@@ -134,32 +134,19 @@ public class ChatService implements IChatService {
         ChatEntity chatEntity = new ChatEntity();
         chatEntity.setUserId(userId);
         chatEntity.setChatId(chatParamsEntity.getChatId());
-
-        // 解析 promptId → 用户提示词（传了 promptId 则查 prompt 表取 prompt 字段作为用户提示词）
-        if (chatParamsEntity.getPromptId() != null && !chatParamsEntity.getPromptId().isEmpty()) {
-            String promptContent = chatMapper.getPrompt(userId, chatParamsEntity.getTenantId(), chatParamsEntity.getPromptId());
-            if (promptContent == null) {
-                return Flux.just("找不到提示词").doOnNext(responseHandler);
-            }
-            chatParamsEntity.setPrompt(promptContent);
-        }
-
-        chatEntity.setPrompt(chatParamsEntity.getPrompt());
         chatEntity.setSystemPrompt(chatParamsEntity.getSystemPrompt()); // 添加 systemPrompt
         chatEntity.setModelId(chatParamsEntity.getModelId());
         chatEntity.setTenantId(chatParamsEntity.getTenantId());
         chatEntity.setContent(""); // Initialize empty content
         StringBuilder responseCollector = new StringBuilder();
 
-        if ("document".equals(chatParamsEntity.getType())) {
-            String context = PromptUtil.buildContext(nomicEmbeddingModel, chromaEmbeddingStore, chatParamsEntity);
-            if (context == null || context.isEmpty()) {
-                return Flux.just("对不起，没有查询到相关文档").doOnNext(responseHandler);
-            }
-            chatParamsEntity.setPrompt(context);
-        }
+        // selectAssistant 内部会解析 promptId → prompt（查数据库），并处理文档上下文
+        Flux<String> result = assistantSelector.selectAssistant(chatParamsEntity);
 
-        return assistantSelector.selectAssistant(chatParamsEntity)
+        // 提示词已在 selectAssistant 中解析，读取解析后的 prompt 用于保存
+        chatEntity.setPrompt(chatParamsEntity.getPrompt());
+
+        return result
                 .doOnNext(part -> {
                     // 收集响应片段
                     responseCollector.append(part);
