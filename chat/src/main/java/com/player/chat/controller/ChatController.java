@@ -92,6 +92,13 @@ public class ChatController {
         return chatService.getDocList(userId,tenantId,permission);
     }
 
+    @GetMapping("/getPublicDocList")
+    public ResultEntity getPublicDocList(
+            @RequestParam("tenantId") String tenantId
+    ) {
+        return chatService.getPublicDocList(tenantId);
+    }
+
     @DeleteMapping("/deleteDoc/{docId}")
     public ResultEntity deleteDoc(
             @PathVariable("docId") String docId,

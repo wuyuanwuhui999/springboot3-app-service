@@ -39,6 +39,11 @@ public interface ChatMapper {
 
     List<ChatDocEntity> getDocList(String userId, String tenantId, String permission);
 
+    /**
+     * 查询公开文档列表（permission=tenant 租户内公开 或 permission=company 公司内公开）
+     */
+    List<ChatDocEntity> getPublicDocList(String tenantId, String companyId);
+
     ChatDocEntity getDocById(String docId, String userId);
 
     long deleteDoc(String docId, String userId);

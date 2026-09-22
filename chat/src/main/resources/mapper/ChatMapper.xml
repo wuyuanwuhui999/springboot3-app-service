@@ -119,6 +119,23 @@
             AND EXISTS ( SELECT 1 FROM tenant_user tu WHERE tu.tenant_id = #{tenantId} AND tu.user_id = #{userId} AND tu.disabled = 0 )
     </select>
 
+    <!-- 查询公开文档列表（租户内公开 或 公司内公开） -->
+    <select id="getPublicDocList" resultType="com.player.common.entity.ChatDocEntity">
+        SELECT
+            cd.*,
+            CASE WHEN cd.directory_id = 'default' THEN '默认文件夹' ELSE cdd.DIRECTORY END AS directory_name
+        FROM
+            chat_doc cd
+            LEFT JOIN chat_doc_directory cdd ON cd.directory_id = cdd.id
+            LEFT JOIN tenant dt ON dt.id = cd.tenant_id COLLATE utf8mb4_unicode_ci
+        WHERE
+            (
+                (cd.permission = 'tenant' AND cd.tenant_id = #{tenantId})
+                OR (cd.permission = 'company' AND dt.company_id = #{companyId})
+            )
+        ORDER BY cd.create_time DESC
+    </select>
+
     <!-- 根据租户ID查询所属公司ID -->
     <select id="getCompanyIdByTenantId" resultType="String">
         SELECT company_id FROM tenant WHERE id = #{tenantId} LIMIT 1

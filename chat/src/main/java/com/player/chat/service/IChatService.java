@@ -28,6 +28,8 @@ public interface IChatService {
 
     ResultEntity getDocList(String userId,String tenantId,String permission);
 
+    ResultEntity getPublicDocList(String tenantId);
+
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 
     ResultEntity deleteDoc(String docId, String userId);

@@ -536,6 +536,12 @@ public class ChatService implements IChatService {
         return ResultUtil.success(chatMapper.getDocList(userId,tenantId,permission));
     }
 
+    @Override
+    public ResultEntity getPublicDocList(String tenantId) {
+        String companyId = chatMapper.getCompanyIdByTenantId(tenantId);
+        return ResultUtil.success(chatMapper.getPublicDocList(tenantId, companyId));
+    }
+
     /**
      * @author: wuwenqiang
      * @methodsName: getDirectoryList
