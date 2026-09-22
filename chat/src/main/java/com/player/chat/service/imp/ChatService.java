@@ -306,7 +306,7 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission,String companyId) throws IOException {
         // 1. 基础验证
         if (file.isEmpty()) {
             return ResultUtil.fail(null, "文件不能为空");
@@ -328,8 +328,10 @@ public class ChatService implements IChatService {
             permission = "private";
         }
 
-        // 根据租户查询所属公司ID（用于「公司内公开」文档的向量检索过滤）
-        String companyId = chatMapper.getCompanyIdByTenantId(tenantId);
+        // 使用传入的 companyId，为空时回退为按租户查询所属公司ID（用于「公司内公开」文档的向量检索过滤）
+        if (companyId == null || companyId.isEmpty()) {
+            companyId = chatMapper.getCompanyIdByTenantId(tenantId);
+        }
 
         try {
             // 2. 读取文件内容
@@ -394,6 +396,7 @@ public class ChatService implements IChatService {
             chatDocEntity.setTenantId(tenantId);
             chatDocEntity.setDirectoryId(directoryId);
             chatDocEntity.setPermission(permission);
+            chatDocEntity.setCompanyId(companyId);
 
             chatMapper.saveDoc(chatDocEntity);
 
@@ -537,8 +540,15 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity getPublicDocList(String tenantId) {
-        String companyId = chatMapper.getCompanyIdByTenantId(tenantId);
+    public ResultEntity getPublicDocList(String tenantId, String companyId, String userId) {
+        // 校验用户是否在该租户内（防止越权查询该租户文档）
+        if (chatMapper.checkTenantMember(tenantId, userId) <= 0) {
+            return ResultUtil.fail(null, "无权查询：当前用户不在该租户内");
+        }
+        // 校验用户是否在该公司内（防止越权查询公司文档）
+        if (chatMapper.checkCompanyMember(companyId, userId) <= 0) {
+            return ResultUtil.fail(null, "无权查询：当前用户不在该公司内");
+        }
         return ResultUtil.success(chatMapper.getPublicDocList(tenantId, companyId));
     }
 

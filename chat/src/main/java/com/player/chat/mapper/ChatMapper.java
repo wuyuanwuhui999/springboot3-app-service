@@ -118,6 +118,11 @@ public interface ChatMapper {
     int checkTenantMember(String tenantId, String userId);
 
     /**
+     * 检查用户是否为指定公司的成员（status=1 正常）
+     */
+    int checkCompanyMember(String companyId, String userId);
+
+    /**
      * 查询用户在指定租户中的角色，不在租户中返回 null
      */
     Integer getTenantUserRole(String tenantId, String userId);

@@ -19,7 +19,7 @@ public interface IChatService {
 
     ResultEntity getModelList(String companyId, String keyword);
 
-    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission) throws IOException;
+    ResultEntity uploadDoc(MultipartFile file,String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission,String companyId) throws IOException;
 
     /**
      * 获取文档分割方式枚举列表（发给前端）
@@ -28,7 +28,7 @@ public interface IChatService {
 
     ResultEntity getDocList(String userId,String tenantId,String permission);
 
-    ResultEntity getPublicDocList(String tenantId);
+    ResultEntity getPublicDocList(String tenantId, String companyId, String userId);
 
     Flux<String> chatWithWebSocketHandling(String userId, ChatParamsEntity chatParamsEntity, Consumer<String> responseHandler);
 

@@ -96,7 +96,7 @@
     </select>
 
     <insert id="saveDoc" parameterType="com.player.common.entity.ChatDocEntity">
-        insert into chat_doc(id,name,ext,user_id,directory_id,tenant_id,permission,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{directoryId},#{tenantId},#{permission},now(),now())
+        insert into chat_doc(id,name,ext,user_id,directory_id,tenant_id,permission,company_id,create_time,update_time) VALUES (#{id},#{name},#{ext},#{userId},#{directoryId},#{tenantId},#{permission},#{companyId},now(),now())
     </insert>
 
     <select id="getDocList" resultType="com.player.common.entity.ChatDocEntity">
@@ -127,11 +127,10 @@
         FROM
             chat_doc cd
             LEFT JOIN chat_doc_directory cdd ON cd.directory_id = cdd.id
-            LEFT JOIN tenant dt ON dt.id = cd.tenant_id COLLATE utf8mb4_unicode_ci
         WHERE
             (
                 (cd.permission = 'tenant' AND cd.tenant_id = #{tenantId})
-                OR (cd.permission = 'company' AND dt.company_id = #{companyId})
+                OR (cd.permission = 'company' AND cd.company_id = #{companyId})
             )
         ORDER BY cd.create_time DESC
     </select>
@@ -377,6 +376,15 @@
         WHERE tenant_id = #{tenantId}
           AND user_id = #{userId}
           AND disabled = 0
+    </select>
+
+    <!-- 检查用户是否为指定公司的成员（status=1 正常） -->
+    <select id="checkCompanyMember" resultType="int">
+        SELECT COUNT(*)
+        FROM company_user
+        WHERE company_id = #{companyId}
+          AND user_id = #{userId}
+          AND status = 1
     </select>
 
     <!-- 查询用户在指定租户中的角色，不在租户中返回 null -->
