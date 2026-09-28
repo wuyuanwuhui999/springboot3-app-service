@@ -23,6 +23,7 @@
 | GET | /service/chat/getDocListByDirId | 按目录查文档 | 需 |
 | GET | /service/chat/getDocList | 查文档列表 | 需 |
 | GET | /service/chat/getPublicDocList | 查询公开文档列表 | 需 |
+| PUT | /service/chat/updateDocPermission | 修改文档权限 | 需 |
 | DELETE | /service/chat/deleteDoc/{docId} | 删除文档 | 需 |
 | GET | /service/chat/getDirectoryList | 目录列表 | 需 |
 | POST | /service/chat/createDir | 创建目录 | 需 |
@@ -167,7 +168,23 @@
 }
 ```
 
-### 9. 删除文档
+### 9. 修改文档权限
+- 接口：`PUT /service/chat/updateDocPermission`
+- 作用：修改文档权限（private-私密 / tenant-租户内公开 / company-公司内公开），仅限自己的文档，并同步更新向量库 metadata 的 permission 字段
+- 入参：`X-User-Id`（Header）+ Body：`docId`（文档ID）、`permission`（private/tenant/company）
+- 出参：ResultEntity，data 为受影响行数
+- 出参示例：
+```json
+{
+  "data": 1,
+  "status": "SUCCESS",
+  "msg": "文档权限更新成功",
+  "total": null,
+  "token": null
+}
+```
+
+### 10. 删除文档
 - 接口：`DELETE /service/chat/deleteDoc/{docId}`
 - 入参：`X-User-Id`（Header）+ Path：`docId`
 - 出参：ResultEntity
@@ -182,7 +199,7 @@
 }
 ```
 
-### 10. 目录列表
+### 11. 目录列表
 - 接口：`GET /service/chat/getDirectoryList`
 - 入参：`X-User-Id`（Header）+ Query：`tenantId`
 - 出参：ResultEntity，data 为目录列表
@@ -197,7 +214,7 @@
 }
 ```
 
-### 11. 创建目录
+### 12. 创建目录
 - 接口：`POST /service/chat/createDir`
 - 入参：`X-User-Id`（Header）+ Body（DirectoryEntity：`directory`、`tenantId`）
 - 出参：ResultEntity
@@ -212,7 +229,7 @@
 }
 ```
 
-### 12. 重命名目录
+### 13. 重命名目录
 - 接口：`PUT /service/chat/renameDir`
 - 入参：`X-User-Id`（Header）+ Body（DirectoryEntity：`id`、`directory`）
 - 出参：ResultEntity
@@ -227,7 +244,7 @@
 }
 ```
 
-### 13. 删除目录
+### 14. 删除目录
 - 接口：`PUT /service/chat/deleteDir/{directoryId}`
 - 入参：`X-User-Id`（Header）+ Query：`id`（目录 ID）
 - 出参：ResultEntity
@@ -243,7 +260,7 @@
 ```
 - 注意：路径变量 `directoryId` 未使用，实际用 Query 参数 `id`
 
-### 14. 新增模型
+### 15. 新增模型
 - 接口：`POST /service/chat/addModel`
 - 入参：`X-User-Id`（Header）+ Query：`companyId` + Body（ChatModelEntity）
 - 出参：ResultEntity
@@ -258,7 +275,7 @@
 }
 ```
 
-### 15. 更新模型
+### 16. 更新模型
 - 接口：`PUT /service/chat/updateModel`
 - 入参：`X-User-Id`（Header）+ Query：`companyId` + Body（ChatModelEntity）
 - 出参：ResultEntity
@@ -273,7 +290,7 @@
 }
 ```
 
-### 16. 删除模型（逻辑删除）
+### 17. 删除模型（逻辑删除）
 - 接口：`DELETE /service/chat/deleteModel/{modelId}`
 - 入参：`X-User-Id`（Header）+ Query：`companyId` + Path：`modelId`
 - 出参：ResultEntity
@@ -288,7 +305,7 @@
 }
 ```
 
-### 17. WebSocket 聊天
+### 18. WebSocket 聊天
 - 接口：`WS /service/chat/ws/chat`
 - 作用：WebSocket 方式 AI 对话（流式）
 - 入参：`?token=<token>`（查询参数，由网关注入 `X-User-Id`）；消息体通过 send 发送（JSON：promptId、chatId、modelId、docIds 等）
