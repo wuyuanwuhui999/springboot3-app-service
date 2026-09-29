@@ -10,14 +10,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class ChatConfig {
     @Autowired
-    private RedisChatMemoryStore redisCharMemoryStore;
+    private MongoChatMemoryStore mongoChatMemoryStore;
 
     @Bean
     public ChatMemoryProvider chatMemoryProvider() {
         return memoryId -> MessageWindowChatMemory.builder()
                 .id(memoryId) // 使用传入的 memoryId
                 .maxMessages(20)
-                .chatMemoryStore(redisCharMemoryStore)
+                .chatMemoryStore(mongoChatMemoryStore)
                 .build();
     }
 

@@ -109,6 +109,10 @@ spring:
           max-wait: -1ms
           max-idle: 8
           min-idle: 0
+    mongodb:
+      host: ${MONGODB_HOST:localhost}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:chat}
 
   # ==================== Elasticsearch 配置（新增认证） ====================
   elasticsearch:
