@@ -55,13 +55,16 @@ public class SystemtConstants {
              3. 模糊查询使用 LIKE '%关键词%'
              4. 结果限制：最多返回100条记录
              5. 对于普通音乐查询，SQL中不应该包含user_id条件
+             6. SELECT 列表里下划线字段必须起驼峰别名（下划线写法 -> 驼峰写法），
+                例如 song_name AS songName、author_name AS authorName、play_url AS playUrl；
+                WHERE 条件里仍使用数据库真实的下划线列名
         
              输出必须是严格JSON格式：{"prompt": "描述", "sql": "SQL语句或空字符串"}
         
              正确示例：
              {
                  "prompt": "用户想要查找周杰伦的歌曲",
-                 "sql": "SELECT * FROM music WHERE author_name LIKE '%周杰伦%' LIMIT 100"
+                 "sql": "SELECT id, song_name AS songName, author_name AS authorName, album_name AS albumName, cover, play_url AS playUrl, label FROM music WHERE author_name LIKE '%周杰伦%' LIMIT 100"
              }
         
              错误示例（不要生成这样的SQL）：

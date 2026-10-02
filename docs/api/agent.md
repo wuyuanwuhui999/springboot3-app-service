@@ -63,6 +63,7 @@
 ```
 
 - 位置：回答文本之后（HTTP 流式响应里位于结束标记 `[completed]` 之前；WebSocket 同样是最后一段）
+- 查询 SQL 对**下划线字段统一起驼峰别名**（如 `song_name AS songName`、`play_url AS playUrl`），因此查询结果与标签里的字段本身就是驼峰写法
 - 字段为 **camelCase**，与音乐模块接口（getMusicList 等）返回的音乐对象保持一致，前端可复用同一个类型：
   | 字段 | 说明 |
   |------|------|

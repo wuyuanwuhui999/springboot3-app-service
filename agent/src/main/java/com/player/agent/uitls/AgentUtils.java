@@ -187,13 +187,15 @@ public class AgentUtils {
 
         List<Map<String, Object>> items = new ArrayList<>();
         for (Map<String, Object> row : data) {
+            // SQL 已给下划线字段起驼峰别名（song_name AS songName），行内就是驼峰 key；
+            // pick 里仍带上下划线旧列名做兜底
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("id", pick(row, "id"));
-            item.put("songName", pick(row, "song_name", "songName"));
-            item.put("authorName", pick(row, "author_name", "authorName"));
-            item.put("albumName", pick(row, "album_name", "albumName"));
+            item.put("songName", pick(row, "songName", "song_name"));
+            item.put("authorName", pick(row, "authorName", "author_name"));
+            item.put("albumName", pick(row, "albumName", "album_name"));
             item.put("cover", pick(row, "cover"));
-            item.put("playUrl", pick(row, "play_url", "playUrl"));
+            item.put("playUrl", pick(row, "playUrl", "play_url"));
             item.put("label", pick(row, "label"));
             items.add(item);
         }
@@ -336,13 +338,13 @@ public class AgentUtils {
                 Map<String, Object> record = sqlResult.getData().get(i);
                 enhanced.append("\n\n记录 ").append(i + 1).append(":");
 
-                // 格式化显示关键字段
-                appendFormattedField(record, "song_name", "歌曲名称", enhanced);
-                appendFormattedField(record, "author_name", "歌手", enhanced);
-                appendFormattedField(record, "album_name", "专辑", enhanced);
+                // 格式化显示关键字段（SQL 已起驼峰别名，这里用驼峰 key，同时兼容下划线旧列名）
+                appendFormattedField(record, "songName", "歌曲名称", enhanced);
+                appendFormattedField(record, "authorName", "歌手", enhanced);
+                appendFormattedField(record, "albumName", "专辑", enhanced);
                 appendFormattedField(record, "language", "语言", enhanced);
-                appendFormattedField(record, "publish_date", "发布日期", enhanced);
-                appendFormattedField(record, "is_hot", "是否热门", enhanced);
+                appendFormattedField(record, "publishDate", "发布日期", enhanced);
+                appendFormattedField(record, "isHot", "是否热门", enhanced);
                 appendFormattedField(record, "label", "标签", enhanced);
                 appendFormattedField(record, "lyrics", "歌词片段", enhanced);
             }
@@ -367,25 +369,34 @@ public class AgentUtils {
     }
 
     private static void appendFormattedField(Map<String, Object> record, String key, String label, StringBuilder sb) {
-        if (record.containsKey(key)) {
-            Object value = record.get(key);
-            if (value != null) {
-                sb.append("\n  - ").append(label).append(": ").append(value.toString());
-            }
+        Object value = pick(record, key, toSnakeCase(key));
+        if (value != null) {
+            sb.append("\n  - ").append(label).append(": ").append(value.toString());
         }
     }
 
     private static void appendFormattedField(Map<String, Object> record, String key, String label, StringBuilder sb, int maxLength) {
-        if (record.containsKey(key)) {
-            Object value = record.get(key);
-            if (value != null) {
-                String text = value.toString();
-                if (text.length() > maxLength) {
-                    text = text.substring(0, maxLength) + "...";
-                }
-                sb.append("\n  - ").append(label).append(": ").append(text);
+        Object value = pick(record, key, toSnakeCase(key));
+        if (value != null) {
+            String text = value.toString();
+            if (text.length() > maxLength) {
+                text = text.substring(0, maxLength) + "...";
+            }
+            sb.append("\n  - ").append(label).append(": ").append(text);
+        }
+    }
+
+    /** camelCase -> snake_case（SQL 起别名后行内是驼峰 key，这里兼容仍返回下划线列名的情况） */
+    private static String toSnakeCase(String key) {
+        StringBuilder snake = new StringBuilder();
+        for (char c : key.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                snake.append('_').append(Character.toLowerCase(c));
+            } else {
+                snake.append(c);
             }
         }
+        return snake.toString();
     }
 
     private static boolean isSimpleSelectQuery(String sql) {
