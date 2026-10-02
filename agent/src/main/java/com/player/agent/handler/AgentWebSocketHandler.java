@@ -1,16 +1,10 @@
 package com.player.agent.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.player.agent.config.ChatClientConfig;
-import com.player.agent.config.MongoChatMemory;
-import com.player.agent.mapper.AgentMapper;
 import com.player.agent.tool.AgentTool;
-import com.player.common.entity.ChatEntity;
-import com.player.agent.constants.SystemtConstants;
+import com.player.agent.service.IAgentService;
 import com.player.agent.entity.AgentParamsEntity;
-import com.player.agent.uitls.AgentUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -26,21 +20,12 @@ import java.util.Map;
 @Component
 @Slf4j
 public class AgentWebSocketHandler extends TextWebSocketHandler {
-    @Autowired
-    private ChatClientConfig chatClientConfig;
 
     @Autowired
     private AgentTool agentTool;
 
-    private final AgentMapper agentMapper;
-
-
-    public AgentWebSocketHandler(AgentMapper agentMapper) {
-        this.agentMapper = agentMapper;
-    }
-
     @Autowired
-    private MongoChatMemory mongoChatMemory;
+    private IAgentService agentService;
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -104,45 +89,20 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
             agentParamsEntity.setType(type);
             agentParamsEntity.setUserId(userId); // 设置用户ID
 
-            // 创建聊天记录实体
-            ChatEntity chatEntity = new ChatEntity();
-            chatEntity.setChatId(chatId);
-            chatEntity.setUserId(userId);
-            chatEntity.setPrompt(prompt);
-            chatEntity.setContent("");
-            chatEntity.setModelId(modelId);
-
-            // 获取ChatClient
-            ChatClient chatClient = chatClientConfig.getChatClient(modelId, mongoChatMemory);
-
-            if (chatClient == null) {
-                session.sendMessage(new TextMessage("{\"error\": \"不支持的模型ID: " + modelId + "\"}"));
-                return;
-            }
-
-            log.info("开始处理用户查询 - UserId: {}, ChatId: {}, ModelId: {}, Prompt: {}",
-                    userId, chatId, modelId, prompt);
-
-            // 处理聊天请求
-            Flux<String> chatStream = AgentUtils.processChat(
+            // 处理聊天请求（与 HTTP 流式接口 /service/agent/chat 共用同一套逻辑，
+            // 分片通过回调推送给 WebSocket 客户端；MySQL 双写与 MongoDB 会话记忆都在 service 内完成）
+            Flux<String> chatStream = agentService.chatWithWebSocketHandling(
+                    userId,
                     agentParamsEntity,
-                    chatClient,
-                    SystemtConstants.MUSIC_SYSTEMT_PROMPT
+                    responsePart -> sendResponse(session, responsePart)
             );
 
             // 订阅流式响应
             String finalUserId = userId;
             String finalUserId1 = userId;
-            String finalUserId2 = userId;
             chatStream.subscribe(
                     responsePart -> {
-                        // 累积响应内容
-                        chatEntity.setContent(chatEntity.getContent() + responsePart);
-
-                        // 发送响应给客户端
-                        sendResponse(session, responsePart);
-
-                        // 记录调试信息
+                        // 记录调试信息（内容累积与发送已由 service/回调处理）
                         if (log.isDebugEnabled()) {
                             log.debug("Sent response part to user {}: {}", finalUserId,
                                     responsePart.length() > 100 ?
@@ -171,25 +131,12 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
                     },
                     () -> {
                         try {
-                            // 保存聊天记录
-                            if (chatEntity.getContent() != null &&
-                                    !chatEntity.getContent().isEmpty()) {
-                                agentMapper.saveChat(chatEntity);
-                                log.info("聊天记录保存成功 - UserId: {}, ChatId: {}, 内容长度: {}",
-                                        finalUserId2, chatId, chatEntity.getContent().length());
-                            }
-
-                            // 发送完成标记
+                            // 发送完成标记（聊天记录已在 service 的 doOnComplete 中保存）
                             session.sendMessage(new TextMessage("[DONE]"));
-                            log.info("聊天会话完成 - UserId: {}, ChatId: {}", finalUserId2, chatId);
+                            log.info("聊天会话完成 - UserId: {}, ChatId: {}", finalUserId1, chatId);
 
                         } catch (Exception e) {
-                            log.error("保存聊天记录失败 - UserId: {}, ChatId: {}", finalUserId2, chatId, e);
-                            try {
-                                session.sendMessage(new TextMessage("{\"warning\": \"聊天记录保存失败，但响应已完成\"}"));
-                            } catch (IOException ex) {
-                                log.error("发送警告消息失败", ex);
-                            }
+                            log.error("发送完成标记失败 - UserId: {}, ChatId: {}", finalUserId1, chatId, e);
                         }
                     }
             );

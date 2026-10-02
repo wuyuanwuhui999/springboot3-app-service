@@ -61,7 +61,7 @@
 | gateway | gateway | 3009 | - | -（网关） | [gateway.md](gateway.md) |
 | user | user-service | 3005 | /service/user | 11 | [user.md](user.md) |
 | chat | chat-service | 3006 | /service/chat | 16 | [chat.md](chat.md) |
-| agent | agent-service | 3010 | /service/agent | 1 + WS | [agent.md](agent.md) |
+| agent | agent-service | 3010 | /service/agent | 1 + 流式 + WS | [agent.md](agent.md) |
 | circle | circle-service | 3004 | /service/circle | 4 + WS | [circle.md](circle.md) |
 | company | company-service | 3011 | /service/company | 6 | [company.md](company.md) |
 | movie | movie-service | 3001 | /service/movie | 23 | [movie.md](movie.md) |
@@ -110,6 +110,7 @@
 ### agent（智能体）
 | 方法 | 接口 | 作用 |
 |------|------|------|
+| POST | /service/agent/chat | HTTP 流式对话 |
 | GET | /service/agent/getChatHistory | 分页聊天历史 |
 | WS | /service/agent/ws/chat | WebSocket 聊天 |
 
