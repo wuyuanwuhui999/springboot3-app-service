@@ -123,6 +123,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 会话记忆存储：MongoDB（替代 Redis，同步 MongoTemplate） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>

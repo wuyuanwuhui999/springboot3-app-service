@@ -2,7 +2,7 @@ package com.player.agent.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.player.agent.config.ChatClientConfig;
-import com.player.agent.config.RedisChatMemory;
+import com.player.agent.config.MongoChatMemory;
 import com.player.agent.mapper.AgentMapper;
 import com.player.agent.tool.AgentTool;
 import com.player.common.entity.ChatEntity;
@@ -12,7 +12,6 @@ import com.player.agent.uitls.AgentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -41,7 +40,7 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private MongoChatMemory mongoChatMemory;
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -114,7 +113,7 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
             chatEntity.setModelId(modelId);
 
             // 获取ChatClient
-            ChatClient chatClient = chatClientConfig.getChatClient(modelId, new RedisChatMemory(redisTemplate));
+            ChatClient chatClient = chatClientConfig.getChatClient(modelId, mongoChatMemory);
 
             if (chatClient == null) {
                 session.sendMessage(new TextMessage("{\"error\": \"不支持的模型ID: " + modelId + "\"}"));

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
@@ -31,7 +32,7 @@ public class ChatClientConfig {
     @Autowired
     private AgentMapper agentMapper;
 
-    public ChatClient getChatClient(String modelId, RedisChatMemory redisChatMemory) {
+    public ChatClient getChatClient(String modelId, ChatMemory chatMemory) {
         ChatModelEntity chatModelEntity = agentMapper.getModelById(modelId);
         ChatModel chatModel;
         String baseUrl = chatModelEntity.getBaseUrl();
@@ -73,11 +74,11 @@ public class ChatClientConfig {
                 .defaultAdvisors(new SimpleLoggerAdvisor());
 
         // 如果聊天记忆可用，添加它
-        if (redisChatMemory != null) {
+        if (chatMemory != null) {
             try {
                 builder.defaultAdvisors(
                         new SimpleLoggerAdvisor(),
-                        MessageChatMemoryAdvisor.builder(redisChatMemory).build()
+                        MessageChatMemoryAdvisor.builder(chatMemory).build()
                 );
                 log.debug("已启用聊天记忆功能");
             } catch (Exception e) {

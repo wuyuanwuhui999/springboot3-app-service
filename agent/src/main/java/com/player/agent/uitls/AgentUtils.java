@@ -3,12 +3,14 @@ package com.player.agent.uitls;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.player.agent.config.MongoChatMemory;
 import com.player.agent.constants.SystemtConstants;
 import com.player.agent.entity.AgentParamsEntity;
 import com.player.agent.mapper.AgentMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -201,6 +203,9 @@ public class AgentUtils {
                         .advisors(advisorSpec -> {
                             advisorSpec.param("CHAT_ID", params.getChatId());
                             advisorSpec.param("USER_ID", params.getUserId());
+                            // 会话记忆按「用户+会话」隔离（否则 MessageChatMemoryAdvisor 会用默认会话ID "default"）
+                            advisorSpec.param(ChatMemory.CONVERSATION_ID,
+                                    MongoChatMemory.conversationId(params.getUserId(), params.getChatId()));
                             if (params.getShowThink() != null && params.getShowThink()) {
                                 advisorSpec.advisors(new SimpleLoggerAdvisor());
                             }

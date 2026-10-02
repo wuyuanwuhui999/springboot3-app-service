@@ -127,6 +127,11 @@ spring:
       port: 6379
       password:
       timeout: 5000
+    # 会话记忆（对话上下文）存储：MongoDB chat 库 chat_memory 集合，TTL 180 天
+    mongodb:
+      host: ${MONGODB_HOST:localhost}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:chat}
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
