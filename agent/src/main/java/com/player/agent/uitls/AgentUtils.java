@@ -55,7 +55,12 @@ public class AgentUtils {
                         sqlResult.getError());
 
                 // 步骤2：基于SQL结果生成最终回答
-                return generateFinalAnswer(agentParamsEntity, chatClient, systemPromptContent, sqlResult);
+                Flux<String> answerFlux = generateFinalAnswer(agentParamsEntity, chatClient, systemPromptContent, sqlResult);
+
+                // 步骤3：把 SQL 查询结果以 <music> 标签追加在回答末尾，供前端解析生成音乐列表
+                //        （无数据时 buildMusicTag 返回空串 -> 不输出该标签）
+                String musicTag = buildMusicTag(sqlResult.getData());
+                return musicTag.isEmpty() ? answerFlux : answerFlux.concatWith(Flux.just(musicTag));
             } catch (Exception e) {
                 log.error("处理聊天时发生错误", e);
                 return Flux.just(formatErrorMessage(e, agentParamsEntity.getLanguage()));
@@ -168,6 +173,58 @@ public class AgentUtils {
                 result.getData().size());
 
         return result;
+    }
+
+    /**
+     * 把 SQL 查询结果以 JSON 列表放进 &lt;music&gt;&lt;/music&gt; 标签，供前端解析生成音乐列表。
+     * 无数据时返回空串（调用方据此不输出该标签）。
+     * 字段用 camelCase，与音乐模块接口返回的音乐对象保持一致，前端可复用同一个类型。
+     */
+    private static String buildMusicTag(List<Map<String, Object>> data) {
+        if (data == null || data.isEmpty()) {
+            return "";
+        }
+
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (Map<String, Object> row : data) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", pick(row, "id"));
+            item.put("songName", pick(row, "song_name", "songName"));
+            item.put("authorName", pick(row, "author_name", "authorName"));
+            item.put("albumName", pick(row, "album_name", "albumName"));
+            item.put("cover", pick(row, "cover"));
+            item.put("playUrl", pick(row, "play_url", "playUrl"));
+            item.put("label", pick(row, "label"));
+            items.add(item);
+        }
+
+        try {
+            String json = objectMapper.writeValueAsString(items);
+            log.info("输出 <music> 标签: {} 首音乐", items.size());
+            return "<music>" + json + "</music>";
+        } catch (JsonProcessingException e) {
+            log.error("生成 <music> 标签失败", e);
+            return "";
+        }
+    }
+
+    /**
+     * 从查询结果行里取值：兼容 MyBatis 返回 snake_case 列名（mapUnderscoreToCamelCase 对 Map 结果不生效时）。
+     */
+    private static Object pick(Map<String, Object> row, String... keys) {
+        for (String key : keys) {
+            if (row.containsKey(key)) {
+                return row.get(key);
+            }
+        }
+        for (String key : keys) {
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(key)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     /**
