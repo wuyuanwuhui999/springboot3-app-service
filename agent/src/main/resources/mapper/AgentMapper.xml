@@ -40,5 +40,73 @@
         FROM chat_model
         WHERE id = #{modelId} AND (disabled = 0 OR disabled IS NULL)
     </select>
+
+    <!-- ==================== agent 工具（收藏夹 / 音乐圈）==================== -->
+    <select id="getFavoriteDirectoryIdByName" resultType="Long">
+        SELECT id FROM music_favorite_directory
+        WHERE user_id = #{userId} AND name = #{name}
+        LIMIT 1
+    </select>
+
+    <insert id="insertFavoriteDirectory">
+        INSERT INTO music_favorite_directory(name, user_id, create_time, update_time)
+        VALUES (#{name}, #{userId}, NOW(), NOW())
+    </insert>
+
+    <delete id="deleteFavoriteDirectoryByName">
+        DELETE FROM music_favorite_directory WHERE user_id = #{userId} AND name = #{name}
+    </delete>
+
+    <update id="updateFavoriteDirectoryName">
+        UPDATE music_favorite_directory SET name = #{newName}, update_time = NOW()
+        WHERE user_id = #{userId} AND name = #{oldName}
+    </update>
+
+    <select id="countFavoriteListRows" resultType="Long">
+        SELECT COUNT(*) FROM music_favorite_list WHERE favorite_id = #{favoriteId}
+    </select>
+
+    <select id="countFavoriteListItem" resultType="Long">
+        SELECT COUNT(*) FROM music_favorite_list
+        WHERE favorite_id = #{favoriteId} AND music_id = #{musicId}
+    </select>
+
+    <insert id="insertFavoriteListItem">
+        INSERT INTO music_favorite_list(music_id, favorite_id, create_time, update_time)
+        VALUES (#{musicId}, #{favoriteId}, NOW(), NOW())
+    </insert>
+
+    <!-- 按名称条件查歌曲（SELECT 列表给下划线字段起驼峰别名），供收藏/分享工具解析 music_id -->
+    <select id="selectMusicByNames" resultType="java.util.Map">
+        SELECT id, song_name AS songName, author_name AS authorName, album_name AS albumName
+        FROM music
+        WHERE 1 = 1
+        <if test="songName != null and songName != ''">
+            AND song_name LIKE CONCAT('%', #{songName}, '%')
+        </if>
+        <if test="authorName != null and authorName != ''">
+            AND author_name LIKE CONCAT('%', #{authorName}, '%')
+        </if>
+        <if test="albumName != null and albumName != ''">
+            AND album_name LIKE CONCAT('%', #{albumName}, '%')
+        </if>
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectMusicByIds" resultType="java.util.Map">
+        SELECT id, song_name AS songName, author_name AS authorName, album_name AS albumName
+        FROM music
+        WHERE id IN
+        <foreach collection="musicIds" item="musicId" open="(" separator="," close=")">
+            #{musicId}
+        </foreach>
+        LIMIT #{limit}
+    </select>
+
+    <!-- 发音乐圈：与 circle 模块 insertCircle 写同一张表（type=MUSIC 时 relation_id = music.id） -->
+    <insert id="insertCircle">
+        INSERT INTO circle(content, imgs, relation_id, `type`, user_id, permission, create_time, update_time)
+        VALUES (#{content}, NULL, #{relationId}, 'MUSIC', #{userId}, #{permission}, NOW(), NOW())
+    </insert>
 </mapper>
 

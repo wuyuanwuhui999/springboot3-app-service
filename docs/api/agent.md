@@ -77,6 +77,33 @@
 - **查询不到数据时不输出该标签**（此时回答文本为无结果提示，前端不应渲染音乐列表）
 - 该标签随回答一起写入会话历史（聊天记录里同样可解析出音乐列表）
 
+## 工具调用（收藏夹 / 音乐圈操作）
+
+Agent 对话分两条路：
+
+1. **查询类**：用户想查询/搜索/推荐音乐 -> 生成 SQL 查询 -> 回答末尾附 `<music>` 标签。
+2. **操作类**：用户想做收藏夹 / 音乐圈相关操作（提取不到查询 SQL）-> 由大模型从工具清单里挑一个工具、服务端执行，
+   直接返回执行结果话术。**没有匹配到任何工具时**回复固定文案：
+   > 抱歉，我只能回答与音乐相关的问题。请尝试询问关于歌曲、歌手、专辑或音乐标签的问题。
+
+可用工具（两项目名称/参数一致）：
+
+| 工具名 | 作用 | 参数 |
+|--------|------|------|
+| addMusicToFavorite | 把歌曲加入收藏夹 | `favoriteName`（必填）、`songName`/`authorName`/`albumName`（可选，模糊匹配）、`musicIds`（可选） |
+| createFavoriteDirectory | 创建收藏夹 | `name`（必填） |
+| deleteFavoriteDirectory | 删除收藏夹（连同其中的歌曲一起删除） | `name`（必填） |
+| renameFavoriteDirectory | 重命名收藏夹 | `oldName`、`newName`（必填） |
+| shareMusicToCircle | 把歌曲分享到音乐圈 | `songName`/`authorName`/`musicIds`（可选）、`content`（可选）、`permission`（可选，默认 1） |
+
+说明：
+
+- 用户只需给**收藏夹名称 + 歌曲名/歌手名**，服务端自己把名称解析成 `favorite_id` / `music_id`（`music_favorite_directory` / `music` 表查询）。
+- 「这首歌 / 这些歌」指代上一轮结果时，模型会从会话上下文（上一轮 `<music>` 标签里的 id）取值。
+- 删除收藏夹依赖 `music_favorite_list.favorite_id` 外键 `ON DELETE CASCADE` 级联删除收藏夹内的歌曲。
+- 分享到音乐圈写 `circle` 表（`type='MUSIC'`、`relation_id = music.id`），与 circle 模块 `insertCircle` 同一张表；
+  区别：这里直接写库，不广播 WebSocket「有一条新消息」。
+
 ## 涉及的表结构
 
 > Spring 侧的表内字段：因为 agent 流程未查询点赞/收藏状态，标签内不含 `isLike`/`isFavorite`。

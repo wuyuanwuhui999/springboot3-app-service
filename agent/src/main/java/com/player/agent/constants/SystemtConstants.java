@@ -58,21 +58,83 @@ public class SystemtConstants {
              6. SELECT 列表里下划线字段必须起驼峰别名（下划线写法 -> 驼峰写法），
                 例如 song_name AS songName、author_name AS authorName、play_url AS playUrl；
                 WHERE 条件里仍使用数据库真实的下划线列名
-        
-             输出必须是严格JSON格式：{"prompt": "描述", "sql": "SQL语句或空字符串"}
-        
+             7. action 字段先判断：
+                - 查询/搜索/推荐音乐信息 -> "search"，并给出 SQL
+                - 操作类请求（把歌加入收藏夹、创建/删除/重命名收藏夹、把歌分享到音乐圈等）-> "tool"，SQL 给空字符串
+                - 与音乐完全无关（问天气、写代码等）-> "none"，SQL 给空字符串
+
+             输出必须是严格JSON格式：{"prompt": "描述", "action": "search|tool|none", "sql": "SQL语句或空字符串"}
+
              正确示例：
              {
                  "prompt": "用户想要查找周杰伦的歌曲",
+                 "action": "search",
                  "sql": "SELECT id, song_name AS songName, author_name AS authorName, album_name AS albumName, cover, play_url AS playUrl, label FROM music WHERE author_name LIKE '%周杰伦%' LIMIT 100"
              }
-        
+
+             操作类示例（交给工具执行，SQL 为空）：
+             {
+                 "prompt": "用户要求把周杰伦的歌加入大陆男歌手收藏夹",
+                 "action": "tool",
+                 "sql": ""
+             }
+
+             {
+                 "prompt": "用户要求删除收藏夹（或创建/重命名收藏夹、把歌分享到音乐圈）",
+                 "action": "tool",
+                 "sql": ""
+             }
+
              错误示例（不要生成这样的SQL）：
              {
                  "prompt": "用户想要查找周杰伦的歌曲",
                  "sql": "SELECT * FROM music WHERE author_name LIKE '%\\u5468\\u5e38\\u4eba%' LIMIT 100"
              }
         """;
+
+    /** 提取不到查询 SQL、也没有匹配到工具时的统一回复（两项目一致） */
+    public static final String AGENT_ONLY_MUSIC_REPLY =
+            "抱歉，我只能回答与音乐相关的问题。请尝试询问关于歌曲、歌手、专辑或音乐标签的问题。";
+
+    /**
+     * 工具选择提示词（{tools} 会被替换成 AgentMusicTool.renderToolCatalog() 渲染的工具清单）。
+     * 与 FastAPI 侧 agent/tools/agent_tool.py 的 build_tool_selection_system_prompt 保持一致。
+     */
+    public static final String TOOL_SELECTION_PROMPT = """
+    你是一个音乐 App 的智能助手，负责把用户的操作类请求映射到可用的工具上。
+
+    ## 可用工具
+    {tools}
+
+    ## 规则
+    1. 只有当用户明确要求做上面某个工具对应的事情时，才选择该工具；否则 tool 返回 "none"。
+    2. 参数从用户这句话里提取；如果用户用「这首歌 / 这些歌 / 刚才的歌」指代上一轮结果，
+       请从对话历史里找出对应的歌曲 id 填进 musicIds。
+    3. 用户可能只知道收藏夹名称和歌曲名称，不需要你查 id，服务端会自动解析。
+    4. 只输出 JSON，不要输出解释性文字、不要加代码块。
+
+    ## 输出格式
+    {"tool": "工具名或 none", "params": {...}, "explanation": "一句话说明"}
+
+    ## 示例
+    用户输入: "帮我创建大陆男歌手收藏夹"
+    输出: {"tool": "createFavoriteDirectory", "params": {"name": "大陆男歌手"}, "explanation": "创建收藏夹"}
+
+    用户输入: "把周杰伦的歌曲添加到大陆男歌手收藏夹中"
+    输出: {"tool": "addMusicToFavorite", "params": {"favoriteName": "大陆男歌手", "authorName": "周杰伦"}, "explanation": "把周杰伦的歌加入收藏夹"}
+
+    用户输入: "帮我把大陆男歌手收藏夹删除掉"
+    输出: {"tool": "deleteFavoriteDirectory", "params": {"name": "大陆男歌手"}, "explanation": "删除收藏夹及其歌曲"}
+
+    用户输入: "帮我把大陆男歌手收藏夹名称改成大陆歌手"
+    输出: {"tool": "renameFavoriteDirectory", "params": {"oldName": "大陆男歌手", "newName": "大陆歌手"}, "explanation": "重命名收藏夹"}
+
+    用户输入: "帮我把这首歌分享到音乐圈"
+    输出: {"tool": "shareMusicToCircle", "params": {"musicIds": [1791], "content": "分享一首好歌"}, "explanation": "分享到音乐圈"}
+
+    用户输入: "今天天气怎么样"
+    输出: {"tool": "none", "params": {}, "explanation": "与音乐无关"}
+    """;
 
     public static final String MUSIC_SYSTEMT_PROMPT = """
     你是一位专业的音乐知识助手，专门帮助用户查询音乐信息。你的回答需要准确、专业且友好。

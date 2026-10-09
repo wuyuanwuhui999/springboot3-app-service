@@ -7,6 +7,7 @@ import com.player.agent.config.MongoChatMemory;
 import com.player.agent.constants.SystemtConstants;
 import com.player.agent.entity.AgentParamsEntity;
 import com.player.agent.mapper.AgentMapper;
+import com.player.agent.tool.AgentMusicTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -29,11 +30,17 @@ import java.util.regex.Pattern;
 public class AgentUtils {
 
     private static AgentMapper agentMapper;
+    private static AgentMusicTool agentMusicTool;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public void setAgentMapper(AgentMapper agentMapper) {
         AgentUtils.agentMapper = agentMapper;
+    }
+
+    @Autowired
+    public void setAgentMusicTool(AgentMusicTool agentMusicTool) {
+        AgentUtils.agentMusicTool = agentMusicTool;
     }
 
     public static Flux<String> processChat(
@@ -48,16 +55,31 @@ public class AgentUtils {
             log.info("开始处理聊天 - 用户: {}, 会话ID: {}, 查询内容: {}", userId, chatId, prompt);
 
             try {
-                // 步骤1：先生成SQL并执行查询
+                // 步骤1：先生成SQL并执行查询（同时判断 action：search=查询 / tool=收藏夹·音乐圈等操作 / none=与音乐无关）
                 SQLResult sqlResult = generateAndExecuteSQL(agentParamsEntity, chatClient);
-                log.info("SQL查询完成 - 数据条数: {}, 错误: {}",
+                log.info("SQL查询完成 - action: {}, 数据条数: {}, 错误: {}",
+                        sqlResult.getAction(),
                         sqlResult.getData().size(),
                         sqlResult.getError());
 
-                // 步骤2：基于SQL结果生成最终回答
+                boolean isSearch = "search".equalsIgnoreCase(sqlResult.getAction())
+                        && sqlResult.getSql() != null && !sqlResult.getSql().trim().isEmpty();
+
+                // 步骤2：提取不到查询 SQL -> 调用工具（收藏夹 / 音乐圈等操作类请求）；
+                //        没有匹配到对应工具 -> 统一回复「只能回答与音乐相关的问题」
+                if (!isSearch) {
+                    String toolReply = handleToolIntent(agentParamsEntity, chatClient);
+                    String reply = (toolReply == null || toolReply.trim().isEmpty())
+                            ? SystemtConstants.AGENT_ONLY_MUSIC_REPLY
+                            : toolReply;
+                    log.info("工具调用阶段结束，回复: {}", reply);
+                    return Flux.just(reply);
+                }
+
+                // 步骤3：基于SQL结果生成最终回答
                 Flux<String> answerFlux = generateFinalAnswer(agentParamsEntity, chatClient, systemPromptContent, sqlResult);
 
-                // 步骤3：把 SQL 查询结果以 <music> 标签追加在回答末尾，供前端解析生成音乐列表
+                // 步骤4：把 SQL 查询结果以 <music> 标签追加在回答末尾，供前端解析生成音乐列表
                 //        （无数据时 buildMusicTag 返回空串 -> 不输出该标签）
                 String musicTag = buildMusicTag(sqlResult.getData());
                 return musicTag.isEmpty() ? answerFlux : answerFlux.concatWith(Flux.just(musicTag));
@@ -125,6 +147,13 @@ public class AgentUtils {
         result.setOriginalPrompt(promptDescription);
         result.setSql(sql);
         result.setData(Collections.emptyList());
+
+        // action: search=查询类（有 SQL）/ tool=操作类（交给工具）/ none=与音乐无关；缺省时按有无 SQL 推断
+        String action = jsonNode.hasNonNull("action") ? jsonNode.get("action").asText() : "";
+        if (action == null || action.trim().isEmpty()) {
+            action = (sql != null && !sql.trim().isEmpty()) ? "search" : "none";
+        }
+        result.setAction(action.trim().toLowerCase());
 
         if (sql != null && !sql.trim().isEmpty()) {
             try {
@@ -227,6 +256,46 @@ public class AgentUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * 工具调用阶段：让大模型从工具清单里选一个工具 -> 服务端执行 -> 返回给用户的话术。
+     * 返回 null 表示没有匹配到任何工具（调用方据此回复「只能回答与音乐相关的问题」）。
+     */
+    private static String handleToolIntent(AgentParamsEntity params, ChatClient chatClient) {
+        try {
+            String systemPrompt = SystemtConstants.TOOL_SELECTION_PROMPT
+                    .replace("{tools}", AgentMusicTool.renderToolCatalog());
+            Prompt prompt = new Prompt(List.of(
+                    new SystemMessage(systemPrompt),
+                    new UserMessage("用户输入: " + params.getPrompt())
+            ));
+
+            log.info("进入工具调用阶段 - 可用工具: {}", AgentMusicTool.toolNames());
+
+            // 带上会话记忆：用户说「这首歌」时要能从上一轮的 <music> 标签里拿到歌曲 id
+            String raw = chatClient.prompt(prompt)
+                    .advisors(advisorSpec -> {
+                        advisorSpec.param("CHAT_ID", params.getChatId());
+                        advisorSpec.param("USER_ID", params.getUserId());
+                        advisorSpec.param(ChatMemory.CONVERSATION_ID,
+                                MongoChatMemory.conversationId(params.getUserId(), params.getChatId()));
+                    })
+                    .call()
+                    .content();
+            log.info("工具选择原始返回: {}", raw);
+
+            AgentMusicTool.ToolIntent intent = AgentMusicTool.parseToolSelection(raw);
+            if (intent.isEmpty()) {
+                log.info("没有匹配到工具，回复统一提示");
+                return null;
+            }
+            log.info("执行工具: {}, 参数: {}", intent.getTool(), intent.getParams());
+            return agentMusicTool.execute(params.getUserId(), intent.getTool(), intent.getParams());
+        } catch (Exception e) {
+            log.error("工具调用处理失败", e);
+            return null;
+        }
     }
 
     /**
@@ -635,6 +704,8 @@ public class AgentUtils {
         private String sql;
         private List<Map<String, Object>> data;
         private String error;
+        /** search=查询类（走 SQL + <music> 标签）/ tool=操作类（交给工具）/ none=与音乐无关 */
+        private String action;
 
         public String getOriginalPrompt() { return originalPrompt; }
         public void setOriginalPrompt(String originalPrompt) { this.originalPrompt = originalPrompt; }
@@ -644,11 +715,14 @@ public class AgentUtils {
         public void setData(List<Map<String, Object>> data) { this.data = data; }
         public String getError() { return error; }
         public void setError(String error) { this.error = error; }
+        public String getAction() { return action; }
+        public void setAction(String action) { this.action = action; }
 
         @Override
         public String toString() {
             return "SQLResult{" +
                     "originalPrompt='" + originalPrompt + '\'' +
+                    ", action='" + action + '\'' +
                     ", sql='" + sql + '\'' +
                     ", dataSize=" + (data != null ? data.size() : 0) +
                     ", error='" + error + '\'' +
