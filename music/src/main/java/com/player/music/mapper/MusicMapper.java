@@ -12,11 +12,11 @@ import java.util.List;
 public interface MusicMapper {
     MusicEntity getKeywordMusic();
 
-    List<MusicClassifyEntity> getMusicClassify();
+    List<MusicCategoryEntity> getMusicCategory();
 
-    List<MusicEntity> getMusicListByClassifyId(int classifyId,int start,int pageSize,String userId);
+    List<MusicEntity> getMusicListByCategoryId(int categoryId,int start,int pageSize,String userId);
 
-    Long getMusicTotalByClassifyId(int classifyId);
+    Long getMusicTotalByCategoryId(int categoryId);
 
     List<MusicAuthorEntity> getMusicAuthorListByCategoryId(String userId, int categoryId, int start, int pageSize);
 

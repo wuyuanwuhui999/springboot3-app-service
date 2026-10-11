@@ -27,23 +27,23 @@ public class MusicController {
     }
 
     // 获取音乐分类
-    @Cacheable(value = "music", key = "'classifyMusic'")
-    @GetMapping("/music/getMusicClassify")
-    public ResultEntity getClassifyMusic() {
-        return musicService.getMusicClassify();
+    @Cacheable(value = "music", key = "'musicCategory'")
+    @GetMapping("/music/getMusicCategory")
+    public ResultEntity getMusicCategory() {
+        return musicService.getMusicCategory();
     }
 
-    // 获取推荐音乐列表,isRedis表示是否从redis中获取数据
-    @Cacheable(value = "music", key = "'musicList:' + #classifyId + ':' + #pageNum + ':' + #pageSize + ':' + #isRedis + ':' + #userId")
-    @GetMapping("/music/getMusicListByClassifyId")
-    public ResultEntity getMusicListByClassifyId(
-            @RequestParam(name = "classifyId", required = true) int classifyId,
+    // 获取分类音乐列表,isRedis表示是否从redis中获取数据
+    @Cacheable(value = "music", key = "'musicList:' + #categoryId + ':' + #pageNum + ':' + #pageSize + ':' + #isRedis + ':' + #userId")
+    @GetMapping("/music/getMusicListByCategoryId")
+    public ResultEntity getMusicListByCategoryId(
+            @RequestParam(name = "categoryId", required = true) int categoryId,
             @RequestParam(name = "pageNum", required = true) int pageNum,
             @RequestParam(name = "pageSize", required = true) int pageSize,
             @RequestParam(name = "isRedis", defaultValue = "0", required = false) int isRedis,
             @RequestHeader("X-User-Id") String userId
     ) {
-        return musicService.getMusicListByClassifyId(classifyId, pageNum, pageSize, isRedis != 0, userId);
+        return musicService.getMusicListByCategoryId(categoryId, pageNum, pageSize, isRedis != 0, userId);
     }
 
     //  根据分类id获取歌手

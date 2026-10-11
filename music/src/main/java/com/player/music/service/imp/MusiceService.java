@@ -39,30 +39,30 @@ public class MusiceService implements IMusicService {
 
     /**
      * @author: wuwenqiang
-     * @methodsName: getMusicClassify
-     * @description: 获取推荐音乐列表
+     * @methodsName: getMusicCategory
+     * @description: 获取音乐分类列表（music_category 表）
      * @return: String
      * @date: 2023-05-25 21:00
      */
     @Override
-    public ResultEntity getMusicClassify() {
-        return ResultUtil.success(musicMapper.getMusicClassify());
+    public ResultEntity getMusicCategory() {
+        return ResultUtil.success(musicMapper.getMusicCategory());
     }
 
     /**
      * @author: wuwenqiang
-     * @methodsName: getMusicListByClassifyId
-     * @description: 获取推荐音乐列表
+     * @methodsName: getMusicListByCategoryId
+     * @description: 根据分类id获取分类下的音乐列表（music_category_relation 关联 music）
      * @return: String
      * @date: 2023-05-25 21:00
      */
     @Override
-    public ResultEntity getMusicListByClassifyId(int classifyId, int pageNum, int pageSize, boolean isRedis, String userId) {
+    public ResultEntity getMusicListByCategoryId(int categoryId, int pageNum, int pageSize, boolean isRedis, String userId) {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByClassifyId(classifyId, start, pageSize, userId));
-        Long musicTotalByClassifyId = musicMapper.getMusicTotalByClassifyId(classifyId);
-        resultEntity.setTotal(musicTotalByClassifyId);
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicListByCategoryId(categoryId, start, pageSize, userId));
+        Long musicTotalByCategoryId = musicMapper.getMusicTotalByCategoryId(categoryId);
+        resultEntity.setTotal(musicTotalByCategoryId);
         return resultEntity;
     }
 

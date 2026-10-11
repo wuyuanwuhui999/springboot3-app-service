@@ -12,9 +12,9 @@ import java.util.List;
 public interface IMusicService {
     ResultEntity getKeywordMusic();
 
-    ResultEntity getMusicClassify();
+    ResultEntity getMusicCategory();
 
-    ResultEntity getMusicListByClassifyId(int classifyId, int pageNum, int pageSize, boolean isRedis, String token);
+    ResultEntity getMusicListByCategoryId(int categoryId, int pageNum, int pageSize, boolean isRedis, String token);
 
     ResultEntity getMusicAuthorListByCategoryId(String userId,int categoryId, int pageNum, int pageSize);
 

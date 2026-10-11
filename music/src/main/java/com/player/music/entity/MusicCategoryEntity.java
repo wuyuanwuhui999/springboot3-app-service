@@ -8,22 +8,19 @@ import java.util.Date;
 
 @Data
 @ToString
-public class MusicClassifyEntity {
+public class MusicCategoryEntity {
 
     @Schema(description = "主键")
     private int id;
 
-    @Schema(description = "分类名称")
-    private String classifyName;
+    @Schema(description = "类型图片")
+    private String img;
 
-    @Schema(description = "权限")
-    private int permission;
+    @Schema(description = "小分类")
+    private String category;
 
-    @Schema(description = "分类排名")
-    private int classifyRank;
-
-    @Schema(description = "是否禁用")
-    private int disabled;
+    @Schema(description = "大分类")
+    private String classify;
 
     @Schema(description = "创建时间")
     private Date createTime;

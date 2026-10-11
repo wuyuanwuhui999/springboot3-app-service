@@ -8,15 +8,15 @@
 
 ## 鉴权
 
-大部分接口需 token（网关注入 `X-User-Id`）；`getKeywordMusic`、`getMusicClassify`、`getMusicAuthorCategory` 无需用户信息。
+大部分接口需 token（网关注入 `X-User-Id`）；`getKeywordMusic`、`getMusicCategory`、`getMusicAuthorCategory` 无需用户信息。
 
 ## 接口总览
 
 | 方法 | 接口 | 作用 | 鉴权 |
 |------|------|------|------|
 | GET | /service/music/getKeywordMusic | 搜索框默认推荐音乐 | 否 |
-| GET | /service/music/getMusicClassify | 音乐分类 | 否 |
-| GET | /service/music/getMusicListByClassifyId | 按分类取音乐列表 | 需 |
+| GET | /service/music/getMusicCategory | 音乐分类（music_category 表） | 否 |
+| GET | /service/music/getMusicListByCategoryId | 按分类取音乐列表（music_category_relation + music） | 需 |
 | GET | /service/music/getMusicAuthorListByCategoryId | 按分类取歌手 | 需 |
 | GET | /service/music/getMusicListByAuthorId | 按歌手取专辑 | 需 |
 | GET | /service/music/getFavoriteAuthor | 收藏的歌手 | 需 |
@@ -57,23 +57,25 @@
 ```
 
 ### 2. 音乐分类
-- 接口：`GET /service/music/getMusicClassify`
+- 接口：`GET /service/music/getMusicCategory`
 - 入参：无
+- 说明：查询 `music_category` 表（歌曲分类名称表），按 `id` 升序返回全部分类；`classify` 为大分类、`category` 为小分类、`img` 为类型图片。缓存 key：`musicCategory`
 - 出参：ResultEntity，data 为分类列表
 - 出参示例：
 ```json
 {
-  "data": [{"id":1,"classifyName":"热门","cover":"https://example.com/cover.jpg","classifyRank":1}],
+  "data": [{"id":68,"img":"/static/music/images/20130807185439172736.png","category":"酷狗飙升榜","classify":"热门榜单","createTime":"2026-10-11 11:18:07","updateTime":"2026-10-11 11:18:07"}],
   "status": "SUCCESS",
   "msg": null,
-  "total": null,
+  "total": 33,
   "token": null
 }
 ```
 
 ### 3. 按分类取音乐列表
-- 接口：`GET /service/music/getMusicListByClassifyId`
-- 入参：`X-User-Id`（Header）+ Query：`classifyId`、`pageNum`、`pageSize`、`isRedis`（默认 0）
+- 接口：`GET /service/music/getMusicListByCategoryId`
+- 入参：`X-User-Id`（Header）+ Query：`categoryId`、`pageNum`、`pageSize`、`isRedis`（默认 0）
+- 说明：从 `music_category_relation` 表按 `category_id` 取出 `music_id`，再关联 `music` 表查音乐详情（只取 `local_play_url` 不为空的歌曲，按关联表 `id` 升序），并 LEFT JOIN `music_like` 得到当前用户的点赞状态 `isLike`
 - 出参：ResultEntity，data 为音乐列表，`total` 为总数
 - 出参示例：
 ```json
