@@ -64,15 +64,30 @@ public class PromptUtil {
 
         for (EmbeddingMatch<TextSegment> match : relevant.matches()) {
             TextSegment segment = match.embedded();
-            String filename = segment.metadata().getString("filename");
-            String page = segment.metadata().getString("page");
+            // 注意：同一个 Chroma 库里，metadata 的取值类型两端不一致（FastAPI 侧 page 存的是数字、Spring 侧存的是字符串），
+            // 直接用 getString 会抛 "cannot be returned as a String"，这里用 toMap() 取原始值再转字符串
+            java.util.Map<String, Object> metadataMap = segment.metadata().toMap();
+            String filename = toText(metadataMap.get("filename"));
+            // page：Spring 侧存的是总页数字符串，FastAPI 侧存的是当前分片序号
+            String page = toText(metadataMap.get("page"));
+            // 文档创建时间（老数据没写过这个字段时兜底显示「未知」，交给提示词规则按最旧处理）
+            String createTime = toText(metadataMap.get("create_time"));
+            if (createTime == null || createTime.trim().isEmpty()) {
+                createTime = "未知";
+            }
 
             contextBuilder.append("文档来源: ").append(filename)
-                    .append(", 第").append(page).append("页\n")
+                    .append(", 第").append(page).append("页")
+                    .append(", 创建时间: ").append(createTime).append("\n")
                     .append("内容: ").append(segment.text()).append("\n\n");
         }
 
         return contextBuilder.toString();
+    }
+
+    /** metadata 原始值转文本（值为 null 时返回空串，数字/字符串都能处理） */
+    private static String toText(Object value) {
+        return value == null ? "" : String.valueOf(value);
     }
 
     public static String getFileExtension(MultipartFile file) {

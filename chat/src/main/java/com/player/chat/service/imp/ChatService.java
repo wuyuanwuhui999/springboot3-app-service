@@ -54,7 +54,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -509,7 +511,13 @@ public class ChatService implements IChatService {
             metadata.put("tenant_id", tenantId);
             // 文档权限 + 所属公司（用于「租户内公开 / 公司内公开」向量检索过滤）
             metadata.put("permission", permission);
-            metadata.put("company_id", companyId);
+            // company_id 可能为 null（租户没有归属公司），langchain4j 的 Metadata 不接受 null 值，
+            // 直接 put 会整篇文档上传失败，这里判空跳过
+            if (companyId != null) {
+                metadata.put("company_id", companyId);
+            }
+            // 文档创建时间：用当前系统时间（chroma metadata 只支持字符串/数值，存格式化字符串便于展示和比较）
+            metadata.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             // 带重试机制的存储
             int maxRetries = 3;
             for (int i = 0; i < maxRetries; i++) {

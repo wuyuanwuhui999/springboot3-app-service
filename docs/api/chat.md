@@ -92,6 +92,7 @@
 ### 5. 上传文档
 - 接口：`POST /service/chat/uploadDoc`
 - 入参：`X-User-Id`（Header）+ Form：`tenantId`（可选，默认 personal）、`directoryId`（可选，默认 public）、`splitMethod`（可选，分割方式，默认 recursive）、`chunkSize`（可选，splitMethod=fixed 时必填，自定义块大小）、`permission`（可选，文档权限，默认 private）、`file`（文件，支持 pdf/docx/doc/txt）
+- 说明：文档分片写入向量库（Chroma）时，metadata 会写入 `create_time`（当前系统时间，格式 `yyyy-MM-dd HH:mm:ss`），同一份文档的所有分片共用同一个时间；检索时用于区分文档新旧
 - 出参：ResultEntity
 - 出参示例：
 ```json
@@ -308,8 +309,9 @@
 ### 18. WebSocket 聊天
 - 接口：`WS /service/chat/ws/chat`
 - 作用：WebSocket 方式 AI 对话（流式）
-- 入参：`?token=<token>`（查询参数，由网关注入 `X-User-Id`）；消息体通过 send 发送（JSON：promptId、chatId、modelId、docIds 等）
+- 入参：`?token=<token>`（查询参数，由网关注入 `X-User-Id`）；消息体通过 send 发送（JSON：prompt、promptId、chatId、modelId、docIds 等）
 - promptId 说明：可选参数；传了则按 promptId、tenantId、userId 查 prompt 表，取 prompt 字段作为用户提示词；未查到记录时返回「找不到提示词」
+- 文档时间优先规则（`type=document`）：检索到的每一段摘录都会带上「创建时间」，并把它显式注入 system prompt 告诉模型如何取舍 —— 同一问题在不同文档中说法不一致时，以「创建时间」最新的文档为准，忽略旧文档；创建时间为「未知」的按最旧的文档处理；回答时说明依据的是哪一份文档
 - 出参：流式文本消息
 - 出参示例：
 （流式文本，非 ResultEntity）示例输出：`你好！我是 AI 助手。`
@@ -320,6 +322,7 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
+| prompt | String | 用户提问（可选；promptId 命中时以 prompt 表内容为准） |
 | promptId | String | 提示词ID（可选，传了则查 prompt 表取提示词） |
 | docIds | List\<String\> | 文档 id 列表 |
 | systemPrompt | String | 系统提示词 |

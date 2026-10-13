@@ -1,6 +1,7 @@
 // AssistantSelector.java
 package com.player.chat.assistant;
 
+import com.player.chat.constants.SystemtConstants;
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.mapper.ChatMapper;
 import com.player.chat.tool.ChatTool;
@@ -75,6 +76,11 @@ public class AssistantSelector {
         String systemPrompt = chatParamsEntity.getSystemPrompt();
         if (systemPrompt == null || systemPrompt.trim().isEmpty()) {
             systemPrompt = "你叫小吴同学，是一个无所不能的AI助手，上知天文下知地理，请用小吴同学的身份回答问题。\n";
+        }
+        // 文档问答：把「按创建时间取最新文档」的规则显式写进 system prompt，
+        // 否则模型不知道哪段来自新文档、哪段来自旧文档，会把新旧内容平等对待甚至新旧混杂
+        if ("document".equals(chatParamsEntity.getType())) {
+            systemPrompt = systemPrompt + "\n\n" + SystemtConstants.DOC_TIME_RULE;
         }
         try {
             AiServices<Assistant> aiServices = AiServices.builder(Assistant.class)
