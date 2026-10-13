@@ -60,7 +60,9 @@ public class PromptUtil {
             return "";
         }
         StringBuilder contextBuilder = new StringBuilder();
-        contextBuilder.append("以下是一些相关的文档摘录，可能有助于回答您的问题:\n\n");
+        // 前缀与 FastAPI 的 prompt 文案保持一致：显式要求「用最新 create_time 的文档内容总结输出」
+        contextBuilder.append("请参考以下内容，并使用「创建时间」最新的文档内容进行总结输出")
+                .append("（创建时间越晚越新；显示「未知」的按最旧处理）：\n");
 
         for (EmbeddingMatch<TextSegment> match : relevant.matches()) {
             TextSegment segment = match.embedded();
@@ -80,6 +82,12 @@ public class PromptUtil {
                     .append(", 第").append(page).append("页")
                     .append(", 创建时间: ").append(createTime).append("\n")
                     .append("内容: ").append(segment.text()).append("\n\n");
+        }
+
+        // 末尾补上原始提问，与 FastAPI 的 "...\n\n回答问题: {user_prompt}" 保持一致
+        String question = chatParamsEntity.getPrompt();
+        if (question != null && !question.trim().isEmpty()) {
+            contextBuilder.append("回答问题: ").append(question);
         }
 
         return contextBuilder.toString();
