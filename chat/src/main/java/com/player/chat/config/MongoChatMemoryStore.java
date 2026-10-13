@@ -66,6 +66,29 @@ public class MongoChatMemoryStore implements ChatMemoryStore {
         }
     }
 
+    /** 读取会话概要（压缩后的会话记忆）；没有则返回 null */
+    public String getSummary(Object memoryId) {
+        Document doc = mongoTemplate.findOne(
+                new Query(Criteria.where("_id").is(memoryId.toString())),
+                Document.class, COLLECTION);
+        return doc == null ? null : doc.getString("summary");
+    }
+
+    /**
+     * 保存会话概要，并把该会话的原始会话记录清空（MongoDB 里只保留概要）；
+     * 完整原始记录仍在 MySQL 的 chat_history 表里，不受影响。
+     */
+    public void saveSummary(Object memoryId, String summary, int messageCount) {
+        Query query = new Query(Criteria.where("_id").is(memoryId.toString()));
+        Update update = new Update()
+                .set("summary", summary)
+                .set("summary_count", messageCount)
+                .set("summary_time", new Date())
+                .set("messages", "[]")
+                .set("update_time", new Date());
+        mongoTemplate.upsert(query, update, COLLECTION);
+    }
+
     @Override
     public void updateMessages(Object memoryId, List<ChatMessage> list) {
         String json = ChatMessageSerializer.messagesToJson(list);

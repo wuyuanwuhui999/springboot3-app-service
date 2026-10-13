@@ -59,6 +59,21 @@
     </select>
 
     <!-- 查询总数 -->
+    <!-- 会话概要总结：MySQL 备份（MongoDB 崩溃后可恢复）；同会话一行 -->
+    <insert id="saveChatHistorySummary" parameterType="com.player.chat.entity.ChatHistorySummaryEntity">
+        INSERT INTO chat_history_summary(id, chat_id, user_id, summary, message_count, create_time, update_time)
+        VALUES (#{id}, #{chatId}, #{userId}, #{summary}, #{messageCount}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE summary = VALUES(summary),
+                                message_count = VALUES(message_count),
+                                update_time = NOW()
+    </insert>
+
+    <select id="getChatHistorySummary" resultType="String">
+        SELECT summary FROM chat_history_summary
+        WHERE user_id = #{userId} AND chat_id = #{chatId}
+        LIMIT 1
+    </select>
+
     <select id="getChatHistoryTotal" resultType="Long">
         SELECT COUNT(*)
         FROM chat_history

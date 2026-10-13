@@ -4,6 +4,7 @@ package com.player.chat.assistant;
 import com.player.chat.constants.SystemtConstants;
 import com.player.chat.entity.ChatParamsEntity;
 import com.player.chat.mapper.ChatMapper;
+import com.player.chat.service.imp.ChatSummaryService;
 import com.player.chat.tool.ChatTool;
 import com.player.chat.utils.PromptUtil;
 import com.player.common.entity.ChatModelEntity;
@@ -38,6 +39,9 @@ public class AssistantSelector {
 
     @Autowired
     private ChromaEmbeddingStore chromaEmbeddingStore;
+
+    @Autowired
+    private ChatSummaryService chatSummaryService;
 
     public Flux<String> selectAssistant(ChatParamsEntity chatParamsEntity) {
         // 解析 promptId → 用户提示词（传了 promptId 则查 prompt 表取 prompt 字段作为用户提示词）
@@ -81,6 +85,11 @@ public class AssistantSelector {
         // 否则模型不知道哪段来自新文档、哪段来自旧文档，会把新旧内容平等对待甚至新旧混杂
         if ("document".equals(chatParamsEntity.getType())) {
             systemPrompt = systemPrompt + "\n\n" + SystemtConstants.DOC_TIME_RULE;
+        }
+        // 会话概要（压缩后的会话记忆）：有概要时只把概要发给大模型，不再发原始会话记录
+        String historySummary = chatSummaryService.getSummary(chatParamsEntity.getUserId(), chatParamsEntity.getChatId());
+        if (historySummary != null && !historySummary.trim().isEmpty()) {
+            systemPrompt = systemPrompt + "\n\n" + SystemtConstants.HISTORY_SUMMARY_TITLE + "\n" + historySummary;
         }
         try {
             AiServices<Assistant> aiServices = AiServices.builder(Assistant.class)

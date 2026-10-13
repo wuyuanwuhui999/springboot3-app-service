@@ -56,6 +56,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,9 @@ public class ChatService implements IChatService {
 
     @Autowired
     private ChromaEmbeddingStore chromaEmbeddingStore;
+
+    @Autowired
+    private ChatSummaryService chatSummaryService;
 
     private final EmbeddingModel nomicEmbeddingModel;
 
@@ -165,6 +169,14 @@ public class ChatService implements IChatService {
                     chatEntity.setContent(responseCollector.toString());
                     chatMapper.saveChat(chatEntity);
                     log.info("Chat saved successfully for chatId: {}", chatEntity.getChatId());
+
+                    // 会话记录（不含 system）超过阈值 -> 用当前模型压缩成概要（MongoDB 只留概要 + MySQL 备份；
+                    // chat_history 里的原始记录不动），放后台线程执行，不阻塞响应
+                    final String summaryChatId = chatParamsEntity.getChatId();
+                    final String summaryModelId = chatParamsEntity.getModelId();
+                    final String summaryCompanyId = chatParamsEntity.getCompanyId();
+                    CompletableFuture.runAsync(() ->
+                            chatSummaryService.summarizeIfNeeded(userId, summaryChatId, summaryModelId, summaryCompanyId));
                 })
                 .doOnError(e -> {
                     log.error("Error during chat streaming", e);

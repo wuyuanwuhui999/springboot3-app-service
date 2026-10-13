@@ -355,6 +355,16 @@
 | disabled | Integer | 是否禁用（0 启用 / 1 禁用） |
 | companyId | String | 所属公司 id |
 
+## 会话记录压缩（概要总结）
+
+- 触发条件：MongoDB 里该会话的原始会话消息（不含 system）超过 **5 条**时，在会话结束后用**当前选中的模型**自动压缩成一段概要总结
+- 存储（每次压缩都同时更新两端）：
+  - **MongoDB**（`chat.chat_memory`）：只保留概要（`summary`、`summary_count`、`summary_time`），**原始会话记录从 MongoDB 清空**；下次对话只把概要发给大模型，不再发原始记录
+  - **MySQL `chat_history_summary`**：每个会话一行（主键 `md5(user_id:chat_id)`，两个项目同一算法），作为 MongoDB 崩溃后的恢复来源
+  - **MySQL `chat_history`**：原始聊天记录**保持不变**（用户查历史仍从数据库查）
+- 崩溃恢复：MongoDB 中没有概要（崩溃 / 过期 / 被删）时，下次对话会自动从 `chat_history_summary` 读取概要，并写回 MongoDB
+- 提示词与注入位置：压缩用 `CHAT_SUMMARY_PROMPT`（两端文案一致）；概要以 `【历史会话概要（更早的对话内容，已压缩）】` 为标题注入 system prompt
+
 ## 涉及的表结构
 
 > 数据库：MySQL `127.0.0.1:3306/play`（root）。以下为本模块接口读写涉及的表结构。
@@ -415,3 +425,15 @@
 | update_time | datetime | 是 |  | 更新时间 |
 | created_by | varchar(255) | 是 |  | 创建人 |
 
+
+### 5. chat_history_summary（会话记录压缩概要总结）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| id | varchar(32) | 否 | 主键 | `md5(user_id:chat_id)`，两个项目同一算法（同会话同一行） |
+| chat_id | varchar(128) | 否 | 索引 | 会话id |
+| user_id | varchar(64) | 否 | 索引 | 用户id |
+| summary | text | 是 |  | 会话记录压缩后的概要总结（MongoDB 崩溃后可据此恢复） |
+| message_count | int | 是 |  | 生成该概要时压缩掉的原始会话消息条数 |
+| create_time | datetime | 是 |  | 创建时间 |
+| update_time | datetime | 是 |  | 更新时间 |

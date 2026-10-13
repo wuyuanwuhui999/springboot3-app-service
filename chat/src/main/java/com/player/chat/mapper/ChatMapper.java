@@ -2,6 +2,7 @@
 package com.player.chat.mapper;
 
 import com.player.chat.entity.ChatEntity;
+import com.player.chat.entity.ChatHistorySummaryEntity;
 import com.player.chat.entity.DirectoryEntity;
 import com.player.common.entity.ChatDocEntity;
 import com.player.common.entity.ChatModelEntity;
@@ -16,6 +17,12 @@ public interface ChatMapper {
     List<ChatEntity> getChatHistory(String tenantId, String userId, int start, int limit);
 
     Long getChatHistoryTotal(String tenantId, String userId);
+
+    /** 读取会话概要总结（MySQL 备份，用于 MongoDB 不可用时恢复） */
+    String getChatHistorySummary(String userId, String chatId);
+
+    /** 保存/更新会话概要总结（同会话一行，ON DUPLICATE KEY UPDATE） */
+    Long saveChatHistorySummary(ChatHistorySummaryEntity chatHistorySummaryEntity);
 
     List<ChatEntity> getChatHistoryByChatId(String userId, String chatId);
 
