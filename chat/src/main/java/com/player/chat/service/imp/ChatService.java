@@ -56,6 +56,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Arrays;
+import com.player.chat.utils.ChatModelFactory;
 import java.util.concurrent.CompletableFuture;
 import java.util.Date;
 import java.util.List;
@@ -103,7 +110,8 @@ public class ChatService implements IChatService {
             Map.of("value", "recursive", "label", "递归字符分割（推荐）", "description", "按段落、句子、字符递归切分，兼顾语义完整性"),
             Map.of("value", "paragraph", "label", "按段落分割", "description", "按空行/段落边界切分"),
             Map.of("value", "sentence", "label", "按句子分割", "description", "按句号、感叹号、问号等句子边界切分"),
-            Map.of("value", "fixed", "label", "固定长度分割", "description", "按固定字符数切分")
+            Map.of("value", "fixed", "label", "固定长度分割", "description", "按固定字符数切分"),
+            Map.of("value", "intelligent", "label", "智能分割", "description", "调用指定大模型按语义完整性智能切分，需传入 modelId")
     );
 
     @Override
@@ -320,7 +328,9 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ResultEntity uploadDoc(MultipartFile file, String userId,String tenantId,String directoryId,String splitMethod,Integer chunkSize,String permission,String companyId) throws IOException {
+    public ResultEntity uploadDoc(MultipartFile file, String userId, String tenantId, String directoryId,
+                                  String splitMethod, Integer chunkSize, String permission, String companyId,
+                                  String modelId) throws IOException {
         // 1. 基础验证
         if (file.isEmpty()) {
             return ResultUtil.fail(null, "文件不能为空");
@@ -335,6 +345,11 @@ public class ChatService implements IChatService {
         // fixed 分割方式需要用户提供 chunkSize 参数
         if ("fixed".equals(splitMethod) && (chunkSize == null || chunkSize <= 0)) {
             return ResultUtil.fail("fixed 分割方式需要提供有效的 chunkSize 参数");
+        }
+
+        // 智能分割必须提供 modelId（调用大模型做语义切分）
+        if ("intelligent".equals(splitMethod) && (modelId == null || modelId.trim().isEmpty())) {
+            return ResultUtil.fail("智能分割需要提供 modelId 参数");
         }
 
         // 文档权限只能是 private/tenant/company，非法值回退为 private（私密）
@@ -369,8 +384,8 @@ public class ChatService implements IChatService {
                 return ResultUtil.fail("无法从文档提取文本内容");
             }
 
-            // 4. 按用户选择的分割方式切分
-            List<String> chunks = splitContent(fullText, splitMethod, chunkSize);
+            // 4. 按用户选择的分割方式切分（智能分割会调用 modelId 对应的模型做语义切分，失败自动降级为 recursive）
+            List<String> chunks = splitContent(fullText, splitMethod, chunkSize, modelId, companyId);
             if (chunks.isEmpty()) {
                 return ResultUtil.fail("分割后无有效文本");
             }
@@ -461,6 +476,154 @@ public class ChatService implements IChatService {
         try (HWPFDocument document = new HWPFDocument(new ByteArrayInputStream(fileBytes))) {
             return document.getDocumentText();
         }
+    }
+
+    /**
+     * 根据分割方式把文本切分为多个片段（带智能分割：splitMethod=intelligent 时调用 modelId 对应的模型做语义切分）。
+     * <p>
+     * 智能分割失败（模型配置查不到 / 模型实例创建失败 / 模型返回无法解析且按行兜底也拿不到内容）时，
+     * 自动降级为 recursive 递归分割，保证上传流程不中断。与 FastAPI 的 process_text_content 行为一致。
+     */
+    private List<String> splitContent(String content, String splitMethod, Integer chunkSize,
+                                      String modelId, String companyId) {
+        if ("intelligent".equals(splitMethod)) {
+            List<String> chunks = intelligentSplit(content, modelId, companyId, chunkSize);
+            if (!chunks.isEmpty()) {
+                return chunks;
+            }
+            log.warn("智能分割结果为空（modelId={}），降级为 recursive 分割", modelId);
+            return splitContent(content, "recursive", chunkSize);
+        }
+        return splitContent(content, splitMethod, chunkSize);
+    }
+
+    /**
+     * 智能分割：提示词要求模型严格以 JSON 字符串数组返回分块结果（每块不超过 chunkSize，默认 1000 字符）。
+     * 解析失败按行兜底；单块超长再按固定长度二次切分；整体失败返回空列表由调用方降级。
+     */
+    private List<String> intelligentSplit(String content, String modelId, String companyId, Integer chunkSize) {
+        try {
+            ChatModelEntity chatModelEntity = chatMapper.getModelByIdForSplit(modelId, companyId);
+            if (chatModelEntity == null) {
+                log.warn("智能分割未找到模型配置: modelId={}, companyId={}", modelId, companyId);
+                return new ArrayList<>();
+            }
+
+            ChatModel chatModel = ChatModelFactory.create(chatModelEntity, 0.1);
+            int maxChunk = (chunkSize != null && chunkSize > 0) ? chunkSize : 1000;
+
+            String systemPrompt = "你是一个专业的文档语义分割助手。请把用户提供的文档内容切分成若干个语义完整的片段。"
+                    + "要求：\n"
+                    + "1. 每个片段不超过 " + maxChunk + " 个字符；\n"
+                    + "2. 片段边界必须落在语义完整的段落、章节或句子处，禁止从句子中间截断；\n"
+                    + "3. 保持原文内容不变，不要改写、总结或增删内容；\n"
+                    + "4. 片段数量尽可能少，但要保证每个片段不超过长度限制；\n"
+                    + "5. 必须严格输出一个 JSON 字符串数组，例如：[\"片段1\", \"片段2\"]，不要输出任何解释、Markdown 代码块或其它内容。";
+
+            // 控制单次送模型的内容长度，超长文档按 8000 字符分段处理（避免超出上下文）
+            List<String> segments = splitByLength(content, 8000);
+            List<String> allChunks = new ArrayList<>();
+            for (String segment : segments) {
+                String text = chatModel.chat(List.of(
+                        SystemMessage.from(systemPrompt),
+                        UserMessage.from(segment))).aiMessage().text();
+                List<String> chunks = parseIntelligentSplitResult(text);
+                if (chunks.isEmpty()) {
+                    log.warn("智能分割返回结果解析失败，使用按行兜底切分");
+                    chunks = Arrays.stream(segment.split("\\R"))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toList());
+                }
+                allChunks.addAll(chunks);
+            }
+
+            // 二次兜底：单块超长时再按本地固定长度切分
+            List<String> finalChunks = new ArrayList<>();
+            for (String chunk : allChunks) {
+                if (chunk.length() <= maxChunk) {
+                    finalChunks.add(chunk);
+                } else {
+                    finalChunks.addAll(splitContent(chunk, "fixed", maxChunk));
+                }
+            }
+            log.info("智能分割完成: 原始长度={}, 分段送模型={}, 最终块数={}", content.length(), segments.size(), finalChunks.size());
+            return finalChunks;
+
+        } catch (Exception e) {
+            log.error("智能分割失败: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 把超长文本按行累积切分为不超过 maxLen 的若干段（用于分批送模型）。
+     */
+    private List<String> splitByLength(String content, int maxLen) {
+        List<String> segments = new ArrayList<>();
+        if (content.length() <= maxLen) {
+            segments.add(content);
+            return segments;
+        }
+        StringBuilder buffer = new StringBuilder();
+        for (String line : content.split("(?<=\\n)")) {
+            if (buffer.length() + line.length() > maxLen && buffer.length() > 0) {
+                segments.add(buffer.toString());
+                buffer.setLength(0);
+            }
+            buffer.append(line);
+        }
+        if (buffer.length() > 0) {
+            segments.add(buffer.toString());
+        }
+        return segments;
+    }
+
+    /**
+     * 解析大模型返回的分割结果：优先按 JSON 字符串数组解析，兼容 ````json ```` 代码块包裹，
+     * 再尝试截取第一个 [ ... ] 解析；都失败返回空列表（由调用方走兜底）。
+     */
+    private List<String> parseIntelligentSplitResult(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        String cleaned = text.trim();
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replaceAll("^`+", "").replaceAll("`+$", "").trim();
+            if (cleaned.toLowerCase().startsWith("json")) {
+                cleaned = cleaned.substring(4).trim();
+            }
+        }
+
+        List<String> chunks = tryParseJsonArray(cleaned);
+        if (!chunks.isEmpty()) {
+            return chunks;
+        }
+
+        int start = cleaned.indexOf('[');
+        int end = cleaned.lastIndexOf(']');
+        if (start != -1 && end > start) {
+            chunks = tryParseJsonArray(cleaned.substring(start, end + 1));
+        }
+        return chunks;
+    }
+
+    private List<String> tryParseJsonArray(String json) {
+        List<String> chunks = new ArrayList<>();
+        try {
+            JsonNode node = new ObjectMapper().readTree(json);
+            if (node != null && node.isArray()) {
+                for (JsonNode item : node) {
+                    String value = item.asText("").trim();
+                    if (!value.isEmpty()) {
+                        chunks.add(value);
+                    }
+                }
+            }
+        } catch (Exception ignore) {
+            // 解析失败交给调用方兜底
+        }
+        return chunks;
     }
 
     /**

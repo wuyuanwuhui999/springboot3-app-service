@@ -30,6 +30,9 @@ public interface ChatMapper {
 
     ChatModelEntity getModelById(String companyId, String modelId);
 
+    /** 智能分割用：按模型ID查配置，companyId 为空时不做企业过滤（与 FastAPI get_model_by_id 语义一致） */
+    ChatModelEntity getModelByIdForSplit(String modelId, String companyId);
+
     /**
      * 根据 userId、tenantId、promptId 查询提示词内容（chat WebSocket 使用）
      */

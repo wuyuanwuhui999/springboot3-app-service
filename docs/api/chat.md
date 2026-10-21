@@ -91,8 +91,14 @@
 
 ### 5. 上传文档
 - 接口：`POST /service/chat/uploadDoc`
-- 入参：`X-User-Id`（Header）+ Form：`tenantId`（可选，默认 personal）、`directoryId`（可选，默认 public）、`splitMethod`（可选，分割方式，默认 recursive）、`chunkSize`（可选，splitMethod=fixed 时必填，自定义块大小）、`permission`（可选，文档权限，默认 private）、`file`（文件，支持 pdf/docx/doc/txt）
+- 入参：`X-User-Id`（Header）+ Form：`tenantId`（可选，默认 personal）、`directoryId`（可选，默认 public）、`splitMethod`（可选，分割方式，默认 recursive）、`chunkSize`（可选，splitMethod=fixed / intelligent 时的目标块大小，智能分割默认 1000）、`permission`（可选，文档权限，默认 private）、`companyId`（可选，所属公司ID）、`modelId`（可选，**splitMethod=intelligent 时必填**：用该模型做语义切分）、`file`（文件，支持 pdf/docx/doc/txt）
 - 说明：文档分片写入向量库（Chroma）时，metadata 会写入 `create_time`（当前系统时间，格式 `yyyy-MM-dd HH:mm:ss`），同一份文档的所有分片共用同一个时间；检索时用于区分文档新旧
+- 智能分割（`splitMethod=intelligent`）：
+  - 必须传 `modelId`，否则返回 400（Spring 返回 `ResultEntity.fail("智能分割需要提供 modelId 参数")`）
+  - 读取文件全文后，调用 `modelId` 对应的模型（按 `companyId` 校验企业归属，为空时不做企业过滤）做语义切分：提示词要求严格返回 JSON 字符串数组、每块不超过 `chunkSize`、保持原文不改写
+  - 单次送模型的内容超过 8000 字符时先分段；模型返回解析不出 JSON 时按行兜底切分；单块超长再按固定长度二次切分
+  - 模型查不到 / 实例创建失败 / 结果为空时**自动降级为 recursive 递归分割**，上传流程不中断（记录 warning 日志）
+  - 智能分割产出的分片同样写入 `create_time`（同一文档共用），文档时间优先规则照常生效
 - 出参：ResultEntity
 - 出参示例：
 ```json
@@ -117,7 +123,8 @@
     {"value":"recursive","label":"递归字符分割（推荐）","description":"按段落、句子、字符递归切分，兼顾语义完整性"},
     {"value":"paragraph","label":"按段落分割","description":"按空行/段落边界切分"},
     {"value":"sentence","label":"按句子分割","description":"按句号、感叹号、问号等句子边界切分"},
-    {"value":"fixed","label":"固定长度分割","description":"按固定字符数切分"}
+    {"value":"fixed","label":"固定长度分割","description":"按固定字符数切分"},
+    {"value":"intelligent","label":"智能分割","description":"调用指定大模型按语义完整性智能切分，需传入 modelId"}
   ],
   "status":"SUCCESS","msg":null,"total":null,"token":null
 }

@@ -89,6 +89,18 @@
         WHERE id = #{modelId} AND company_id = #{companyId} AND (disabled = 0 OR disabled IS NULL)
     </select>
 
+    <!-- 智能分割用：companyId 为空时不做企业过滤（与 FastAPI get_model_by_id 一致） -->
+    <select id="getModelByIdForSplit" resultType="com.player.common.entity.ChatModelEntity">
+        SELECT
+        id, type, api_key as apiKey, model_name as modelName,
+        base_url as baseUrl, disabled, create_time as createTime, update_time as updateTime
+        FROM chat_model
+        WHERE id = #{modelId} AND (disabled = 0 OR disabled IS NULL)
+        <if test="companyId != null and companyId != ''">
+            AND company_id = #{companyId}
+        </if>
+    </select>
+
     <!-- 修改原有的getModelList查询 -->
     <select id="getModelList" resultType="com.player.common.entity.ChatModelEntity">
         SELECT

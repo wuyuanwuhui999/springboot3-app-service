@@ -4,26 +4,21 @@ import com.player.chat.config.MongoChatMemoryStore;
 import com.player.chat.constants.SystemtConstants;
 import com.player.chat.entity.ChatHistorySummaryEntity;
 import com.player.chat.mapper.ChatMapper;
+import com.player.chat.utils.ChatModelFactory;
 import com.player.common.entity.ChatModelEntity;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.http.client.spring.restclient.SpringRestClient;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.ollama.OllamaChatModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 会话记录压缩（概要总结）服务。
@@ -100,7 +95,7 @@ public class ChatSummaryService {
                 log.error("会话压缩失败：模型不存在或已禁用, modelId={}", modelId);
                 return;
             }
-            ChatModel chatModel = getChatModel(chatModelEntity);
+            ChatModel chatModel = ChatModelFactory.create(chatModelEntity);
 
             String oldSummary = mongoChatMemoryStore.getSummary(chatId);
             StringBuilder userContent = new StringBuilder();
@@ -146,27 +141,4 @@ public class ChatSummaryService {
         return value == null ? "" : value;
     }
 
-    /** 按模型配置构建「同步」聊天模型（压缩总结用；与 AssistantSelector 的流式模型同源） */
-    private ChatModel getChatModel(ChatModelEntity chatModelEntity) {
-        if ("ollama".equals(chatModelEntity.getType())) {
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Content-Type", "application/json;charset=utf-8");
-            return OllamaChatModel.builder()
-                    .baseUrl(chatModelEntity.getBaseUrl())
-                    .modelName(chatModelEntity.getModelName())
-                    .temperature(0.3)
-                    .timeout(Duration.ofMinutes(2))
-                    .customHeaders(headers)
-                    .httpClientBuilder(SpringRestClient.builder())
-                    .build();
-        }
-        return OpenAiChatModel.builder()
-                .baseUrl(chatModelEntity.getBaseUrl())
-                .apiKey(chatModelEntity.getApiKey())
-                .modelName(chatModelEntity.getModelName())
-                .temperature(0.3)
-                .timeout(Duration.ofMinutes(2))
-                .httpClientBuilder(SpringRestClient.builder())
-                .build();
-    }
 }

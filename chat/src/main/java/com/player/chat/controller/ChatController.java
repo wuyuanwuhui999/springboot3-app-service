@@ -70,9 +70,10 @@ public class ChatController {
             @RequestParam(value = "splitMethod", required = false, defaultValue = "recursive") String splitMethod,
             @RequestParam(value = "chunkSize", required = false) Integer chunkSize,
             @RequestParam(value = "permission", required = false, defaultValue = "private") String permission,
-            @RequestParam(value = "companyId", required = false) String companyId
+            @RequestParam(value = "companyId", required = false) String companyId,
+            @RequestParam(value = "modelId", required = false) String modelId
     ) throws IOException {
-        return chatService.uploadDoc(file,userId,tenantId,directoryId,splitMethod,chunkSize,permission,companyId);
+        return chatService.uploadDoc(file, userId, tenantId, directoryId, splitMethod, chunkSize, permission, companyId, modelId);
     }
 
     @GetMapping("/getDocListByDirId")
