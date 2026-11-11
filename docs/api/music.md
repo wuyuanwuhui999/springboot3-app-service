@@ -535,6 +535,9 @@
 | update_time | datetime | 是 |  | 更新时间 |
 | version | varchar(255) | 是 |  | app版本 |
 
+> 索引：`idx_user_music_time(user_id, music_id, create_time)`、`idx_music_time(music_id, create_time)`、`idx_create_time(create_time)`；`create_time` 默认 `CURRENT_TIMESTAMP`，插入时显式写入（避免历史数据 NULL 影响时间统计）。
+> 播放次数统计见下方 `user_music_play_stat` / `music_play_stat`（异步双写）。
+
 ### 8. music_author_category（音乐歌手分类）
 
 | 字段 | 类型 | 空 | 键 | 说明 |
@@ -574,3 +577,37 @@
 | update_time | datetime | 是 |  | 更新时间 |
 | user_id | varchar(255) | 是 |  | 用户id |
 
+
+### 播放记录统计（异步双写）
+
+- 播放记录接口 `insertMusicRecord`：**同步**插入 `music_record`（唯一事实来源），**异步**更新两张统计表；
+  统计失败只记 warning，**不回滚播放记录**，也不影响接口返回
+- 同一首歌重复播放上报几次就计几次（不做去重）
+- 统计更新用原子 UPSERT（`ON DUPLICATE KEY UPDATE play_count = play_count + 1`），同时刷新
+  `last_play_time` / `update_time`；`first_play_time` 只在首次写入时赋值
+- 读「我听了几次」：`user_music_play_stat` 主键 `(user_id, music_id)` 直接命中，不需要扫原始表
+- 搜索排名/排行榜：读 `music_play_stat.play_count`（有 `idx_play_count` 索引）
+- 存量数据回填 + 建表/建索引 SQL：仓库根目录 `music_play_stat.sql`（幂等，可重复执行）
+
+### 11. user_music_play_stat（用户播放记录统计表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| user_id | varchar(64) | 否 | 主键 | 用户id |
+| music_id | int | 否 | 主键 | 音乐id |
+| play_count | int unsigned | 否 |  | 该用户播放该歌曲的总次数 |
+| first_play_time | datetime | 是 |  | 首次播放时间 |
+| last_play_time | datetime | 是 |  | 最近播放时间（索引 idx_user_last） |
+| create_time | datetime | 否 |  | 创建时间 |
+| update_time | datetime | 否 |  | 更新时间（每次统计更新刷新） |
+
+### 12. music_play_stat（歌曲播放记录统计表）
+
+| 字段 | 类型 | 空 | 键 | 说明 |
+|------|------|-----|------|------|
+| music_id | int | 否 | 主键 | 音乐id |
+| play_count | bigint unsigned | 否 | 索引 | 该歌曲的播放总次数（idx_play_count，用于排名） |
+| first_play_time | datetime | 是 |  | 首次播放时间 |
+| last_play_time | datetime | 是 |  | 最近播放时间 |
+| create_time | datetime | 否 |  | 创建时间 |
+| update_time | datetime | 否 |  | 更新时间（每次统计更新刷新） |

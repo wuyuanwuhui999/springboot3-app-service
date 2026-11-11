@@ -226,6 +226,30 @@
         LIMIT #{start},#{pageSize}
     </select>
 
+    <!-- 播放统计：用户维度自增（播放一次 +1，同时刷新 last_play_time / update_time） -->
+    <insert id="incrementUserMusicPlayStat">
+        INSERT INTO user_music_play_stat
+            (user_id, music_id, play_count, first_play_time, last_play_time, create_time, update_time)
+        VALUES (#{userId}, #{musicId}, 1, #{playTime}, #{playTime}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+            play_count = play_count + 1,
+            first_play_time = IF(first_play_time IS NULL, #{playTime}, first_play_time),
+            last_play_time = IF(last_play_time IS NULL, #{playTime}, GREATEST(last_play_time, #{playTime})),
+            update_time = NOW()
+    </insert>
+
+    <!-- 播放统计：歌曲维度自增（搜索排名/排行榜用） -->
+    <insert id="incrementMusicPlayStat">
+        INSERT INTO music_play_stat
+            (music_id, play_count, first_play_time, last_play_time, create_time, update_time)
+        VALUES (#{musicId}, 1, #{playTime}, #{playTime}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+            play_count = play_count + 1,
+            first_play_time = IF(first_play_time IS NULL, #{playTime}, first_play_time),
+            last_play_time = IF(last_play_time IS NULL, #{playTime}, GREATEST(last_play_time, #{playTime})),
+            update_time = NOW()
+    </insert>
+
     <select id="getMusicRecordCount" resultType="Long">
         SELECT
         COUNT( * )

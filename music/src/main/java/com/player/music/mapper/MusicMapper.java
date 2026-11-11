@@ -40,6 +40,16 @@ public interface MusicMapper {
 
     Long insertMusicRecord(MusicRecordEntity myMusicRecordEntity);
 
+    /**
+     * 用户播放记录统计表自增（user_id,music_id 唯一，播放一次 +1，同时刷新 last_play_time / update_time）
+     */
+    Long incrementUserMusicPlayStat(String userId, int musicId, Date playTime);
+
+    /**
+     * 歌曲播放记录统计表自增（music_id 唯一，播放一次 +1，同时刷新 last_play_time / update_time）
+     */
+    Long incrementMusicPlayStat(int musicId, Date playTime);
+
     Long insertMusicLike(String userId,int musicId);
 
     Long deleteMusicLike(String userId,int musicId);

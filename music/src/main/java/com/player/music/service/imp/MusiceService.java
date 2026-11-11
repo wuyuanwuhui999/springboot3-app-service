@@ -10,6 +10,7 @@ import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
 import com.player.music.mapper.MusicMapper;
 import com.player.music.service.IMusicService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 import java.util.List;
 
+@Slf4j
 @Service
 public class MusiceService implements IMusicService {
 
@@ -127,7 +130,31 @@ public class MusiceService implements IMusicService {
     @Override
     public ResultEntity insertMusicRecord(String userId, MusicRecordEntity musicRecordEntity){
         musicRecordEntity.setUserId(userId);
-        return ResultUtil.success(musicMapper.insertMusicRecord(musicRecordEntity));
+        Long id = musicMapper.insertMusicRecord(musicRecordEntity);
+
+        // 播放统计表异步更新：不阻塞响应；失败只记日志，不影响已插入的播放记录（不回滚）
+        final int musicId = musicRecordEntity.getMusicId();
+        final Date playTime = new Date();
+        CompletableFuture.runAsync(() -> updatePlayStat(userId, musicId, playTime));
+
+        return ResultUtil.success(id);
+    }
+
+    /**
+     * 更新两张播放统计表（用户维度 + 歌曲维度）。
+     * <p>
+     * 播放记录已经提交，这里失败**不影响播放记录、也不回滚**（只记 warning，靠对账脚本兜底）；
+     * 与 FastAPI 的 _update_play_stat_async 逻辑一致。
+     */
+    private void updatePlayStat(String userId, int musicId, Date playTime) {
+        try {
+            musicMapper.incrementUserMusicPlayStat(userId, musicId, playTime);
+            musicMapper.incrementMusicPlayStat(musicId, playTime);
+            log.info("播放统计已更新: userId={}, musicId={}", userId, musicId);
+        } catch (Exception e) {
+            log.warn("播放统计更新失败（播放记录不受影响）: userId={}, musicId={}, err={}",
+                    userId, musicId, e.getMessage());
+        }
     }
 
     /**
