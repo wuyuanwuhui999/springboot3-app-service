@@ -453,7 +453,7 @@
 | big_pack_id | int | 是 |  | 大型集合id |
 | final_id | int | 是 |  | 最终id |
 | audio_id | int | 是 |  | 音频id |
-| similar_audio_id | int | 是 |  | 相似的音乐id |
+| similar_audio_id | varchar(255) | 是 |  | 相似的音乐id（多个用英文逗号分隔） |
 | is_hot | int | 是 |  | 是否热门 |
 | album_audio_id | int | 是 |  | 歌曲音频id |
 | audio_group_id | int | 是 |  | 专辑id |

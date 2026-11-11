@@ -56,7 +56,7 @@ public class MusicEntity {
     private Long audioId;
 
     @Schema(description = "未使用字段")
-    private Long similarAudioId;
+    private String similarAudioId;
 
     @Schema(description = "是否热门")
     private int isHot;
