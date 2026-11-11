@@ -227,8 +227,8 @@
     </select>
 
     <!-- 播放统计：用户维度自增（播放一次 +1，同时刷新 last_play_time / update_time） -->
-    <insert id="incrementUserMusicPlayStat">
-        INSERT INTO user_music_play_stat
+    <insert id="incrementMusicUserPlayStat">
+        INSERT INTO music_user_play_stat
             (user_id, music_id, play_count, first_play_time, last_play_time, create_time, update_time)
         VALUES (#{userId}, #{musicId}, 1, #{playTime}, #{playTime}, NOW(), NOW())
         ON DUPLICATE KEY UPDATE

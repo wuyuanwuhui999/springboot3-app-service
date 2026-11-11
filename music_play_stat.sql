@@ -1,7 +1,7 @@
 -- ============================================================================
 -- 播放记录统计（每用户每首歌的播放次数 + 每首歌的总播放次数）
 -- 1) music_record 地基：create_time 默认值 + 索引（解决「数据量大就慢」）
--- 2) 两张统计表：user_music_play_stat / music_play_stat
+-- 2) 两张统计表：music_user_play_stat / music_play_stat
 -- 3) 存量数据回填（幂等，可重复执行）
 -- 两个项目（Spring Boot / FastAPI）共用同一套表结构与 SQL
 -- ============================================================================
@@ -16,7 +16,7 @@ CREATE INDEX idx_create_time     ON music_record (create_time);
 
 -- 2) 统计表 -------------------------------------------------------------------
 -- 用户播放记录统计表：主键 (user_id, music_id)，播放一次 +1
-CREATE TABLE IF NOT EXISTS `user_music_play_stat` (
+CREATE TABLE IF NOT EXISTS `music_user_play_stat` (
   `user_id` varchar(64) NOT NULL COMMENT '用户id',
   `music_id` int NOT NULL COMMENT '音乐id',
   `play_count` int unsigned NOT NULL DEFAULT 0 COMMENT '该用户播放该歌曲的总次数',
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `music_play_stat` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='歌曲播放记录统计表（每首歌的播放总次数，用于搜索/排行榜）';
 
 -- 3) 存量数据回填（幂等：每次都按原始表重算并覆盖） ---------------------------
-INSERT INTO user_music_play_stat (user_id, music_id, play_count, first_play_time, last_play_time, create_time, update_time)
+INSERT INTO music_user_play_stat (user_id, music_id, play_count, first_play_time, last_play_time, create_time, update_time)
 SELECT user_id, music_id, COUNT(*), MIN(create_time), MAX(create_time), NOW(), NOW()
 FROM music_record
 WHERE user_id IS NOT NULL AND user_id <> '' AND music_id IS NOT NULL AND music_id > 0
@@ -65,5 +65,5 @@ ON DUPLICATE KEY UPDATE
 
 -- 对账 SQL（两边应当相等）：
 -- SELECT (SELECT COUNT(*) FROM music_record WHERE user_id IS NOT NULL AND user_id<>'' AND music_id>0) AS raw,
---        (SELECT SUM(play_count) FROM user_music_play_stat) AS user_sum,
+--        (SELECT SUM(play_count) FROM music_user_play_stat) AS user_sum,
 --        (SELECT SUM(play_count) FROM music_play_stat) AS music_sum;

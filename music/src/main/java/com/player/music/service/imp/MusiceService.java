@@ -148,7 +148,7 @@ public class MusiceService implements IMusicService {
      */
     private void updatePlayStat(String userId, int musicId, Date playTime) {
         try {
-            musicMapper.incrementUserMusicPlayStat(userId, musicId, playTime);
+            musicMapper.incrementMusicUserPlayStat(userId, musicId, playTime);
             musicMapper.incrementMusicPlayStat(musicId, playTime);
             log.info("播放统计已更新: userId={}, musicId={}", userId, musicId);
         } catch (Exception e) {
