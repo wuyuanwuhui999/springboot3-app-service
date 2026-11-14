@@ -166,7 +166,8 @@
 ### 9. 播放记录
 - 接口：`GET /service/music/getMusicRecord`
 - 入参：`X-User-Id`（Header）+ Query：`startDate`（可选）、`endDate`（可选）、`pageNum`、`pageSize`
-- 出参：ResultEntity，data 为记录列表
+- 说明：查询**用户播放统计表 `music_user_play_stat`**（每用户每首歌一行）关联 `music` 表，统计表的 `play_count` 即返回的 `times`（该用户听过这首歌的次数）；天然按音乐去重，按 `last_play_time` 最近播放时间倒序；`startDate`/`endDate` 作用在 `last_play_time` 上（列表与 total 用同一套条件）
+- 出参：ResultEntity，data 为音乐列表（音乐详情 + `times` 播放次数）
 - 出参示例：
 ```json
 {

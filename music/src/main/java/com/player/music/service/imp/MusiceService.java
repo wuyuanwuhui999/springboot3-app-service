@@ -115,7 +115,8 @@ public class MusiceService implements IMusicService {
         if (pageSize > 500) pageSize = 500;
         int start = (pageNum - 1) * pageSize;
         ResultEntity resultEntity = ResultUtil.success(musicMapper.getMusicRecord(userId,startDate,endDate,start,pageSize));
-        Long mySingerCount = musicMapper.getMusicRecordCount(userId);
+        // 总数与列表用同一套过滤条件（时间范围作用在 last_play_time 上）
+        Long mySingerCount = musicMapper.getMusicRecordCount(userId, startDate, endDate);
         resultEntity.setTotal(mySingerCount);
         return resultEntity;
     }

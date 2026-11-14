@@ -175,96 +175,30 @@
         SELECT count(*) as total FROM music_author_like where user_id = #{userId}
     </select>
 
+    <!-- 用户播放记录：直接查用户播放统计表 music_user_play_stat（每用户每首歌一行，play_count = times）JOIN music -->
     <select id="getMusicRecord" resultType="MusicEntity">
         SELECT
-            *
-        FROM
-            (
-                SELECT
-                    t5.*,
-                    t6.times
-                FROM
-                    (
-                        SELECT
-                            t1.*
-                        FROM
-                            (
-                                SELECT * FROM music_record
-                                WHERE user_id = #{userId}
-                                    <!-- 成对判断开始和结束时间 -->
-                                    <if test="startDate != null and endDate != null">
-                                        AND create_time BETWEEN #{startDate} AND #{endDate}
-                                    </if>
-                            ) t1
-                        INNER JOIN (
-                            SELECT music_id, MAX( create_time ) AS max_date
-                        FROM (
-                            SELECT * FROM music_record
-                        WHERE user_id = #{userId}
-                        <!-- 成对判断开始和结束时间 -->
-                        <if test="startDate != null and endDate != null">
-                            AND create_time BETWEEN #{startDate} AND #{endDate}
-                        </if>
-                    ) t2 GROUP BY music_id
-                ) t3 ON t1.music_id = t3.music_id
-            AND t1.create_time = t3.max_date
-            ORDER BY
-                t1.create_time DESC
-            ) t4
-            INNER JOIN music t5 ON t4.music_id = t5.id
-            INNER JOIN (
-                SELECT COUNT( music_id ) AS times, music_id
-                FROM music_record
-                WHERE 1=1
-                <!-- 成对判断开始和结束时间 -->
-                <if test="startDate != null and endDate != null">
-                    AND create_time BETWEEN #{startDate} AND #{endDate}
-                </if>
-            GROUP BY music_id
-            ) t6 ON t6.music_id = t4.music_id
-            ORDER BY
-                t4.create_time DESC
-            ) t7
+            m.*,
+            s.play_count AS times
+        FROM music_user_play_stat s
+        INNER JOIN music m ON m.id = s.music_id
+        WHERE s.user_id = #{userId}
+        <!-- 成对判断开始和结束时间（作用在最近播放时间上） -->
+        <if test="startDate != null and endDate != null">
+            AND s.last_play_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY s.last_play_time DESC, s.music_id DESC
         LIMIT #{start},#{pageSize}
     </select>
 
-    <!-- 播放统计：用户维度自增（播放一次 +1，同时刷新 last_play_time / update_time） -->
-    <insert id="incrementMusicUserPlayStat">
-        INSERT INTO music_user_play_stat
-            (user_id, music_id, play_count, first_play_time, last_play_time, create_time, update_time)
-        VALUES (#{userId}, #{musicId}, 1, #{playTime}, #{playTime}, NOW(), NOW())
-        ON DUPLICATE KEY UPDATE
-            play_count = play_count + 1,
-            first_play_time = IF(first_play_time IS NULL, #{playTime}, first_play_time),
-            last_play_time = IF(last_play_time IS NULL, #{playTime}, GREATEST(last_play_time, #{playTime})),
-            update_time = NOW()
-    </insert>
-
-    <!-- 播放统计：歌曲维度自增（搜索排名/排行榜用） -->
-    <insert id="incrementMusicPlayStat">
-        INSERT INTO music_play_stat
-            (music_id, play_count, first_play_time, last_play_time, create_time, update_time)
-        VALUES (#{musicId}, 1, #{playTime}, #{playTime}, NOW(), NOW())
-        ON DUPLICATE KEY UPDATE
-            play_count = play_count + 1,
-            first_play_time = IF(first_play_time IS NULL, #{playTime}, first_play_time),
-            last_play_time = IF(last_play_time IS NULL, #{playTime}, GREATEST(last_play_time, #{playTime})),
-            update_time = NOW()
-    </insert>
-
     <select id="getMusicRecordCount" resultType="Long">
-        SELECT
-        COUNT( * )
-        FROM
-        (
-        SELECT
-        t1.*
-        FROM
-        ( SELECT * FROM music_record WHERE user_id = #{userId} ) t1
-        INNER JOIN ( SELECT music_id, MAX( create_time ) AS max_date FROM ( SELECT * FROM music_record WHERE user_id =
-        #{userId} ) t2 GROUP BY music_id ) t3 ON t1.music_id = t3.music_id
-        AND t1.create_time = t3.max_date
-        ) t4
+        SELECT COUNT(*)
+        FROM music_user_play_stat s
+        INNER JOIN music m ON m.id = s.music_id
+        WHERE s.user_id = #{userId}
+        <if test="startDate != null and endDate != null">
+            AND s.last_play_time BETWEEN #{startDate} AND #{endDate}
+        </if>
     </select>
 
     <insert id="insertMusicRecord" parameterType="MusicRecordEntity" useGeneratedKeys="true" keyProperty="id"

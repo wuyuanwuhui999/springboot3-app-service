@@ -36,7 +36,7 @@ public interface MusicMapper {
 
     List<MusicEntity> getMusicRecord(String userId, Date startDate,Date endDate, int start, int pageSize);
 
-    Long getMusicRecordCount(String userId);
+    Long getMusicRecordCount(String userId, Date startDate, Date endDate);
 
     Long insertMusicRecord(MusicRecordEntity myMusicRecordEntity);
 
