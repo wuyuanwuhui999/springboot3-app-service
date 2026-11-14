@@ -40,7 +40,9 @@
     </select>
 
     <select id="getMusicCategory" resultType="MusicCategoryEntity">
-        select id, img, category, classify, create_time, update_time from music_category order by id
+        select id, img, category, classify, create_time, update_time from music_category
+        where classify != '专题歌曲'
+        order by id
     </select>
 
     <select id="getMusicListByCategoryId" resultType="MusicEntity">

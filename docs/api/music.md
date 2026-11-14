@@ -59,7 +59,7 @@
 ### 2. 音乐分类
 - 接口：`GET /service/music/getMusicCategory`
 - 入参：无
-- 说明：查询 `music_category` 表（歌曲分类名称表），按 `id` 升序返回全部分类；`classify` 为大分类、`category` 为小分类、`img` 为类型图片。缓存 key：`musicCategory`
+- 说明：查询 `music_category` 表（歌曲分类名称表），**排除 `classify = '专题歌曲'` 的分类**，其余按 `id` 升序返回；`classify` 为大分类、`category` 为小分类、`img` 为类型图片。缓存 key：`musicCategory`
 - 出参：ResultEntity，data 为分类列表
 - 出参示例：
 ```json
