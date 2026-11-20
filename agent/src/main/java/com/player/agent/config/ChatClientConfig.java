@@ -70,7 +70,7 @@ public class ChatClientConfig {
 
         // 构建ChatClient，可选地使用聊天记忆
         ChatClient.Builder builder = ChatClient.builder(chatModel)
-                .defaultSystem(SystemtConstants.SQL_GENERATOR_PROMPT)
+                .defaultSystem(SystemtConstants.sqlGeneratorPrompt(null))
                 .defaultAdvisors(new SimpleLoggerAdvisor());
 
         // 如果聊天记忆可用，添加它

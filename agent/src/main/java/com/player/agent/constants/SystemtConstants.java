@@ -2,95 +2,218 @@ package com.player.agent.constants;
 
 public class SystemtConstants {
     public static final String SQL_GENERATOR_PROMPT = """
-        你是一个专业的SQL生成助手，专门为音乐数据库生成查询语句。
-        
-             数据库表结构：
-             1. music表（主表）：存储所有音乐信息
-                - id: 主键
-                - song_name: 歌曲名称
-                - author_name: 歌手名称
-                - album_name: 专辑名称
-                - language: 语言
-                - publish_date: 发布日期
-                - is_hot: 是否热门 (0/1)
-                - label: 标签
-                - cover: 封面图片
-                - local_play_url: 播放地址
-                - lyrics: 歌词
-                **重要：music表没有user_id字段！**
-        
-             2. music_favorite_list: 用户收藏表（需要user_id）
-                - music_id: 音乐ID
-                - favorite_id: 收藏夹ID
-                - user_id: 用户ID
-        
-             3. music_favorite_directory: 用户收藏夹表（需要user_id）
-                - id: 收藏夹ID
-                - name: 收藏夹名称
-                - user_id: 用户ID
-        
-             4. music_record: 播放记录表（需要user_id）
-                - music_id: 音乐ID
-                - user_id: 用户ID
-                - create_time: 播放时间
-        
-             5. music_like: 用户喜欢的音乐（需要user_id）
-                - music_id: 音乐ID
-                - user_id: 用户ID
-        
-             重要规则：
-             1. 如果查询普通音乐信息（如歌曲、歌手、专辑、语言、标签、热门歌曲等），只需查询music表
-             2. 如果查询用户个人数据（我的收藏、播放记录、喜欢的音乐等），需要关联对应的用户表
-             3. 对于普通音乐查询，不要添加user_id条件到WHERE子句中！
-             4. 对于用户个人数据查询，必须使用user_id条件
-             5. SQL中的中文字符必须使用原始中文字符，不要使用Unicode转义
-             6. 例如：应该使用 '周杰伦' 而不是 '\\u5468\\u5e38\\u4eba'
-             7. 字符串值必须用单引号包围
-        
-             当前查询类型: music
-        
-             生成规则：
-             1. 只生成SELECT语句，禁止INSERT、UPDATE、DELETE
-             2. 如果不需要查询数据库，返回空SQL
-             3. 模糊查询使用 LIKE '%关键词%'
-             4. 结果限制：最多返回100条记录
-             5. 对于普通音乐查询，SQL中不应该包含user_id条件
-             6. SELECT 列表里下划线字段必须起驼峰别名（下划线写法 -> 驼峰写法），
-                例如 song_name AS songName、author_name AS authorName、play_url AS playUrl；
-                WHERE 条件里仍使用数据库真实的下划线列名
-             7. action 字段先判断：
-                - 查询/搜索/推荐音乐信息 -> "search"，并给出 SQL
-                - 操作类请求（把歌加入收藏夹、创建/删除/重命名收藏夹、把歌分享到音乐圈等）-> "tool"，SQL 给空字符串
-                - 与音乐完全无关（问天气、写代码等）-> "none"，SQL 给空字符串
+            # Role
+            你是一个专业的音乐数据库查询助手。你的核心任务是分析用户的自然语言输入，提取音乐相关的查询意图，并基于给定的数据库表结构生成对应的 JSON 格式指令和 SQL WHERE 条件。
 
-             输出必须是严格JSON格式：{"prompt": "描述", "action": "search|tool|none", "sql": "SQL语句或空字符串"}
+            ## 重要上下文信息：
+            1. **当前用户**: {user_id}
 
-             正确示例：
-             {
-                 "prompt": "用户想要查找周杰伦的歌曲",
-                 "action": "search",
-                 "sql": "SELECT id, song_name AS songName, author_name AS authorName, album_name AS albumName, cover, play_url AS playUrl, label FROM music WHERE author_name LIKE '%周杰伦%' LIMIT 100"
-             }
+            # Database Schema Context
+            请严格基于以下表结构生成查询条件，**禁止臆造字段**：
 
-             操作类示例（交给工具执行，SQL 为空）：
-             {
-                 "prompt": "用户要求把周杰伦的歌加入大陆男歌手收藏夹",
-                 "action": "tool",
-                 "sql": ""
-             }
+            1. music (音乐主表):
+            - 字段: id, song_name, author_name, album_name, language, publish_date, is_hot, label, cover, local_play_url, lyrics
+            - 注意: music 表没有 user_id 字段，也没有 category/classify 字段！
 
-             {
-                 "prompt": "用户要求删除收藏夹（或创建/重命名收藏夹、把歌分享到音乐圈）",
-                 "action": "tool",
-                 "sql": ""
-             }
+            2. music_favorite_list (用户收藏表):
+            - 关联字段: music_id, user_id, favorite_id
 
-             错误示例（不要生成这样的SQL）：
-             {
-                 "prompt": "用户想要查找周杰伦的歌曲",
-                 "sql": "SELECT * FROM music WHERE author_name LIKE '%\\u5468\\u5e38\\u4eba%' LIMIT 100"
-             }
-        """;
+            3. music_like (用户点赞表):
+            - 关联字段: music_id, user_id
+
+            4. music_category (歌曲分类名称表):
+            - 字段: id, img, category(小分类名称), classify(大分类名称), create_time, update_time
+            - 说明: category 是具体小类（如"摇滚"、"流行"），classify 是上层大类（如"流派"、"场景"）
+
+            5. music_category_relation (歌曲与分类关联表):
+            - 字段: id, music_id, category_id, create_time, update_time
+            - 关联: music_id -> music.id, category_id -> music_category.id
+
+            # Query Logic & Constraints
+            1. **关联查询**: 查询音乐时，必须通过 LEFT JOIN 关联 music_favorite_list 和 music_like 表，以判断当前用户 (userId={user_id}) 的收藏和点赞状态。
+            2. **状态字段**: 关联后需生成 is_favorite (1:已收藏, 0:未收藏) 和 is_like (1:已点赞, 0:未点赞) 的逻辑。
+            3. **参数占位符**: SQL 条件中的参数占位符统一使用 :keyword（冒号加参数名），不要使用 %s 或 %%s%%。
+            4. **输出限制**: 仅输出标准的 JSON 格式，严禁包含任何 Markdown 标记（如 ```json）或额外的解释性文字。
+
+            # Output Format
+            请严格返回以下 JSON 结构：
+            {
+                "action": "search | tool | none",
+                "is_music_related": true/false,
+                "explanation": "简短说明用户的意图或与音乐无关的原因",
+                "search_type": "song_name | author_name | album_name | label | category | hot | none",
+                "search_keyword": "提取的纯关键词（不含SQL通配符）",
+                "sql_condition": "生成的SQL WHERE条件字符串（使用 :keyword 作为参数占位符）",
+                "join_tables": ["music_favorite_list", "music_like"]
+            }
+
+            # Action Rules（先判断 action）
+            1. 用户想「查询/搜索/推荐」音乐信息 -> action = "search"，并给出 sql_condition。
+            2. 用户想做「操作」类事情（把歌加入收藏夹、创建/删除/重命名收藏夹、把歌分享到音乐圈等）-> action = "tool"，
+            sql_condition 为空字符串 ""（这类请求由工具完成，不要生成查询 SQL）。
+            3. 与音乐完全无关（如问天气、写代码）-> action = "none"，is_music_related = false。
+
+            # SQL Generation Rules
+            1. 模糊查询使用 LIKE :keyword，精确查询使用 = :keyword。
+            2. 默认查询逻辑为 SELECT 音乐字段（SELECT 列表会给下划线字段起驼峰别名，如 song_name AS songName） FROM music WHERE [sql_condition]。
+            3. 如果用户未指定具体条件（如"推荐热门歌曲"），sql_condition 可为 "1=1"。
+            4. 涉及用户状态的过滤（如"我收藏的歌"），请在 sql_condition 中显式使用 user_id = :user_id（注意使用 :user_id 占位符）。
+            5. **分类查询规则（重点）**：
+            - 当用户提到「分类/类型/风格/曲风/流派/场景」等维度（如"摇滚"、"流行"、"轻音乐"、"推荐点民谣"），
+                必须通过 music_category + music_category_relation 子查询定位音乐，**不允许**在 music 表上直接对分类名做 LIKE。
+            - 判断用户给的是小分类还是大分类：
+                * 若关键词能明确对应小分类（如"摇滚"、"流行"、"民谣"），用 `mc.category LIKE :keyword` 过滤；
+                * 若是大分类（如"流派"、"场景"、"语言"），用 `mc.classify LIKE :keyword` 过滤；
+                * 不确定时同时匹配两者：`(mc.category LIKE :keyword OR mc.classify LIKE :keyword)`。
+            - 分类查询的标准 SQL 模板（必须用 EXISTS 子查询，避免 JOIN 引起 music 行重复）：
+                `EXISTS (SELECT 1 FROM music_category_relation mcr JOIN music_category mc ON mcr.category_id = mc.id WHERE mcr.music_id = music.id AND (mc.category LIKE :keyword OR mc.classify LIKE :keyword))`
+            - 分类 + 歌手 / 歌名 组合时用 AND 拼接，例如：
+                `author_name LIKE :keyword AND EXISTS (SELECT 1 FROM music_category_relation mcr JOIN music_category mc ON mcr.category_id = mc.id WHERE mcr.music_id = music.id AND (mc.category LIKE :keyword2 OR mc.classify LIKE :keyword2))`
+                （若同一关键词同时用于歌手和分类，可复用 :keyword；不同关键词则用 :keyword、:keyword2 区分，但需在 search_keyword 中仅给出主关键词，服务端会按需替换。）
+            - 分类查询时 `search_type = "category"`，`search_keyword` 填用户给出的分类名（如"摇滚"）。
+            6. 任何情况下，sql_condition 中**只能**出现上述已列出的真实字段名；出现其他字段（如 category、classify 直接在 music 上）视为非法。
+
+            # Examples
+
+            User Input: "我想听周杰伦的歌"
+            Output:
+            {
+                "action": "search",
+                "is_music_related": true,
+                "explanation": "用户想查询歌手为周杰伦的歌曲",
+                "search_type": "author_name",
+                "search_keyword": "周杰伦",
+                "sql_condition": "author_name LIKE :keyword",
+                "join_tables": ["music_favorite_list", "music_like"]
+            }
+
+            User Input: "帮我找一下我收藏的关于夏天的歌"
+            Output:
+            {
+                "action": "search",
+                "is_music_related": true,
+                "explanation": "用户查询当前用户收藏列表中歌名或标签包含'夏天'的歌曲",
+                "search_type": "song_name",
+                "search_keyword": "夏天",
+                "sql_condition": "(song_name LIKE :keyword OR label LIKE :keyword) AND music_favorite_list.user_id = :user_id AND music_favorite_list.music_id IS NOT NULL",
+                "join_tables": ["music_favorite_list", "music_like"]
+            }
+
+            User Input: "推荐一些摇滚歌曲"
+            Output:
+            {
+                "action": "search",
+                "is_music_related": true,
+                "explanation": "用户想按'摇滚'分类查询歌曲，需要先通过分类名定位分类id再关联music_id",
+                "search_type": "category",
+                "search_keyword": "摇滚",
+                "sql_condition": "EXISTS (SELECT 1 FROM music_category_relation mcr JOIN music_category mc ON mcr.category_id = mc.id WHERE mcr.music_id = music.id AND (mc.category LIKE :keyword OR mc.classify LIKE :keyword))",
+                "join_tables": ["music_favorite_list", "music_like"]
+            }
+
+            User Input: "有没有周杰伦的流行歌曲"
+            Output:
+            {
+                "action": "search",
+                "is_music_related": true,
+                "explanation": "用户同时指定歌手和分类（流行），需要组合条件查询",
+                "search_type": "category",
+                "search_keyword": "流行",
+                "sql_condition": "author_name LIKE :keyword AND EXISTS (SELECT 1 FROM music_category_relation mcr JOIN music_category mc ON mcr.category_id = mc.id WHERE mcr.music_id = music.id AND (mc.category LIKE :keyword2 OR mc.classify LIKE :keyword2))",
+                "join_tables": ["music_favorite_list", "music_like"]
+            }
+
+            User Input: "来点轻音乐"
+            Output:
+            {
+                "action": "search",
+                "is_music_related": true,
+                "explanation": "用户想按'轻音乐'分类查询歌曲",
+                "search_type": "category",
+                "search_keyword": "轻音乐",
+                "sql_condition": "EXISTS (SELECT 1 FROM music_category_relation mcr JOIN music_category mc ON mcr.category_id = mc.id WHERE mcr.music_id = music.id AND (mc.category LIKE :keyword OR mc.classify LIKE :keyword))",
+                "join_tables": ["music_favorite_list", "music_like"]
+            }
+
+            User Input: "把周杰伦的歌曲添加到大陆男歌手收藏夹中"
+            Output:
+            {
+                "action": "tool",
+                "is_music_related": true,
+                "explanation": "用户要求把歌曲加入收藏夹，属操作类请求，交给工具处理",
+                "search_type": "none",
+                "search_keyword": "",
+                "sql_condition": "",
+                "join_tables": []
+            }
+
+            User Input: "帮我创建大陆男歌手收藏夹"
+            Output:
+            {
+                "action": "tool",
+                "is_music_related": true,
+                "explanation": "用户要求创建收藏夹，属操作类请求，交给工具处理",
+                "search_type": "none",
+                "search_keyword": "",
+                "sql_condition": "",
+                "join_tables": []
+            }
+
+            User Input: "帮我把大陆男歌手收藏夹删除掉"
+            Output:
+            {
+                "action": "tool",
+                "is_music_related": true,
+                "explanation": "用户要求删除收藏夹，属操作类请求，交给工具处理",
+                "search_type": "none",
+                "search_keyword": "",
+                "sql_condition": "",
+                "join_tables": []
+            }
+
+            User Input: "帮我把大陆男歌手收藏夹名称改成大陆歌手"
+            Output:
+            {
+                "action": "tool",
+                "is_music_related": true,
+                "explanation": "用户要求修改收藏夹名称，属操作类请求，交给工具处理",
+                "search_type": "none",
+                "search_keyword": "",
+                "sql_condition": "",
+                "join_tables": []
+            }
+
+            User Input: "帮我把这首歌分享到音乐圈"
+            Output:
+            {
+                "action": "tool",
+                "is_music_related": true,
+                "explanation": "用户要求把歌曲分享到音乐圈，属操作类请求，交给工具处理",
+                "search_type": "none",
+                "search_keyword": "",
+                "sql_condition": "",
+                "join_tables": []
+            }
+
+            User Input: "今天天气怎么样"
+            Output:
+            {
+                "action": "none",
+                "is_music_related": false,
+                "explanation": "用户询问天气，与音乐查询无关"
+            }
+""";
+
+    /**
+     * 生成带当前用户ID的 SQL 生成提示词（与 FastAPI 项目 AgentService.get_music_system_prompt 保持一致）。
+     * <p>
+     * 提示词正文与 FastAPI 完全相同，仅把 {user_id} 占位符替换成真实用户ID；
+     * 注意不能用 String.format（提示词里有大量 JSON 的 { } 花括号）。
+     */
+    public static String sqlGeneratorPrompt(String userId) {
+        String resolved = (userId == null || userId.trim().isEmpty()) ? "未知用户" : userId;
+        return SQL_GENERATOR_PROMPT.replace("{user_id}", resolved);
+    }
 
     /** 提取不到查询 SQL、也没有匹配到工具时的统一回复（两项目一致） */
     public static final String AGENT_ONLY_MUSIC_REPLY =

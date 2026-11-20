@@ -113,7 +113,8 @@ public class AgentUtils {
                 params.getType() != null ? params.getType() : "music"
         );
 
-        Message systemMessage = new SystemMessage(SystemtConstants.SQL_GENERATOR_PROMPT);
+        Message systemMessage = new SystemMessage(SystemtConstants.sqlGeneratorPrompt(
+                params.getUserId() != null ? params.getUserId() : "未知用户"));
         Message userMessageObj = new UserMessage(userMessage);
 
         Prompt prompt = new Prompt(List.of(systemMessage, userMessageObj));
