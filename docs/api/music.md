@@ -75,7 +75,8 @@
 ### 3. 按分类取音乐列表
 - 接口：`GET /service/music/getMusicListByCategoryId`
 - 入参：`X-User-Id`（Header）+ Query：`categoryId`、`pageNum`、`pageSize`、`isRedis`（默认 0）
-- 说明：从 `music_category_relation` 表按 `category_id` 取出 `music_id`，再关联 `music` 表查音乐详情（只取 `local_play_url` 不为空的歌曲，按关联表 `id` 升序），并 LEFT JOIN `music_like` 得到当前用户的点赞状态 `isLike`
+- 说明：从 `music_category_relation` 表按 `category_id` 取出 `music_id`，再关联 `music` 表查音乐详情（只取 `local_play_url` 不为空的歌曲），并 LEFT JOIN `music_like` 得到当前用户的点赞状态 `isLike`
+- 排序：LEFT JOIN `music_play_stat`（`music_play_stat.music_id = music.id`），先按 `play_count` **降序**，再按 `music.create_time` **升序**；没有统计行的歌曲按 0 次播放处理
 - 出参：ResultEntity，data 为音乐列表，`total` 为总数
 - 出参示例：
 ```json
@@ -243,6 +244,7 @@
 - 接口：`GET /service/music/searchMusic`
 - 入参：`X-User-Id`（Header）+ Query：`keyword`、`pageNum`、`pageSize`
 - 出参：ResultEntity，data 为音乐列表
+- 排序：LEFT JOIN `music_play_stat`（`music_play_stat.music_id = music.id`），先按 `play_count` **降序**，再按 `music.create_time` **升序**；没有统计行的歌曲按 0 次播放处理
 - 出参示例：
 ```json
 {
