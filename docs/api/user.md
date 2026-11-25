@@ -47,7 +47,8 @@
 
 ### 2. 登录
 - 接口：`POST /service/user/login`
-- 作用：账号密码登录，成功返回 token
+
+- Redis：登录/注册/邮箱登录/重置密码/`getUserData` 换新 token 时都会把登录态写入 Redis —— `login_token:{md5(token)}` = userId（TTL 30 天）；`getUserData` 换 token 时会先删除旧 token 对应的 key- 作用：账号密码登录，成功返回 token
 - 入参（Body，UserEntity）：`userAccount`（账号）、`password`（密码）
 - 出参：ResultEntity，data 为用户信息，`token` 为登录凭证
 - 出参示例：

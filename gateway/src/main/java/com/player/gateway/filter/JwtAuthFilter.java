@@ -2,6 +2,7 @@ package com.player.gateway.filter;
 
 import com.player.common.entity.UserEntity;
 import com.player.common.utils.JwtToken;
+import com.player.common.utils.TokenRedisKeys;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
@@ -17,7 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 @Order(-1)
@@ -25,6 +29,9 @@ public class JwtAuthFilter implements GlobalFilter {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     private static final List<String> WHITE_LIST = List.of(
             "/service/user/register",
@@ -76,30 +83,34 @@ public class JwtAuthFilter implements GlobalFilter {
             if (user == null || user.getId() == null) {
                 return unauthorized(exchange, "Invalid token for WebSocket connection");
             }
-
-            // 将 userId 添加到查询参数中（确保能传递到后端）
             String userId = user.getId();
-            URI originalUri = exchange.getRequest().getURI();
 
-            // 构建新的 URI，包含 userId 参数
-            String query = originalUri.getQuery();
-            String newQuery = query == null ?
-                    "X-User-Id=" + userId :
-                    query + "&X-User-Id=" + userId;
+            // Redis 校验：token 必须在 Redis 中（key = md5(token)，value = userId），且 userId 不在黑名单中
+            return checkLoginState(token, userId).flatMap(valid -> {
+                if (!valid) {
+                    return unauthorized(exchange, "认证令牌已失效或账号已被禁用");
+                }
+                // 将 userId 添加到查询参数中（确保能传递到后端）
+                URI originalUri = exchange.getRequest().getURI();
+                String query = originalUri.getQuery();
+                String newQuery = query == null ?
+                        "X-User-Id=" + userId :
+                        query + "&X-User-Id=" + userId;
 
-            URI newUri = UriComponentsBuilder.fromUri(originalUri)
-                    .replaceQuery(newQuery)
-                    .build()
-                    .toUri();
+                URI newUri = UriComponentsBuilder.fromUri(originalUri)
+                        .replaceQuery(newQuery)
+                        .build()
+                        .toUri();
 
-            ServerWebExchange userExchange = exchange.mutate()
-                    .request(exchange.getRequest().mutate()
-                            .uri(newUri)
-                            .header("X-User-Id", userId)
-                            .build())
-                    .build();
+                ServerWebExchange userExchange = exchange.mutate()
+                        .request(exchange.getRequest().mutate()
+                                .uri(newUri)
+                                .header("X-User-Id", userId)
+                                .build())
+                        .build();
 
-            return chain.filter(userExchange);
+                return chain.filter(userExchange);
+            }).onErrorResume(e -> unauthorized(exchange, "认证服务不可用"));
 
         } catch (Exception e) {
             return unauthorized(exchange, "Invalid or expired token for WebSocket connection");
@@ -123,18 +134,48 @@ public class JwtAuthFilter implements GlobalFilter {
             if (user == null || user.getId() == null) {
                 return unauthorized(exchange, "Invalid token: user not found");
             }
+            String userId = user.getId();
 
-            ServerWebExchange userExchange = exchange.mutate()
-                    .request(exchange.getRequest().mutate()
-                            .header("X-User-Id", user.getId())
-                            .build())
-                    .build();
+            // Redis 校验：token 必须在 Redis 中（key = md5(token)，value = userId），且 userId 不在黑名单中
+            return checkLoginState(token, userId).flatMap(valid -> {
+                if (!valid) {
+                    return unauthorized(exchange, "认证令牌已失效或账号已被禁用");
+                }
+                ServerWebExchange userExchange = exchange.mutate()
+                        .request(exchange.getRequest().mutate()
+                                .header("X-User-Id", userId)
+                                .build())
+                        .build();
 
-            return chain.filter(userExchange);
+                return chain.filter(userExchange);
+            }).onErrorResume(e -> unauthorized(exchange, "认证服务不可用"));
 
         } catch (Exception e) {
             return unauthorized(exchange, "Invalid or expired token");
         }
+    }
+
+    /**
+     * Redis 登录态校验：
+     * 1. token 必须存在：key = login_token:{md5(token)}，value = userId（与 FastAPI 项目同一套 key）；
+     * 2. userId 不能出现在黑名单 black_list_user:{userId} 中。
+     * <p>
+     * 阻塞式 Redis 调用放到 boundedElastic 线程执行，避免阻塞 WebFlux 事件循环；
+     * Redis 不可用时按校验失败处理（返回 false）。
+     */
+    private Mono<Boolean> checkLoginState(String token, String userId) {
+        return Mono.fromCallable(() -> {
+            try {
+                Boolean blacklisted = stringRedisTemplate.hasKey(TokenRedisKeys.blacklistKey(userId));
+                if (Boolean.TRUE.equals(blacklisted)) {
+                    return false;
+                }
+                String stored = stringRedisTemplate.opsForValue().get(TokenRedisKeys.tokenKey(token));
+                return stored != null && stored.equals(userId);
+            } catch (Exception e) {
+                return false;
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private String getWebSocketToken(ServerWebExchange exchange) {

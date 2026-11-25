@@ -8,7 +8,7 @@ import com.player.user.entity.ResetPasswordEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IUserService {
-    ResultEntity getUserData(String userId);  // 参数改为userId
+    ResultEntity getUserData(String userId, String oldToken);  // 参数改为userId
 
     ResultEntity login(UserEntity userEntity);
 

@@ -5,6 +5,7 @@ import com.player.common.entity.ResultUtil;
 import com.player.common.entity.UserEntity;
 import com.player.common.utils.Common;
 import com.player.common.utils.JwtToken;
+import com.player.common.utils.TokenRedisKeys;
 import com.player.common.utils.ResultCode;
 import com.player.user.entity.LoginLogEntity;
 import com.player.user.entity.MailEntity;
@@ -17,6 +18,7 @@ import com.player.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,10 @@ import java.util.regex.Pattern;
 public class UserService implements IUserService {
     @Autowired
     private RedisTemplate redisTemplate;
+
+    /** token/黑名单专用：用 StringRedisTemplate 保证存的是原始字符串（与 FastAPI redis.setex 一致，网关用同一个模板读） */
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     //注入邮件工具类
     @Autowired
@@ -74,17 +80,21 @@ public class UserService implements IUserService {
      * @date: 2021-06-16 22:50
      */
     @Override
-    public ResultEntity getUserData(String userId) {
+    public ResultEntity getUserData(String userId, String oldToken) {
         UserEntity userEntity = userMapper.getMyUserData(userId);
 
-        // 注意：不再生成新的token，因为网关已经处理了token验证
-        // 如果还需要生成token，可以保留这部分逻辑
-        String newToken = null; // 如果需要生成token，可以使用原有逻辑
-
+        String newToken = null;
         if (userEntity != null) {
-             newToken = JwtToken.createToken(userEntity,secret);
-             // 异步记录登录日志（进入 App 首先调用 getUserData，成功即视为一次登录）
-             recordLoginLog(userEntity.getId(), "getUserData");
+            newToken = JwtToken.createToken(userEntity, secret);
+
+            // 换 token：旧 token 从 Redis 移除，新 token 写入 Redis（key = md5(token)，value = userId）
+            if (!StringUtils.isEmpty(oldToken)) {
+                stringRedisTemplate.delete(TokenRedisKeys.tokenKey(oldToken));
+            }
+            stringRedisTemplate.opsForValue().set(TokenRedisKeys.tokenKey(newToken), userEntity.getId(), 30, TimeUnit.DAYS);
+
+            // 异步记录登录日志（进入 App 首先调用 getUserData，成功即视为一次登录）
+            recordLoginLog(userEntity.getId(), "getUserData");
         }
 
         return ResultUtil.success(userEntity, null, newToken);
@@ -106,7 +116,8 @@ public class UserService implements IUserService {
         if (resultUserEntity != null) {// 如果返回用户信息，说明账号密码正确
             // 注意：登录接口仍然需要生成token，因为这是认证过程
             String token = JwtToken.createToken(resultUserEntity,secret);//生成新的token
-            redisTemplate.opsForValue().set(token, "1",30, TimeUnit.DAYS);// token保存到redis中，有效期30天
+            // token 写入 Redis：key = login_token:{md5(token)}（token 原串太长，不适合直接当 key），value = userId
+            stringRedisTemplate.opsForValue().set(TokenRedisKeys.tokenKey(token), resultUserEntity.getId(), 30, TimeUnit.DAYS);
             // 异步记录登录日志
             recordLoginLog(resultUserEntity.getId(), "login");
             return ResultUtil.success(resultUserEntity, "登录成功", token);// 返回用户信息和token给用户
@@ -129,7 +140,8 @@ public class UserService implements IUserService {
             UserEntity userEntity1 = userMapper.queryUser(userEntity);
             // 注册成功后生成token
             String newToken = JwtToken.createToken(userEntity1,secret);
-            redisTemplate.opsForValue().set(newToken, "1",30, TimeUnit.DAYS);
+            // key = login_token:{md5(token)}，value = userId
+            stringRedisTemplate.opsForValue().set(TokenRedisKeys.tokenKey(newToken), userEntity1.getId(), 30, TimeUnit.DAYS);
             return ResultUtil.success(userEntity1, null, newToken);
         }
         return ResultUtil.fail(null, "注册失败");
@@ -288,7 +300,8 @@ public class UserService implements IUserService {
             userEntity.setPassword(resetPasswordEntity.getPassword());
             UserEntity mUserEntity = userMapper.login(userEntity);
             String token = JwtToken.createToken(mUserEntity,secret);//token有效期30天
-            redisTemplate.opsForValue().set(token, "1",30, TimeUnit.DAYS);
+            // key = login_token:{md5(token)}，value = userId
+            stringRedisTemplate.opsForValue().set(TokenRedisKeys.tokenKey(token), mUserEntity.getId(), 30, TimeUnit.DAYS);
             ResultEntity resultEntity = ResultUtil.success(mUserEntity, "登录成功", token);
             resultEntity.setToken(token);
             return resultEntity;
@@ -304,7 +317,8 @@ public class UserService implements IUserService {
             UserEntity userEntity = userMapper.loginByEmail(mailEntity.getEmail());
             if (userEntity != null) {
                 String token = JwtToken.createToken(userEntity,secret);//token有效期30天
-                redisTemplate.opsForValue().set(token, "1",30, TimeUnit.DAYS);
+                // key = login_token:{md5(token)}，value = userId
+                stringRedisTemplate.opsForValue().set(TokenRedisKeys.tokenKey(token), userEntity.getId(), 30, TimeUnit.DAYS);
                 return ResultUtil.success(userEntity, "登录成功", token);
             } else {
                 return ResultUtil.fail(null, "登录失败，邮箱不存在", ResultCode.FAIL);

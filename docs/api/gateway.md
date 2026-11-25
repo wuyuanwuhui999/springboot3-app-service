@@ -32,6 +32,8 @@ URL 格式 `/service/{模块名}/**`，按前缀路由到 Nacos 中的 `{模块�
 1. 白名单路径直接放行（见下表）。
 2. 从请求头读取 `Authorization: Bearer <token>`。
 3. 用 `JwtToken.parseToken` 解析 token → `UserEntity`。
+4. **Redis 校验（登录态）**：`GET login_token:{md5(token)}` 必须存在且值等于该 `userId`；并且 `black_list_user:{userId}` 不存在（黑名单）。任一不满足 → 401。
+   - 为什么要 md5：JWT 200~400 字符，直接当 key 太占内存；md5 固定 32 位十六进制（`TokenRedisKeys.md5`），Redis 里只存 userId、不存原始 token；与 FastAPI 项目 key 约定完全一致（共用一个 Redis，token 可跨项目互认）
 4. 将 `user.getId()` 写入请求头 `X-User-Id`，转发给下游。
 5. 无 token / token 无效 → 返回 401。
 

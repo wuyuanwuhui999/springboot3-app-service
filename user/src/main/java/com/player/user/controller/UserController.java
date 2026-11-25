@@ -20,8 +20,15 @@ public class UserController {
 
     // 查询用户信息
     @GetMapping("/user/getUserData")
-    public ResultEntity getUserData(@RequestHeader(value = "X-User-Id", required = false) String userId) {
-        return userService.getUserData(userId);
+    public ResultEntity getUserData(
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        // 取出旧 token：换新 token 时要把旧 token 从 Redis 里删掉
+        String oldToken = null;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            oldToken = authorization.substring(7);
+        }
+        return userService.getUserData(userId, oldToken);
     }
 
     // 登录校验
