@@ -11,7 +11,7 @@
  Target Server Version : 90600 (9.6.0)
  File Encoding         : 65001
 
- Date: 24/06/2026 22:15:36
+ Date: 26/11/2026 23:29:57
 */
 
 SET NAMES utf8mb4;
@@ -30,6 +30,8 @@ CREATE TABLE `chat_doc` (
   `user_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '用户id',
   `create_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `permission` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'private' COMMENT '文档权限：private-私密，tenant-租户内公开，company-公司内公开',
+  `company_id` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '所属公司ID（permission=company 时使用）',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `idx_tenant` (`tenant_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='用户上传的RAG文档';
@@ -66,7 +68,23 @@ CREATE TABLE `chat_history` (
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '回复内容',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=282 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='ai会话记录';
+) ENGINE=InnoDB AUTO_INCREMENT=510 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='ai会话记录';
+
+-- ----------------------------
+-- Table structure for chat_history_summary
+-- ----------------------------
+DROP TABLE IF EXISTS `chat_history_summary`;
+CREATE TABLE `chat_history_summary` (
+  `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键（user_id:chat_id 的 md5，两个项目用同一套算法，保证同会话同一行）',
+  `chat_id` varchar(128) COLLATE utf8mb4_general_ci NOT NULL COMMENT '会话id',
+  `user_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户id',
+  `summary` text COLLATE utf8mb4_general_ci COMMENT '会话记录压缩后的概要总结（MongoDB 崩溃后可用它恢复会话记忆）',
+  `message_count` int DEFAULT '0' COMMENT '生成该概要时压缩掉的原始会话消息条数',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_chat_user` (`chat_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='会话记录压缩概要总结表（MongoDB chat_memory 的备份）';
 
 -- ----------------------------
 -- Table structure for chat_model
@@ -82,6 +100,7 @@ CREATE TABLE `chat_model` (
   `disabled` int DEFAULT NULL COMMENT '是否禁用，0/1',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `created_by` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '创建人',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
@@ -100,7 +119,7 @@ CREATE TABLE `circle` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `permission` int DEFAULT NULL COMMENT '权限，0私密，1公开',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Table structure for circle_record
@@ -143,6 +162,7 @@ CREATE TABLE `company_department` (
   `department_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '部门名称',
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '部门描述',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `role` int DEFAULT NULL COMMENT '查询部门需要当前登录人的角色',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `idx_company_id` (`company_id`) USING BTREE COMMENT '按企业查询部门索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='企业部门表';
@@ -481,12 +501,27 @@ CREATE TABLE `log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='网关请求日志表';
 
 -- ----------------------------
+-- Table structure for login_log
+-- ----------------------------
+DROP TABLE IF EXISTS `login_log`;
+CREATE TABLE `login_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增）',
+  `user_id` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '用户ID',
+  `ip` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '登录IP',
+  `login_type` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '登录类型：register/login/getUserData',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='登录日志表';
+
+-- ----------------------------
 -- Table structure for movie
 -- ----------------------------
 DROP TABLE IF EXISTS `movie`;
 CREATE TABLE `movie` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `movie_id` varchar(11) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '关联表的电影id，主表为空，关联表不为空',
+  `ext_movie_id` varchar(11) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '第三方系统的电影id',
   `movie_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '电影名称',
   `director` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '导演',
   `star` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '主演',
@@ -758,7 +793,7 @@ CREATE TABLE `music` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
   `album_id` int DEFAULT NULL COMMENT '歌曲id',
   `song_name` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '歌曲名称',
-  `author_id` int DEFAULT NULL COMMENT '歌手id',
+  `author_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '歌手id',
   `author_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '作者名称',
   `album_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '专辑名称',
   `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '版本',
@@ -769,7 +804,7 @@ CREATE TABLE `music` (
   `big_pack_id` int DEFAULT NULL COMMENT '大型集合id',
   `final_id` int DEFAULT NULL COMMENT '最终id',
   `audio_id` int DEFAULT NULL COMMENT '音频id',
-  `similar_audio_id` varchar(255) NULL DEFAULT NULL COMMENT '相似的音乐id（多个用英文逗号分隔）',
+  `similar_audio_id` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '相似的音乐id（多个用英文逗号分隔）',
   `is_hot` int DEFAULT NULL COMMENT '是否热门',
   `album_audio_id` int DEFAULT NULL COMMENT '歌曲音频id',
   `audio_group_id` int DEFAULT NULL COMMENT '专辑id',
@@ -784,7 +819,7 @@ CREATE TABLE `music` (
   `lyrics` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '歌词',
   `permission` int DEFAULT NULL COMMENT '播放权限',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=100001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='音乐主表id';
+) ENGINE=InnoDB AUTO_INCREMENT=124781 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='音乐主表id';
 
 -- ----------------------------
 -- Table structure for music_author_category
@@ -798,7 +833,7 @@ CREATE TABLE `music_author_category` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `disabled` int DEFAULT NULL COMMENT '是否禁用 0:启用，1禁用',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='音乐歌手分类';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='音乐歌手分类';
 
 -- ----------------------------
 -- Table structure for music_author_like
@@ -811,7 +846,7 @@ CREATE TABLE `music_author_like` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `user_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '用户id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=233 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='用户喜欢的歌手';
+) ENGINE=InnoDB AUTO_INCREMENT=242 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='用户喜欢的歌手';
 
 -- ----------------------------
 -- Table structure for music_authors
@@ -832,7 +867,7 @@ CREATE TABLE `music_authors` (
   `create_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4967 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='歌手表';
+) ENGINE=InnoDB AUTO_INCREMENT=5499 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='歌手表';
 
 -- ----------------------------
 -- Table structure for music_category
@@ -846,7 +881,7 @@ CREATE TABLE `music_category` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新书剑',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='歌曲分类名称表';
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='歌曲分类名称表';
 
 -- ----------------------------
 -- Table structure for music_category_relation
@@ -859,7 +894,7 @@ CREATE TABLE `music_category_relation` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=767 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='歌曲分类表';
+) ENGINE=InnoDB AUTO_INCREMENT=2737 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='歌曲分类表';
 
 -- ----------------------------
 -- Table structure for music_circle
@@ -904,42 +939,6 @@ CREATE TABLE `music_classify_relation` (
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Table structure for music_copy1
--- ----------------------------
-DROP TABLE IF EXISTS `music_copy1`;
-CREATE TABLE `music_copy1` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `album_id` int DEFAULT NULL COMMENT '歌曲id',
-  `song_name` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '歌曲名称',
-  `author_id` int DEFAULT NULL COMMENT '歌手id',
-  `author_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '作者名称',
-  `album_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '专辑名称',
-  `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '版本',
-  `language` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '语言',
-  `publish_date` datetime(6) DEFAULT NULL COMMENT '发布日期',
-  `wide_audio_id` int DEFAULT NULL COMMENT '宽度音频id',
-  `is_publish` int DEFAULT NULL COMMENT '是否发布',
-  `big_pack_id` int DEFAULT NULL COMMENT '大型集合id',
-  `final_id` int DEFAULT NULL COMMENT '最终id',
-  `audio_id` int DEFAULT NULL COMMENT '音频id',
-  `similar_audio_id` varchar(255) NULL DEFAULT NULL COMMENT '相似的音乐id（多个用英文逗号分隔）',
-  `is_hot` int DEFAULT NULL COMMENT '是否热门',
-  `album_audio_id` int DEFAULT NULL COMMENT '歌曲音频id',
-  `audio_group_id` int DEFAULT NULL COMMENT '专辑id',
-  `cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '歌曲图片',
-  `play_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '网络播放地址',
-  `local_play_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '本地播放地址',
-  `source_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '播放源',
-  `source_url` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '播放地址',
-  `create_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `label` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '标签',
-  `lyrics` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '歌词',
-  `permission` int DEFAULT NULL COMMENT '播放权限',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=100001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='音乐主表id';
 
 -- ----------------------------
 -- Table structure for music_directory
@@ -1005,7 +1004,7 @@ CREATE TABLE `music_favorite_directory` (
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Table structure for music_favorite_list
@@ -1020,7 +1019,7 @@ CREATE TABLE `music_favorite_list` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `收藏夹id` (`favorite_id`) USING BTREE,
   CONSTRAINT `收藏夹id` FOREIGN KEY (`favorite_id`) REFERENCES `music_favorite_directory` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=589 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Table structure for music_like
@@ -1033,7 +1032,22 @@ CREATE TABLE `music_like` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `user_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '用户id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=273 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=292 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Table structure for music_play_stat
+-- ----------------------------
+DROP TABLE IF EXISTS `music_play_stat`;
+CREATE TABLE `music_play_stat` (
+  `music_id` int NOT NULL COMMENT '音乐id',
+  `play_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '该歌曲的播放总次数',
+  `first_play_time` datetime DEFAULT NULL COMMENT '首次播放时间',
+  `last_play_time` datetime DEFAULT NULL COMMENT '最近播放时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`music_id`),
+  KEY `idx_play_count` (`play_count`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='歌曲播放记录统计表（每首歌的播放总次数，用于搜索/排行榜）';
 
 -- ----------------------------
 -- Table structure for music_record
@@ -1045,11 +1059,50 @@ CREATE TABLE `music_record` (
   `user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '用户id',
   `platform` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '平台',
   `device` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '设备型号',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '播放时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'app版本',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_user_music_time` (`user_id`,`music_id`,`create_time`),
+  KEY `idx_music_time` (`music_id`,`create_time`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=2720 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Table structure for music_search_sql
+-- ----------------------------
+DROP TABLE IF EXISTS `music_search_sql`;
+CREATE TABLE `music_search_sql` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `search_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '搜索会话ID（前端生成，与 agent 的 chatId 对齐）',
+  `user_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
+  `keyword` varchar(500) COLLATE utf8mb4_general_ci NOT NULL COMMENT '生成 SQL 时的搜索关键词',
+  `model_id` varchar(64) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '生成 SQL 使用的大模型ID',
+  `sql_condition` text COLLATE utf8mb4_general_ci NOT NULL COMMENT '大模型生成的 WHERE 条件',
+  `search_keyword` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '大模型提取的关键词',
+  `search_type` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '大模型判定的搜索类型',
+  `explanation` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '大模型给出的意图说明',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_search_user` (`search_id`,`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='智能搜索SQL缓存表';
+
+-- ----------------------------
+-- Table structure for music_user_play_stat
+-- ----------------------------
+DROP TABLE IF EXISTS `music_user_play_stat`;
+CREATE TABLE `music_user_play_stat` (
+  `user_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户id',
+  `music_id` int NOT NULL COMMENT '音乐id',
+  `play_count` int unsigned NOT NULL DEFAULT '0' COMMENT '该用户播放该歌曲的总次数',
+  `first_play_time` datetime DEFAULT NULL COMMENT '首次播放时间',
+  `last_play_time` datetime DEFAULT NULL COMMENT '最近播放时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`user_id`,`music_id`),
+  KEY `idx_user_last` (`user_id`,`last_play_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户播放记录统计表（每用户每首歌的播放次数，music_record 的汇总）';
 
 -- ----------------------------
 -- Table structure for prompt
@@ -1105,6 +1158,50 @@ CREATE TABLE `prompt_system` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='AI智能体提示词表';
+
+-- ----------------------------
+-- Table structure for search_history
+-- ----------------------------
+DROP TABLE IF EXISTS `search_history`;
+CREATE TABLE `search_history` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` varchar(255) DEFAULT NULL COMMENT '用户ID',
+  `type` varchar(255) DEFAULT NULL COMMENT '搜索类型',
+  `keyword` varchar(255) DEFAULT NULL COMMENT '搜索关键词',
+  `create_time` datetime DEFAULT (now()) COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='搜索历史表';
+
+-- ----------------------------
+-- Table structure for social_comment
+-- ----------------------------
+DROP TABLE IF EXISTS `social_comment`;
+CREATE TABLE `social_comment` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '评论内容',
+  `parent_id` int DEFAULT NULL COMMENT '评论父级id',
+  `top_id` int DEFAULT NULL COMMENT '一级评论',
+  `relation_id` int NOT NULL COMMENT '文章id',
+  `type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '类型',
+  `user_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '用户id',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `udate_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=177 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='社交评论';
+
+-- ----------------------------
+-- Table structure for social_like
+-- ----------------------------
+DROP TABLE IF EXISTS `social_like`;
+CREATE TABLE `social_like` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '类型',
+  `relation_id` varchar(11) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '关联id',
+  `user_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '用户名，这这个表不需要，为了跟记录叫和收藏表的结构一致',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin ROW_FORMAT=COMPACT COMMENT='点赞的影片';
 
 -- ----------------------------
 -- Table structure for tenant
@@ -1181,21 +1278,3 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='用户表';
 
 SET FOREIGN_KEY_CHECKS = 1;
-
--- ==================== 智能搜索 SQL 缓存表 ====================
-DROP TABLE IF EXISTS `music_search_sql`;
-CREATE TABLE `music_search_sql` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `search_id` varchar(64) NOT NULL COMMENT '搜索会话ID（前端生成，与 agent 的 chatId 对齐）',
-  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
-  `keyword` varchar(500) NOT NULL COMMENT '生成 SQL 时的搜索关键词',
-  `model_id` varchar(64) DEFAULT NULL COMMENT '生成 SQL 使用的大模型ID',
-  `sql_condition` text NOT NULL COMMENT '大模型生成的 WHERE 条件',
-  `search_keyword` varchar(255) DEFAULT NULL COMMENT '大模型提取的关键词',
-  `search_type` varchar(32) DEFAULT NULL COMMENT '大模型判定的搜索类型',
-  `explanation` varchar(500) DEFAULT NULL COMMENT '大模型给出的意图说明',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_search_user` (`search_id`,`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='智能搜索SQL缓存表';
