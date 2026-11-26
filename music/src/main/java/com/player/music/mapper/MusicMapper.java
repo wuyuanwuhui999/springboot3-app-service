@@ -62,6 +62,32 @@ public interface MusicMapper {
 
     Long searchMusicCount(String keyword);
 
+    // ==================== 智能搜索（searchMode=smart） ====================
+
+    /** 按 modelId 取 chat_model 配置（disabled = 0 才算可用），与 agent 模块同一张表 */
+    com.player.common.entity.ChatModelEntity getChatModelById(@Param("modelId") String modelId);
+
+    /** 取智能搜索 SQL 缓存（同一 searchId + userId 一条） */
+    MusicSearchSqlEntity getMusicSearchSql(@Param("searchId") String searchId, @Param("userId") String userId);
+
+    /** 写入/覆盖智能搜索 SQL 缓存（唯一键 search_id + user_id，冲突则更新） */
+    int insertMusicSearchSql(MusicSearchSqlEntity entity);
+
+    /** 删除智能搜索 SQL 缓存（执行失败时调用，便于下一页重新生成） */
+    int deleteMusicSearchSql(@Param("searchId") String searchId, @Param("userId") String userId);
+
+    /** 按大模型生成的 WHERE 条件分页查询（sqlCondition 已经过 SqlConditionValidator 校验） */
+    List<MusicEntity> searchMusicByCondition(@Param("sqlCondition") String sqlCondition,
+                                             @Param("userId") String userId,
+                                             @Param("keyword") String keyword,
+                                             @Param("start") int start,
+                                             @Param("pageSize") int pageSize);
+
+    /** 按大模型生成的 WHERE 条件统计总数 */
+    Long searchMusicByConditionCount(@Param("sqlCondition") String sqlCondition,
+                                     @Param("userId") String userId,
+                                     @Param("keyword") String keyword);
+
     List<MusicAuthorCategoryEntity> getMusicAuthorCategory();
 
     List<MusicFavoriteDirectoryEntity> getFavoriteDirectory(String userId, Long musicId);

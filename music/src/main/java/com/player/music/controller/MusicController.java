@@ -157,15 +157,23 @@ public class MusicController {
     }
 
     // 搜素音乐
-    @Cacheable(value = "music", key = "'searchMusic:' + #userId + ':' + #keyword + ':' + #pageNum + ':' + #pageSize")
+    // 搜索音乐：searchMode=normal（默认，走缓存）/ smart（大模型智能搜索，不缓存）
+    @Cacheable(value = "music",
+            key = "'searchMusic:' + #userId + ':' + #keyword + ':' + #pageNum + ':' + #pageSize"
+                    + " + ':' + (#searchMode == null ? 'normal' : #searchMode) + ':' + (#modelId == null ? '' : #modelId)"
+                    + " + ':' + (#searchId == null ? '' : #searchId)",
+            condition = "#searchMode == null || #searchMode != 'smart'")
     @GetMapping("/music/searchMusic")
     public ResultEntity searchMusic(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "keyword", required = true) String keyword,
             @RequestParam(name = "pageNum", required = true) int pageNum,
-            @RequestParam(name = "pageSize", required = true) int pageSize
+            @RequestParam(name = "pageSize", required = true) int pageSize,
+            @RequestParam(name = "searchMode", required = false, defaultValue = "normal") String searchMode,
+            @RequestParam(name = "modelId", required = false) String modelId,
+            @RequestParam(name = "searchId", required = false) String searchId
     ) {
-        return musicService.searchMusic(userId, keyword, pageNum, pageSize);
+        return musicService.searchMusic(userId, keyword, pageNum, pageSize, searchMode, modelId, searchId);
     }
 
     // 搜素音乐

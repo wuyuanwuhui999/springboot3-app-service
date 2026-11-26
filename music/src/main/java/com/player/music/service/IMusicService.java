@@ -41,6 +41,16 @@ public interface IMusicService {
 
     ResultEntity searchMusic(String token,String keyword, int pageNum, int pageSize);
 
+    /**
+     * 搜索音乐（支持普通模式和大模型智能模式）。
+     *
+     * @param searchMode normal（默认，原逻辑）/ smart（大模型智能搜索，失败自动降级 normal）
+     * @param modelId    智能模式必填，chat_model 表里的模型ID
+     * @param searchId   智能模式必填，同一 searchId 复用已生成的 SQL
+     */
+    ResultEntity searchMusic(String userId, String keyword, int pageNum, int pageSize,
+                             String searchMode, String modelId, String searchId);
+
     ResultEntity queryMusic(String songName,String authorName,String albumName,String language,Date publishStart,String label,int pageNum,int pageSize);
 
     ResultEntity getMusicAuthorCategory();

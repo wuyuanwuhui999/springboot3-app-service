@@ -8,8 +8,12 @@ import com.player.music.entity.MusicEntity;
 import com.player.music.entity.MusicFavoriteDirectoryEntity;
 import com.player.music.entity.MusicFavoriteEntity;
 import com.player.music.entity.MusicRecordEntity;
+import com.player.music.entity.MusicSearchSqlEntity;
 import com.player.music.mapper.MusicMapper;
 import com.player.music.service.IMusicService;
+import com.player.music.service.LlmSearchService;
+import com.player.music.utils.SqlConditionValidator;
+import com.player.common.entity.ChatModelEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.List;
 
@@ -27,6 +32,10 @@ public class MusiceService implements IMusicService {
 
     @Autowired
     private MusicMapper musicMapper;
+
+    /** 智能搜索用的大模型调用（NL2SQL） */
+    @Autowired
+    private LlmSearchService llmSearchService;
 
     /**
      * @author: wuwenqiang
@@ -208,12 +217,150 @@ public class MusiceService implements IMusicService {
      */
     @Override
     public ResultEntity searchMusic(String userId, String keyword, int pageNum, int pageSize){
+        // 老签名：默认普通模式，保持原逻辑
+        return searchMusic(userId, keyword, pageNum, pageSize, "normal", null, null);
+    }
+
+    @Override
+    public ResultEntity searchMusic(String userId, String keyword, int pageNum, int pageSize,
+                                    String searchMode, String modelId, String searchId) {
         if (pageSize > 500) pageSize = 500;
+        if (pageNum < 1) pageNum = 1;
+
+        // 普通模式：完全保持原逻辑（song_name / author_name / album_name 模糊匹配）
+        if (!"smart".equalsIgnoreCase(searchMode)) {
+            return normalSearch(userId, keyword, pageNum, pageSize, null);
+        }
+        return smartSearch(userId, keyword, pageNum, pageSize, modelId, searchId);
+    }
+
+    /** 普通搜索（智能模式的降级目标） */
+    private ResultEntity normalSearch(String userId, String keyword, int pageNum, int pageSize, String msg) {
         int start = (pageNum - 1) * pageSize;
-        ResultEntity resultEntity = ResultUtil.success(musicMapper.searchMusic(userId,keyword,start,pageSize));
-        Long mySingerCount = musicMapper.searchMusicCount(keyword);
-        resultEntity.setTotal(mySingerCount);
+        ResultEntity resultEntity = ResultUtil.success(musicMapper.searchMusic(userId, keyword, start, pageSize));
+        resultEntity.setTotal(musicMapper.searchMusicCount(keyword));
+        if (msg != null) {
+            resultEntity.setMsg(msg);
+        }
         return resultEntity;
+    }
+
+    /**
+     * 智能搜索：按 searchId 复用缓存 → 生成 → 校验 → 分页执行。
+     * <p>
+     * 任何一步拿不到有效 SQL（未传参、模型不可用、无查询条件、条件不合法、执行失败）
+     * 都回落到普通搜索，并在 msg 里给出可读提示；异常细节只写日志。
+     */
+    private ResultEntity smartSearch(String userId, String keyword, int pageNum, int pageSize,
+                                     String modelId, String searchId) {
+        if (!org.springframework.util.StringUtils.hasText(modelId)) {
+            return normalSearch(userId, keyword, pageNum, pageSize, "智能搜索缺少 modelId，已使用普通搜索");
+        }
+        if (!org.springframework.util.StringUtils.hasText(searchId)) {
+            return normalSearch(userId, keyword, pageNum, pageSize, "智能搜索缺少 searchId，已使用普通搜索");
+        }
+
+        try {
+            // ---- 1. 复用：同一 searchId + 同一 keyword 直接用缓存的 SQL ----
+            MusicSearchSqlEntity cached = musicMapper.getMusicSearchSql(searchId, userId);
+            if (cached != null && keyword.trim().equals(
+                    cached.getKeyword() == null ? "" : cached.getKeyword().trim())) {
+                String reason = SqlConditionValidator.validate(cached.getSqlCondition());
+                if (reason == null) {
+                    try {
+                        log.info("[SmartSearch] 复用缓存: searchId={}, userId={}", searchId, userId);
+                        return executeSmartQuery(userId, keyword, pageNum, pageSize,
+                                cached.getSqlCondition(), "智能搜索：复用已保存的查询条件");
+                    } catch (Exception e) {
+                        log.warn("[SmartSearch] 缓存 SQL 执行失败，删除缓存后重新生成: {}", e.getMessage());
+                        musicMapper.deleteMusicSearchSql(searchId, userId);
+                    }
+                } else {
+                    log.warn("[SmartSearch] 缓存的查询条件不合法（{}），重新生成", reason);
+                    musicMapper.deleteMusicSearchSql(searchId, userId);
+                }
+            }
+
+            // ---- 2. 生成：按 modelId 取模型配置，调用大模型 ----
+            ChatModelEntity modelConfig = musicMapper.getChatModelById(modelId.trim());
+            if (modelConfig == null) {
+                return normalSearch(userId, keyword, pageNum, pageSize,
+                        "智能搜索模型不存在或已禁用，已使用普通搜索");
+            }
+
+            Map<String, Object> intent = llmSearchService.generateMusicSql(modelConfig, userId, keyword);
+            if (intent == null) {
+                return normalSearch(userId, keyword, pageNum, pageSize,
+                        "智能搜索未生成有效查询条件，已使用普通搜索");
+            }
+
+            String action = intent.get("action") == null ? "" : String.valueOf(intent.get("action"));
+            String condition = intent.get("sql_condition") == null
+                    ? "" : String.valueOf(intent.get("sql_condition")).trim();
+            if (!"search".equals(action)) {
+                log.info("[SmartSearch] 大模型判定非查询意图: {}", action);
+                return normalSearch(userId, keyword, pageNum, pageSize,
+                        "智能搜索未识别出查询意图，已使用普通搜索");
+            }
+            if (condition.isEmpty()) {
+                return normalSearch(userId, keyword, pageNum, pageSize,
+                        "智能搜索未生成有效查询条件，已使用普通搜索");
+            }
+
+            // ---- 3. 校验：只读白名单 ----
+            String reason = SqlConditionValidator.validate(condition);
+            if (reason != null) {
+                log.warn("[SmartSearch] 生成的查询条件不合法: {} | condition={}", reason, condition);
+                return normalSearch(userId, keyword, pageNum, pageSize,
+                        "智能搜索生成的查询条件不合法（" + reason + "），已使用普通搜索");
+            }
+
+            // ---- 4. 写缓存 ----
+            MusicSearchSqlEntity cache = new MusicSearchSqlEntity();
+            cache.setSearchId(searchId.trim());
+            cache.setUserId(userId);
+            cache.setKeyword(keyword);
+            cache.setModelId(modelId.trim());
+            cache.setSqlCondition(condition);
+            cache.setSearchKeyword(asString(intent.get("search_keyword")));
+            cache.setSearchType(asString(intent.get("search_type")));
+            cache.setExplanation(asString(intent.get("explanation")));
+            musicMapper.insertMusicSearchSql(cache);
+
+            // ---- 5. 分页执行 ----
+            try {
+                return executeSmartQuery(userId, keyword, pageNum, pageSize, condition,
+                        "智能搜索：已生成查询条件");
+            } catch (Exception e) {
+                log.error("[SmartSearch] 执行生成的 SQL 失败: {}", e.getMessage(), e);
+                musicMapper.deleteMusicSearchSql(searchId, userId);
+                return normalSearch(userId, keyword, pageNum, pageSize,
+                        "智能搜索执行失败，已使用普通搜索");
+            }
+        } catch (Exception e) {
+            log.error("[SmartSearch] 智能搜索异常，降级普通搜索: {}", e.getMessage(), e);
+            return normalSearch(userId, keyword, pageNum, pageSize, "智能搜索异常，已使用普通搜索");
+        }
+    }
+
+    /** 执行大模型生成的查询条件（条件已校验，占位符转成 MyBatis #{}） */
+    private ResultEntity executeSmartQuery(String userId, String keyword, int pageNum, int pageSize,
+                                           String condition, String msg) {
+        String mybatisCondition = SqlConditionValidator.toMybatisCondition(condition);
+        String likeKeyword = "%" + keyword + "%";
+        int start = (pageNum - 1) * pageSize;
+
+        Long total = musicMapper.searchMusicByConditionCount(mybatisCondition, userId, likeKeyword);
+        List<MusicEntity> musicList = musicMapper.searchMusicByCondition(mybatisCondition, userId, likeKeyword, start, pageSize);
+
+        ResultEntity resultEntity = ResultUtil.success(musicList);
+        resultEntity.setTotal(total == null ? 0L : total);
+        resultEntity.setMsg(msg);
+        return resultEntity;
+    }
+
+    private String asString(Object value) {
+        return value == null ? null : String.valueOf(value);
     }
 
     @Override

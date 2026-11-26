@@ -1181,3 +1181,21 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='用户表';
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ==================== 智能搜索 SQL 缓存表 ====================
+DROP TABLE IF EXISTS `music_search_sql`;
+CREATE TABLE `music_search_sql` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `search_id` varchar(64) NOT NULL COMMENT '搜索会话ID（前端生成，与 agent 的 chatId 对齐）',
+  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
+  `keyword` varchar(500) NOT NULL COMMENT '生成 SQL 时的搜索关键词',
+  `model_id` varchar(64) DEFAULT NULL COMMENT '生成 SQL 使用的大模型ID',
+  `sql_condition` text NOT NULL COMMENT '大模型生成的 WHERE 条件',
+  `search_keyword` varchar(255) DEFAULT NULL COMMENT '大模型提取的关键词',
+  `search_type` varchar(32) DEFAULT NULL COMMENT '大模型判定的搜索类型',
+  `explanation` varchar(500) DEFAULT NULL COMMENT '大模型给出的意图说明',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_search_user` (`search_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='智能搜索SQL缓存表';

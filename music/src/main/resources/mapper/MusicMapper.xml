@@ -501,5 +501,66 @@
     ORDER BY t1.update_time DESC
     LIMIT #{start}, #{pageSize}
 </select>
-</mapper>
 
+    <!-- ==================== 智能搜索（searchMode=smart） ==================== -->
+
+    <select id="getChatModelById" resultType="com.player.common.entity.ChatModelEntity">
+        select id, type, api_key, model_name, base_url, disabled, create_time, update_time
+        from chat_model
+        where id = #{modelId} and disabled = 0
+        limit 1
+    </select>
+
+    <select id="getMusicSearchSql" resultType="MusicSearchSqlEntity">
+        select id, search_id, user_id, keyword, model_id, sql_condition,
+               search_keyword, search_type, explanation, create_time, update_time
+        from music_search_sql
+        where search_id = #{searchId} and user_id = #{userId}
+        limit 1
+    </select>
+
+    <insert id="insertMusicSearchSql">
+        insert into music_search_sql
+            (search_id, user_id, keyword, model_id, sql_condition, search_keyword, search_type, explanation, create_time, update_time)
+        values
+            (#{searchId}, #{userId}, #{keyword}, #{modelId}, #{sqlCondition}, #{searchKeyword}, #{searchType}, #{explanation}, now(), now())
+        on duplicate key update
+            keyword = values(keyword),
+            model_id = values(model_id),
+            sql_condition = values(sql_condition),
+            search_keyword = values(search_keyword),
+            search_type = values(search_type),
+            explanation = values(explanation),
+            update_time = now()
+    </insert>
+
+    <delete id="deleteMusicSearchSql">
+        delete from music_search_sql where search_id = #{searchId} and user_id = #{userId}
+    </delete>
+
+    <!-- sqlCondition 走 ${} 拼接（已通过 SqlConditionValidator 只读白名单校验），值仍用 #{} 预编译绑定 -->
+    <select id="searchMusicByCondition" resultType="MusicEntity">
+        SELECT
+            music.*,
+            (CASE WHEN ml.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_favorite,
+            (CASE WHEN mfl.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like,
+            IFNULL(ps.play_count, 0) AS play_count_total
+        FROM music
+        LEFT JOIN music_like ml ON ml.music_id = music.id AND ml.user_id = #{userId}
+        LEFT JOIN music_favorite_list mfl ON mfl.music_id = music.id AND mfl.user_id = #{userId}
+        LEFT JOIN music_play_stat ps ON ps.music_id = music.id
+        WHERE ${sqlCondition}
+        ORDER BY IFNULL(ps.play_count, 0) DESC, music.create_time ASC
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+    <select id="searchMusicByConditionCount" resultType="Long">
+        SELECT COUNT(DISTINCT music.id)
+        FROM music
+        LEFT JOIN music_like ml ON ml.music_id = music.id AND ml.user_id = #{userId}
+        LEFT JOIN music_favorite_list mfl ON mfl.music_id = music.id AND mfl.user_id = #{userId}
+        LEFT JOIN music_play_stat ps ON ps.music_id = music.id
+        WHERE ${sqlCondition}
+    </select>
+
+</mapper>

@@ -256,6 +256,17 @@
 }
 ```
 
+- 入参（智能搜索）：`searchMode=smart` 时还要传 `modelId`（`chat_model` 表的模型ID）和 `searchId`（前端生成的 UUID，分页时各页透传同一个）
+- 搜索模式：
+  - `normal`（默认）：完全保持原逻辑，`song_name / author_name / album_name` 模糊匹配
+  - `smart`：调用大模型把关键词转成 SQL 条件后执行；**任何一步异常都会自动降级回 `normal`**，并在 `msg` 里说明
+- 智能搜索流程：`searchId` 复用 → 生成（LLM）→ 校验（只读白名单）→ 分页执行
+  - 复用：同一 `searchId` + `userId` 且关键词没变，直接复用 `music_search_sql` 表里已保存的条件（`msg = 智能搜索：复用已保存的查询条件`）
+  - 生成：按 `modelId` 取模型配置，提示词与 agent 模块的 NL2SQL 提示词是同一份
+  - 校验：禁止分号/注释/`INSERT/UPDATE/DELETE/DROP` 等；只允许 `music`、`music_like`、`music_favorite_list`、`music_category`、`music_category_relation`；值一律走 `:keyword` / `:user_id` 绑定
+  - 执行：`music_play_stat.play_count` 降序 + `music.create_time` 升序排序，返回结构与普通搜索一致，`total` 也会返回
+  - 降级：未传 `modelId`/`searchId`、模型不存在、未识别出查询意图、条件为空或不合法、执行失败 → 回 `normal` 搜索；执行失败时同时删除该 `searchId` 的缓存，便于下一页重新生成
+
 ### 15. 多条件查询音乐
 - 接口：`GET /service/music/queryMusic`
 - 入参（Query，均可选）：`songName`、`authorName`、`albumName`、`language`、`publishStart`、`label`、`pageNum`、`pageSize`
