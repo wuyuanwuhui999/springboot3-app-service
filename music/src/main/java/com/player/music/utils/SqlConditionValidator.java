@@ -18,7 +18,8 @@ public final class SqlConditionValidator {
 
     /** 允许出现的表 */
     private static final List<String> ALLOWED_TABLES = List.of(
-            "music", "music_like", "music_favorite_list", "music_category", "music_category_relation");
+            "music", "music_like", "music_favorite_list", "music_favorite_directory",
+            "music_category", "music_category_relation");
 
     /** 禁止出现的关键字（只允许只读查询） */
     private static final List<String> FORBIDDEN_KEYWORDS = List.of(

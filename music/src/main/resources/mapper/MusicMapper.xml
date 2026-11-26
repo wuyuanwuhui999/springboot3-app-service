@@ -540,17 +540,19 @@
 
     <!-- sqlCondition 走 ${} 拼接（已通过 SqlConditionValidator 只读白名单校验），值仍用 #{} 预编译绑定 -->
     <select id="searchMusicByCondition" resultType="MusicEntity">
-        SELECT
+        SELECT DISTINCT
             music.*,
-            (CASE WHEN ml.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_favorite,
-            (CASE WHEN mfl.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like,
+            (CASE WHEN mfd.id IS NOT NULL THEN 1 ELSE 0 END) AS is_favorite,
+            (CASE WHEN ml.music_id IS NOT NULL THEN 1 ELSE 0 END) AS is_like,
             IFNULL(ps.play_count, 0) AS play_count_total
         FROM music
         LEFT JOIN music_like ml ON ml.music_id = music.id AND ml.user_id = #{userId}
-        LEFT JOIN music_favorite_list mfl ON mfl.music_id = music.id AND mfl.user_id = #{userId}
+        LEFT JOIN music_favorite_list mfl ON mfl.music_id = music.id
+        LEFT JOIN music_favorite_directory mfd ON mfd.id = mfl.favorite_id AND mfd.user_id = #{userId}
         LEFT JOIN music_play_stat ps ON ps.music_id = music.id
         WHERE ${sqlCondition}
-        ORDER BY IFNULL(ps.play_count, 0) DESC, music.create_time ASC
+        <!-- DISTINCT 时 ORDER BY 只能引用 SELECT 列表里的列/别名，否则 MySQL 报 3065 -->
+        ORDER BY play_count_total DESC, music.create_time ASC
         LIMIT #{start}, #{pageSize}
     </select>
 
@@ -558,7 +560,8 @@
         SELECT COUNT(DISTINCT music.id)
         FROM music
         LEFT JOIN music_like ml ON ml.music_id = music.id AND ml.user_id = #{userId}
-        LEFT JOIN music_favorite_list mfl ON mfl.music_id = music.id AND mfl.user_id = #{userId}
+        LEFT JOIN music_favorite_list mfl ON mfl.music_id = music.id
+        LEFT JOIN music_favorite_directory mfd ON mfd.id = mfl.favorite_id AND mfd.user_id = #{userId}
         LEFT JOIN music_play_stat ps ON ps.music_id = music.id
         WHERE ${sqlCondition}
     </select>
