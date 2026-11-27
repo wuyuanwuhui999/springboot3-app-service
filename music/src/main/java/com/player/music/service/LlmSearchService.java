@@ -21,8 +21,9 @@ import java.util.Map;
 /**
  * 智能搜索用的大模型调用（NL2SQL）。
  * <p>
- * 实现与 FastAPI 项目 common/services/llm_service.py 的 generate_music_sql 对齐：
- * 提示词来自 common 的 {@link MusicSqlPrompt}，返回解析后的 JSON（含 sql_condition）；
+ * 实现与 FastAPI 项目 common/services/llm_service.py 的 generate_music_sql(search_only=True) 对齐：
+ * 提示词来自 common 的 {@link MusicSqlPrompt#searchPrompt(String)}（只有 action=search/none，
+ * 不含 agent 的工具调用规则），返回解析后的 JSON（含 sql_condition）；
  * 任何失败（模型创建失败、调用异常、返回不是 JSON）都返回 null，由调用方降级为普通搜索。
  */
 @Slf4j
@@ -52,8 +53,9 @@ public class LlmSearchService {
             }
 
             ChatClient chatClient = ChatClient.builder(chatModel).build();
+            // 智能搜索只需要 action=search 的提示词：不含 agent 的工具调用（action=tool）规则与示例
             String text = chatClient.prompt()
-                    .system(MusicSqlPrompt.sqlGeneratorPrompt(userId))
+                    .system(MusicSqlPrompt.searchPrompt(userId))
                     .user("用户输入: " + keyword)
                     .call()
                     .content();

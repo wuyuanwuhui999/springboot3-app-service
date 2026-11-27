@@ -1,9 +1,20 @@
 package com.player.common.constants;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 音乐 NL2SQL 系统提示词（agent 模块与 music 模块智能搜索共用）。
  * <p>
  * 正文与 FastAPI 项目 common/services/llm_service.py 的 get_music_system_prompt 逐字一致。
+ * <p>
+ * 两份用法：
+ * <ul>
+ *   <li>{@link #sqlGeneratorPrompt(String)}：完整版（含 action = "tool"），agent 模块用（要调工具）；</li>
+ *   <li>{@link #searchPrompt(String)}：智能搜索版（只有 action = "search" / "none"，不含任何工具调用
+ *       规则与示例），music 模块 searchMusic?searchMode=smart 用。</li>
+ * </ul>
  */
 public final class MusicSqlPrompt {
 
@@ -221,5 +232,71 @@ public final class MusicSqlPrompt {
     public static String sqlGeneratorPrompt(String userId) {
         String resolved = (userId == null || userId.trim().isEmpty()) ? "未知用户" : userId;
         return PROMPT.replace("{user_id}", resolved);
+    }
+
+    /**
+     * 智能搜索专用提示词：music 模块只需要 action = "search" 的分支。
+     * <p>
+     * action = "tool"（收藏夹/分享等工具调用）属于 agent 模块的能力，搜索场景不该让模型输出工具意图，
+     * 所以从完整提示词里做三步处理（与 FastAPI 的 get_music_search_system_prompt 逻辑一致）：
+     * <ol>
+     *   <li>action 枚举收窄为 search | none；</li>
+     *   <li>Action Rules 换成只讲「查询」和「无关/操作类一律 none」；</li>
+     *   <li>删掉所有 action = "tool" 的示例。</li>
+     * </ol>
+     */
+    public static String searchPrompt(String userId) {
+        String full = sqlGeneratorPrompt(userId)
+                .replace("\"action\": \"search | tool | none\"", "\"action\": \"search | none\"");
+        List<String> lines = new ArrayList<>(Arrays.asList(full.split("\n", -1)));
+
+        // 1) 重写 Action Rules 区块（# Action Rules ... 到 # SQL Generation Rules 之前）
+        int start = -1;
+        int end = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            String trimmed = lines.get(i).trim();
+            if (start < 0 && trimmed.startsWith("# Action Rules")) {
+                start = i;
+            } else if (start >= 0 && trimmed.startsWith("# SQL Generation Rules")) {
+                end = i;
+                break;
+            }
+        }
+        if (start >= 0 && end > start) {
+            String line = lines.get(start);
+            String indent = line.substring(0, line.indexOf("# Action Rules"));
+            List<String> block = new ArrayList<>();
+            block.add(indent + "# Action Rules（本提示词只用于音乐搜索，不处理任何工具调用）");
+            block.add(indent + "1. 用户想「查询/搜索/推荐」音乐信息 -> action = \"search\"，并给出 sql_condition。");
+            block.add(indent + "2. 与音乐完全无关（如问天气、写代码），或不涉及查询的操作类请求（往收藏夹加歌、创建/删除/重命名收藏夹、");
+            block.add(indent + "   分享歌曲到音乐圈等）-> action = \"none\"，is_music_related = false，sql_condition 为空字符串 \"\"。");
+            block.add("");
+            lines.subList(start, end).clear();
+            lines.addAll(start, block);
+        }
+
+        // 2) 删除 action = "tool" 的示例块（一个示例 = 从 User Input: 到下一个 User Input: 之前）
+        List<Integer> exampleStarts = new ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).trim().startsWith("User Input:")) {
+                exampleStarts.add(i);
+            }
+        }
+        for (int k = exampleStarts.size() - 1; k >= 0; k--) {
+            int from = exampleStarts.get(k);
+            int to = (k + 1 < exampleStarts.size()) ? exampleStarts.get(k + 1) : lines.size();
+            boolean hasTool = false;
+            for (int i = from; i < to; i++) {
+                if (lines.get(i).contains("\"action\": \"tool\"")) {
+                    hasTool = true;
+                    break;
+                }
+            }
+            if (hasTool) {
+                lines.subList(from, to).clear();
+            }
+        }
+
+        return String.join("\n", lines);
     }
 }
